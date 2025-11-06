@@ -46,7 +46,7 @@ const App: React.FC = () => {
     appTheme = 'system',
     customTheme,
     useWindowFrame = false,
-    siderWidth = 250,
+    siderWidth = 350,
     siderOrder = [
       'sysproxy',
       'tun',

@@ -2,6 +2,7 @@ import { Button, Card, CardBody, CardFooter, Chip, Progress, Tooltip } from '@he
 import { useProfileConfig } from '@renderer/hooks/use-profile-config'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { calcTraffic, calcPercent } from '@renderer/utils/calc'
+import { useLanguage } from '@renderer/hooks/use-language'
 import { CgLoadbarDoc } from 'react-icons/cg'
 import { IoMdRefresh } from 'react-icons/io'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -24,6 +25,7 @@ interface Props {
 const ProfileCard: React.FC<Props> = (props) => {
   const { appConfig, patchAppConfig } = useAppConfig()
   const { iconOnly } = props
+  const { t } = useLanguage()
   const {
     profileCardStatus = 'col-span-2',
     profileDisplayDate = 'expire',
@@ -50,7 +52,7 @@ const ProfileCard: React.FC<Props> = (props) => {
   const info = items?.find((item) => item.id === current) ?? {
     id: 'default',
     type: 'local',
-    name: '空白订阅'
+    name: t('profiles.emptySubscription')
   }
 
   const extra = info?.extra
@@ -60,7 +62,7 @@ const ProfileCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${profileCardStatus} flex justify-center`}>
-        <Tooltip content="订阅管理" placement="right">
+        <Tooltip content={t('sidebar.subscriptions')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -113,7 +115,7 @@ const ProfileCard: React.FC<Props> = (props) => {
                 <Button
                   isIconOnly
                   size="sm"
-                  title="查看当前运行时配置"
+                  title={t('sidebar.viewRuntimeConfig')}
                   variant="light"
                   color="default"
                   onPress={() => {
@@ -160,7 +162,7 @@ const ProfileCard: React.FC<Props> = (props) => {
                       await patchAppConfig({ profileDisplayDate: 'update' })
                     }}
                   >
-                    {extra.expire ? dayjs.unix(extra.expire).format('YYYY-MM-DD') : '长期有效'}
+                    {extra.expire ? dayjs.unix(extra.expire).format('YYYY-MM-DD') : t('common.unlimited')}
                   </Button>
                 ) : (
                   <Button
@@ -187,7 +189,7 @@ const ProfileCard: React.FC<Props> = (props) => {
                   variant="bordered"
                   className={`${match ? 'text-primary-foreground border-primary-foreground' : 'border-primary text-primary'}`}
                 >
-                  远程
+                  {t('common.remote')}
                 </Chip>
                 <small>{dayjs(info.updated).fromNow()}</small>
               </div>
@@ -201,7 +203,7 @@ const ProfileCard: React.FC<Props> = (props) => {
                   variant="bordered"
                   className={`${match ? 'text-primary-foreground border-primary-foreground' : 'border-primary text-primary'}`}
                 >
-                  本地
+                  {t('common.local')}
                 </Chip>
               </div>
             )}
@@ -240,7 +242,7 @@ const ProfileCard: React.FC<Props> = (props) => {
                 className="bg-transparent"
                 variant="flat"
                 color="default"
-                title="查看当前运行时配置"
+                title={t('sidebar.viewRuntimeConfig')}
                 onPress={() => {
                   setShowRuntimeConfig(true)
                 }}
@@ -255,7 +257,7 @@ const ProfileCard: React.FC<Props> = (props) => {
             <h3
               className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
             >
-              订阅管理
+              {t('sidebar.subscriptions')}
             </h3>
           </CardFooter>
         </Card>

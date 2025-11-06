@@ -3,6 +3,7 @@ import BorderSwitch from '@renderer/components/base/border-swtich'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import { triggerSysProxy } from '@renderer/utils/ipc'
 import { AiOutlineGlobal } from 'react-icons/ai'
 import React from 'react'
@@ -19,6 +20,7 @@ const SysproxySwitcher: React.FC<Props> = (props) => {
   const navigate = useNavigate()
   const match = location.pathname.includes('/sysproxy')
   const { appConfig, patchAppConfig } = useAppConfig()
+  const { t } = useLanguage()
   const {
     sysProxy,
     sysproxyCardStatus = 'col-span-1',
@@ -56,7 +58,7 @@ const SysproxySwitcher: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${sysproxyCardStatus} flex justify-center`}>
-        <Tooltip content="系统代理" placement="right">
+        <Tooltip content={t('sidebar.systemProxy')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -114,7 +116,7 @@ const SysproxySwitcher: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            系统代理
+            {t('sidebar.systemProxy')}
           </h3>
         </CardFooter>
       </Card>

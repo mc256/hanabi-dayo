@@ -14,6 +14,7 @@ import { OverrideConfigProvider } from './hooks/use-override-config'
 import { ProfileConfigProvider } from './hooks/use-profile-config'
 import { RulesProvider } from './hooks/use-rules'
 import { GroupsProvider } from './hooks/use-groups'
+import { LanguageProvider } from './hooks/use-language'
 
 let F12Count = 0
 
@@ -46,19 +47,21 @@ init().then(() => {
         <NextThemesProvider attribute="class" enableSystem defaultTheme="dark">
           <BaseErrorBoundary>
             <HashRouter>
-              <AppConfigProvider>
-                <ControledMihomoConfigProvider>
-                  <ProfileConfigProvider>
-                    <OverrideConfigProvider>
-                      <GroupsProvider>
-                        <RulesProvider>
-                          <App />
-                        </RulesProvider>
-                      </GroupsProvider>
-                    </OverrideConfigProvider>
-                  </ProfileConfigProvider>
-                </ControledMihomoConfigProvider>
-              </AppConfigProvider>
+              <LanguageProvider>
+                <AppConfigProvider>
+                  <ControledMihomoConfigProvider>
+                    <ProfileConfigProvider>
+                      <OverrideConfigProvider>
+                        <GroupsProvider>
+                          <RulesProvider>
+                            <App />
+                          </RulesProvider>
+                        </GroupsProvider>
+                      </OverrideConfigProvider>
+                    </ProfileConfigProvider>
+                  </ControledMihomoConfigProvider>
+                </AppConfigProvider>
+              </LanguageProvider>
             </HashRouter>
           </BaseErrorBoundary>
         </NextThemesProvider>

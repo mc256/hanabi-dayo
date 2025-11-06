@@ -22,6 +22,7 @@ import { dataDir, logDir, mihomoCoreDir, mihomoWorkDir } from '../utils/dirs'
 import { triggerSysProxy } from '../sys/sysproxy'
 import { quitWithoutCore, restartCore } from '../core/manager'
 import { floatingWindow, triggerFloatingWindow } from './floatingWindow'
+import { t } from '../i18n'
 
 export let tray: Tray | null = null
 
@@ -66,7 +67,7 @@ export const buildContextMenu = async (): Promise<Menu> => {
           submenu: [
             {
               id: `${group.name}-test`,
-              label: '重新测试',
+              label: t('tray.retest'),
               type: 'normal',
               click: async (): Promise<void> => {
                 try {

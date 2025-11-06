@@ -15,8 +15,10 @@ import { MdEditDocument } from 'react-icons/md'
 import dayjs from 'dayjs'
 import { calcTraffic } from '@renderer/utils/calc'
 import { getHash } from '@renderer/utils/hash'
+import { useLanguage } from '@renderer/hooks/use-language'
 
 const ProxyProvider: React.FC = () => {
+  const { t } = useLanguage()
   const [showDetails, setShowDetails] = useState({
     show: false,
     path: '',
@@ -66,7 +68,7 @@ const ProxyProvider: React.FC = () => {
       await mihomoUpdateProxyProviders(name)
       mutate()
     } catch (e) {
-      new Notification(`${name} 更新失败\n${e}`)
+      new Notification(`${name} ${t('更新失败', 'update failed')}\n${e}`)
     } finally {
       setUpdating((prev) => {
         prev[index] = false
@@ -92,7 +94,7 @@ const ProxyProvider: React.FC = () => {
           }
         />
       )}
-      <SettingItem title="代理集合" divider>
+      <SettingItem title={t('代理集合', 'Proxy Providers')} divider>
         <Button
           size="sm"
           color="primary"
@@ -102,7 +104,7 @@ const ProxyProvider: React.FC = () => {
             })
           }}
         >
-          更新全部
+          {t('更新全部', 'Update All')}
         </Button>
       </SettingItem>
       {providers.map((provider, index) => (
@@ -123,7 +125,7 @@ const ProxyProvider: React.FC = () => {
               </Button> */}
               <Button
                 isIconOnly
-                title={provider.vehicleType == 'File' ? '编辑' : '查看'}
+                title={provider.vehicleType == 'File' ? t('编辑', 'Edit') : t('查看', 'View')}
                 className="ml-2"
                 size="sm"
                 onPress={() => {
@@ -144,7 +146,7 @@ const ProxyProvider: React.FC = () => {
               </Button>
               <Button
                 isIconOnly
-                title="更新"
+                title={t('更新', 'Update')}
                 className="ml-2"
                 size="sm"
                 onPress={() => {
@@ -169,7 +171,7 @@ const ProxyProvider: React.FC = () => {
               <div className="h-[32px] leading-[32px] text-foreground-500">
                 {provider.subscriptionInfo.Expire
                   ? dayjs.unix(provider.subscriptionInfo.Expire).format('YYYY-MM-DD')
-                  : '长期有效'}
+                  : t('长期有效', 'Unlimited')}
               </div>
             </SettingItem>
           )}

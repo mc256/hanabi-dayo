@@ -14,14 +14,17 @@ import {
   stopNetworkDetection
 } from '@renderer/utils/ipc'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import { platform } from '@renderer/utils/init'
 import { IoIosHelpCircle } from 'react-icons/io'
 import EditableList from '../base/base-list-editor'
 import ConfirmModal from '../base/base-confirm'
+import { IoLanguage } from 'react-icons/io5'
 
 const GeneralConfig: React.FC = () => {
   const { data: enable, mutate: mutateEnable } = useSWR('checkAutoRun', checkAutoRun)
   const { appConfig, patchAppConfig } = useAppConfig()
+  const { locale, setLanguage, t } = useLanguage()
   const {
     silentStart = false,
     autoQuitWithoutCore = false,
@@ -45,14 +48,14 @@ const GeneralConfig: React.FC = () => {
     <>
       {showRestartConfirm && (
         <ConfirmModal
-          title="确定要重启应用吗？"
+          title={t('确定要重启应用吗？', 'Are you sure you want to restart the app?')}
           description={
             <div>
-              <p>修改 GPU 加速设置需要重启应用才能生效</p>
+              <p>{t('修改 GPU 加速设置需要重启应用才能生效', 'Changing GPU acceleration settings requires restarting the app to take effect')}</p>
             </div>
           }
-          confirmText="重启"
-          cancelText="取消"
+          confirmText={t('重启', 'Restart')}
+          cancelText={t('取消', 'Cancel')}
           onChange={(open) => {
             if (!open) {
               setPendingDisableGPU(disableGPU)
@@ -69,7 +72,33 @@ const GeneralConfig: React.FC = () => {
         />
       )}
       <SettingCard>
-        <SettingItem title="开机自启" divider>
+        <SettingItem title={t('settings.general.language')} actions={
+          <Tooltip content={t('选择界面语言', 'Select interface language')}>
+            <Button isIconOnly size="sm" variant="light">
+              <IoLanguage className="text-lg" />
+            </Button>
+          </Tooltip>
+
+        }>
+          <Select
+            size="sm"
+            className="w-[150px]"
+            selectedKeys={[locale]}
+            onChange={async (e) => {
+              const newLang = e.target.value as 'en' | 'zh-CN' | 'ja' | 'zh-HK'
+              await patchAppConfig({ language: newLang })
+              await setLanguage(newLang)
+            }}
+          >
+            <SelectItem key="zh-CN">简体中文</SelectItem>
+            <SelectItem key="zh-HK">繁體中文</SelectItem>
+            <SelectItem key="en">English</SelectItem>
+            <SelectItem key="ja">日本語</SelectItem>
+          </Select>
+        </SettingItem>
+      </SettingCard>
+      <SettingCard>
+        <SettingItem title={t('开机自启', 'Start on Boot')} divider>
           <Switch
             size="sm"
             isSelected={enable}
@@ -88,7 +117,7 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title="静默启动" divider>
+        <SettingItem title={t('静默启动', 'Silent Start')} divider>
           <Switch
             size="sm"
             isSelected={silentStart}
@@ -97,7 +126,7 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title="自动检查更新" divider>
+        <SettingItem title={t('自动检查更新', 'Auto Check Update')} divider>
           <Switch
             size="sm"
             isSelected={autoCheckUpdate}
@@ -106,7 +135,7 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title="更新通道" divider>
+        <SettingItem title={t('更新通道', 'Update Channel')} divider>
           <Tabs
             size="sm"
             color="primary"
@@ -115,14 +144,14 @@ const GeneralConfig: React.FC = () => {
               patchAppConfig({ updateChannel: v as 'stable' | 'beta' })
             }}
           >
-            <Tab key="stable" title="正式版" />
-            <Tab key="beta" title="测试版" />
+            <Tab key="stable" title={t('正式版', 'Stable')} />
+            <Tab key="beta" title={t('测试版', 'Beta')} />
           </Tabs>
         </SettingItem>
         <SettingItem
-          title="自动开启轻量模式"
+          title={t('自动开启轻量模式', 'Auto Enable Light Mode')}
           actions={
-            <Tooltip content="关闭窗口指定时间后自动进入轻量模式">
+            <Tooltip content={t('关闭窗口指定时间后自动进入轻量模式', 'Automatically enter light mode after closing the window for a specified time')}>
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -139,12 +168,12 @@ const GeneralConfig: React.FC = () => {
           />
         </SettingItem>
         {autoQuitWithoutCore && (
-          <SettingItem title="自动开启轻量模式延时" divider>
+          <SettingItem title={t('自动开启轻量模式延时', 'Light Mode Delay')} divider>
             <Input
               size="sm"
               className="w-[100px]"
               type="number"
-              endContent="秒"
+              endContent={t('秒', 'sec')}
               value={autoQuitWithoutCoreDelay.toString()}
               onValueChange={async (v: string) => {
                 let num = parseInt(v)
@@ -156,7 +185,7 @@ const GeneralConfig: React.FC = () => {
           </SettingItem>
         )}
         <SettingItem
-          title="复制环境变量类型"
+          title={t('复制环境变量类型', 'Copy Environment Variables Type')}
           actions={envType.map((type) => (
             <Button
               key={type}
@@ -195,9 +224,9 @@ const GeneralConfig: React.FC = () => {
           </Select>
         </SettingItem>
         <SettingItem
-          title="禁用 GPU 加速"
+          title={t('禁用 GPU 加速', 'Disable GPU Acceleration')}
           actions={
-            <Tooltip content="开启后，应用将禁用 GPU 加速，可能会提高稳定性，但会降低性能">
+            <Tooltip content={t('开启后，应用将禁用 GPU 加速，可能会提高稳定性，但会降低性能', 'When enabled, the app will disable GPU acceleration, which may improve stability but reduce performance')}>
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -215,9 +244,9 @@ const GeneralConfig: React.FC = () => {
           />
         </SettingItem>
         <SettingItem
-          title="禁用动画"
+          title={t('禁用动画', 'Disable Animation')}
           actions={
-            <Tooltip content="开启后，应用将减轻绝大部分动画效果，可能会提高性能">
+            <Tooltip content={t('开启后，应用将减轻绝大部分动画效果，可能会提高性能', 'When enabled, the app will reduce most animation effects, which may improve performance')}>
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -234,9 +263,9 @@ const GeneralConfig: React.FC = () => {
           />
         </SettingItem>
         <SettingItem
-          title="断网时停止内核"
+          title={t('断网时停止内核', 'Stop Core on Network Disconnection')}
           actions={
-            <Tooltip content="开启后，应用会在检测到网络断开时自动停止内核，并在网络恢复后自动重启内核">
+            <Tooltip content={t('开启后，应用会在检测到网络断开时自动停止内核，并在网络恢复后自动重启内核', 'When enabled, the app will automatically stop the core when network disconnection is detected and restart it when the network is restored')}>
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -260,9 +289,9 @@ const GeneralConfig: React.FC = () => {
         {networkDetection && (
           <>
             <SettingItem
-              title="断网检测间隔"
+              title={t('断网检测间隔', 'Network Detection Interval')}
               actions={
-                <Tooltip content="设置断网检测的间隔时间，单位为秒">
+                <Tooltip content={t('设置断网检测的间隔时间，单位为秒', 'Set the interval time for network detection, in seconds')}>
                   <Button isIconOnly size="sm" variant="light">
                     <IoIosHelpCircle className="text-lg" />
                   </Button>
@@ -281,7 +310,7 @@ const GeneralConfig: React.FC = () => {
                       await startNetworkDetection()
                     }}
                   >
-                    确认
+                    {t('确认', 'Confirm')}
                   </Button>
                 )}
                 <Input
@@ -296,7 +325,7 @@ const GeneralConfig: React.FC = () => {
                 />
               </div>
             </SettingItem>
-            <SettingItem title="绕过检测的接口">
+            <SettingItem title={t('绕过检测的接口', 'Bypass Detection Interfaces')}>
               {bypass.length != networkDetectionBypass.length && (
                 <Button
                   size="sm"
@@ -306,7 +335,7 @@ const GeneralConfig: React.FC = () => {
                     await startNetworkDetection()
                   }}
                 >
-                  确认
+                  {t('确认', 'Confirm')}
                 </Button>
               )}
             </SettingItem>

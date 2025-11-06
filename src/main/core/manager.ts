@@ -18,6 +18,7 @@ import {
   patchControledMihomoConfig
 } from '../config'
 import { app, dialog, ipcMain, net } from 'electron'
+import { t } from '../i18n'
 import {
   startMihomoTraffic,
   startMihomoConnections,
@@ -45,7 +46,7 @@ import { setSysDns } from '../service/api'
 const ctlParam = process.platform === 'win32' ? '-ext-ctl-pipe' : '-ext-ctl-unix'
 
 class UserCancelledError extends Error {
-  constructor(message = '用户取消操作') {
+  constructor(message = t('core.userCancelled')) {
     super(message)
     this.name = 'UserCancelledError'
   }
@@ -57,7 +58,7 @@ function isUserCancelledError(error: unknown): boolean {
   }
   const errorMsg = error instanceof Error ? error.message : String(error)
   return (
-    errorMsg.includes('用户已取消') ||
+    errorMsg.includes(t('core.userCancelledDetected')) ||
     errorMsg.includes('User canceled') ||
     errorMsg.includes('(-128)') ||
     errorMsg.includes('user cancelled') ||
@@ -174,7 +175,7 @@ export async function startCore(detached = false): Promise<Promise<void>[]> {
         (process.platform !== 'win32' && str.includes('External controller unix listen error')) ||
         (process.platform === 'win32' && str.includes('External controller pipe listen error'))
       ) {
-        reject(`控制器监听错误:\n${str}`)
+        reject(`${t('core.controllerListenError')}:\n${str}`)
       }
 
       if (process.platform === 'win32' && str.includes('updater: finished')) {
@@ -183,7 +184,7 @@ export async function startCore(detached = false): Promise<Promise<void>[]> {
           const promises = await startCore()
           await Promise.all(promises)
         } catch (e) {
-          dialog.showErrorBox('内核启动出错', `${e}`)
+          dialog.showErrorBox(t('core.startError'), `${e}`)
         }
       }
 
@@ -208,7 +209,7 @@ export async function startCore(detached = false): Promise<Promise<void>[]> {
                 patchControledMihomoConfig({ tun: { enable: false } })
                 mainWindow?.webContents.send('controledMihomoConfigUpdated')
                 ipcMain.emit('updateTrayMenu')
-                reject('虚拟网卡启动失败，前往内核设置页尝试手动授予内核权限')
+                reject(t('core.tunStartFailure'))
               }
 
               const isDefaultProvider = logLine.includes(
@@ -387,7 +388,7 @@ export async function restartCore(): Promise<void> {
     const promises = await startCore()
     await Promise.all(promises)
   } catch (e) {
-    dialog.showErrorBox('内核启动出错', `${e}`)
+    dialog.showErrorBox(t('core.startError'), `${e}`)
   }
 }
 
@@ -398,7 +399,7 @@ export async function keepCoreAlive(): Promise<void> {
       await writeFile(path.join(dataDir(), 'core.pid'), child.pid.toString())
     }
   } catch (e) {
-    dialog.showErrorBox('内核启动出错', `${e}`)
+    dialog.showErrorBox(t('core.startError'), `${e}`)
   }
 }
 
@@ -435,7 +436,7 @@ async function checkProfile(): Promise<void> {
         .split('\n')
         .filter((line) => line.includes('level=error'))
         .map((line) => line.split('level=error')[1])
-      throw new Error(`Profile Check Failed:\n${errorLines.join('\n')}`)
+      throw new Error(`Cannot find Mihomo Profile:\n${errorLines.join('\n')}`)
     } else {
       throw error
     }

@@ -2,6 +2,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from
 import React, { useEffect, useState } from 'react'
 import { BaseEditor } from '../base/base-editor'
 import { getFileStr, setFileStr } from '@renderer/utils/ipc'
+import { useLanguage } from '@renderer/hooks/use-language'
 import yaml from 'js-yaml'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 type Language = 'yaml' | 'javascript' | 'css' | 'json' | 'text'
@@ -17,6 +18,7 @@ interface Props {
 const Viewer: React.FC<Props> = (props) => {
   const { type, path, title, format, privderType, onClose } = props
   const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
+  const { t } = useLanguage()
   const [currData, setCurrData] = useState('')
   let language: Language = !format || format === 'YamlRule' ? 'yaml' : 'text'
 
@@ -91,11 +93,11 @@ const Viewer: React.FC<Props> = (props) => {
             onChange={(value) => setCurrData(value)}
           />
         </ModalBody>
-        <ModalFooter className="pt-0">
+        <ModalFooter>
           <Button size="sm" variant="light" onPress={onClose}>
-            关闭
+            {t('关闭', 'Close')}
           </Button>
-          {type == 'File' && (
+          {type === 'File' && (
             <Button
               size="sm"
               color="primary"
@@ -104,7 +106,7 @@ const Viewer: React.FC<Props> = (props) => {
                 onClose()
               }}
             >
-              保存
+              {t('保存', 'Save')}
             </Button>
           )}
         </ModalFooter>
