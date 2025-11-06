@@ -265,4 +265,102 @@ export const en = {
     global: 'Global Mode',
     direct: 'Direct Mode',
   },
+
+  // App / Main Layout
+  app: {
+    quit: {
+      title: 'Are you sure you want to quit Sparkle?',
+      description: 'After quitting, the proxy function will stop working',
+      confirm: 'Quit',
+      cancel: 'Cancel',
+    },
+    profileInstall: {
+      title: 'Are you sure you want to import subscription?',
+      name: 'Name: ',
+      url: 'URL: ',
+      unnamed: 'Unnamed',
+      warning: 'Please ensure the subscription source is trustworthy, malicious configurations may affect your network security',
+      confirm: 'Import',
+      cancel: 'Cancel',
+    },
+    overrideInstall: {
+      title: 'Are you sure you want to import override file?',
+      name: 'Name: ',
+      url: 'URL: ',
+      unnamed: 'Unnamed',
+      warning: 'Please ensure the override file source is trustworthy, malicious override files may affect your network security',
+      confirm: 'Import',
+      cancel: 'Cancel',
+    },
+  },
+
+  // Tour / Guide
+  tour: {
+    welcome: {
+      title: 'Welcome to Sparkle',
+      description: 'This is an interactive tutorial. If you are already familiar with the software, you can close it by clicking the close button in the upper right corner. You can reopen this tutorial at any time from the settings.',
+    },
+    navigation: {
+      title: 'Navigation Bar',
+      description: 'The left side is the navigation bar, which also serves as a dashboard. Here you can switch between different pages and get an overview of commonly used status information.',
+    },
+    card: {
+      title: 'Cards',
+      description: 'Click on navigation bar cards to jump to the corresponding page. Drag navigation bar cards to freely arrange the card order.',
+    },
+    mainArea: {
+      title: 'Main Area',
+      description: 'The right side is the main area of the application, displaying the content of the selected page in the navigation bar.',
+    },
+    profileManagement: {
+      title: 'Subscription Management',
+      description: 'The subscription management card displays information about the currently running subscription configuration. Click to enter the subscription management page to manage subscription configurations here.',
+    },
+    profileImport: {
+      title: 'Subscription Import',
+      description: 'Sparkle supports various subscription import methods. Enter the subscription link here and click Import to import your subscription configuration. If your subscription needs a proxy to update, check "Proxy" before clicking Import. Of course, this requires having a working subscription first.',
+    },
+    substore: {
+      title: 'Sub-Store',
+      description: 'Sparkle is deeply integrated with Sub-Store. You can click this button to enter Sub-Store or directly import subscriptions managed through Sub-Store. Sparkle uses the built-in Sub-Store backend by default. If you have a self-built Sub-Store backend, you can configure it in the settings page. If you don\'t use Sub-Store, you can also disable it in the settings page.',
+    },
+    localProfile: {
+      title: 'Local Subscription',
+      description: 'Click "+" to select a local file to import or create a new blank configuration for editing.',
+    },
+    systemProxy: {
+      title: 'System Proxy',
+      description: 'After importing the subscription, the core has started running and is listening on the specified port. At this point, you can already use the proxy by specifying the proxy port. If you want most applications to automatically use the proxy on this port, you also need to turn on the system proxy switch.',
+    },
+    systemProxySettings: {
+      title: 'System Proxy Settings',
+      description: 'Here you can configure system proxy related settings and select the proxy mode. If some Windows applications do not follow the system proxy, you can also use the "UWP Tool" to remove local loopback restrictions. For the difference between "Manual Proxy Mode" and "PAC Proxy Mode", please search online.',
+    },
+    tun: {
+      title: 'Virtual Network Card',
+      description: 'Virtual network card, commonly known as "Tun Mode" in similar software. For some applications that do not follow the system proxy, you can turn on the virtual network card to let the core take over all traffic.',
+    },
+    tunSettings: {
+      title: 'Virtual Network Card Settings',
+      description: 'Here you can change virtual network card related settings. Sparkle has theoretically completely solved permission issues. If your virtual network card is still unavailable, you can try resetting the firewall (Windows) or manually authorizing the core (MacOS/Linux) and then restart the core.',
+    },
+    override: {
+      title: 'Override',
+      description: 'Sparkle provides powerful override functionality that allows you to personalize the imported subscription configuration, such as adding rules and customizing proxy groups. You can directly import override files written by others or write your own. <b>Remember to enable it on the subscription that needs to be overridden after editing the override file</b>. For the syntax of override files, please refer to the <a href="https://mihomo.party/docs/guide/override" target="_blank">official documentation</a>.',
+    },
+    dns: {
+      title: 'DNS',
+      description: 'The software takes over the core\'s DNS settings by default. If you need to use the DNS settings in the subscription configuration, you can turn off "Take over DNS settings" in the application settings. The same applies to domain sniffing.',
+    },
+    finish: {
+      title: 'Tutorial Complete',
+      description: 'Now you have learned the basic usage of the software. Import your subscription and start using it. Enjoy!',
+    },
+    controls: {
+      next: 'Next',
+      prev: 'Previous',
+      done: 'Done',
+      progress: '{{current}} / {{total}}',
+    },
+  },
 }

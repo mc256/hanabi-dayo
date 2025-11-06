@@ -265,4 +265,102 @@ export const zhHK = {
     global: '全域模式',
     direct: '直連模式',
   },
+
+  // App / Main Layout
+  app: {
+    quit: {
+      title: '確定要退出 Sparkle 嗎？',
+      description: '退出後代理功能將停止工作',
+      confirm: '退出',
+      cancel: '取消',
+    },
+    profileInstall: {
+      title: '確定要匯入訂閱設定嗎？',
+      name: '名稱：',
+      url: '連結：',
+      unnamed: '未命名',
+      warning: '請確保訂閱設定來源可信，惡意設定可能影響您的網路安全',
+      confirm: '匯入',
+      cancel: '取消',
+    },
+    overrideInstall: {
+      title: '確定要匯入覆寫檔案嗎？',
+      name: '名稱：',
+      url: '連結：',
+      unnamed: '未命名',
+      warning: '請確保覆寫檔案來源可信，惡意覆寫檔案可能影響您的網路安全',
+      confirm: '匯入',
+      cancel: '取消',
+    },
+  },
+
+  // Tour / Guide
+  tour: {
+    welcome: {
+      title: '歡迎使用 Sparkle',
+      description: '這是一份互動式使用教學，如果您已經完全熟悉本軟體的操作，可以直接點選右上角關閉按鈕，後續您可以隨時從設定中開啟本教學',
+    },
+    navigation: {
+      title: '導覽列',
+      description: '左側是應用程式的導覽列，兼顧儀表板功能，在這裡可以切換不同頁面，也可以概覽常用的狀態資訊',
+    },
+    card: {
+      title: '卡片',
+      description: '點選導覽列卡片可以跳轉到對應頁面，拖動導覽列卡片可以自由排列卡片順序',
+    },
+    mainArea: {
+      title: '主要區域',
+      description: '右側是應用程式的主要區域，展示了導覽列所選頁面的內容',
+    },
+    profileManagement: {
+      title: '訂閱管理',
+      description: '訂閱管理卡片展示目前執行的訂閱設定資訊，點選進入訂閱管理頁面可以在這裡管理訂閱設定',
+    },
+    profileImport: {
+      title: '訂閱匯入',
+      description: 'Sparkle 支援多種訂閱匯入方式，在此輸入訂閱連結，點選匯入即可匯入您的訂閱設定，如果您的訂閱需要代理才能更新，請勾選「代理」再點選匯入，當然這需要已經有一個可以正常使用的訂閱才可以',
+    },
+    substore: {
+      title: 'Sub-Store',
+      description: 'Sparkle 深度整合了 Sub-Store，您可以點選該按鈕進入 Sub-Store 或直接匯入您透過 Sub-Store 管理的訂閱，Sparkle 預設使用內建的 Sub-Store 後端，如果您有自建的 Sub-Store 後端，可以在設定頁面中設定，如果您不使用 Sub-Store 也可以在設定頁面中關閉',
+    },
+    localProfile: {
+      title: '本機訂閱',
+      description: '點選「+」可以選擇本機檔案進行匯入或者直接新建空白設定進行編輯',
+    },
+    systemProxy: {
+      title: '系統代理',
+      description: '匯入訂閱之後，核心已經開始執行並監聽指定連接埠，此時您已經可以透過指定代理連接埠來使用代理了，如果您要使大部分應用程式自動使用該連接埠的代理，您還需要開啟系統代理開關',
+    },
+    systemProxySettings: {
+      title: '系統代理設定',
+      description: '在此您可以進行系統代理相關設定，選擇代理模式，如果某些 Windows 應用程式不遵循系統代理，還可以使用「UWP 工具」解除本機回環限制，對於「手動代理模式」和「PAC 代理模式」的區別，請自行百度',
+    },
+    tun: {
+      title: '虛擬網路卡',
+      description: '虛擬網路卡，即同類軟體中常見的「Tun 模式」，對於某些不遵循系統代理的應用程式，您可以開啟虛擬網路卡以讓核心接管所有流量',
+    },
+    tunSettings: {
+      title: '虛擬網路卡設定',
+      description: '這裡可以更改虛擬網路卡相關設定，Sparkle 理論上已經完全解決權限問題，如果您的虛擬網路卡仍然不可用，可以嘗試重設防火牆（Windows）或手動授權核心（MacOS/Linux）後重啟核心',
+    },
+    override: {
+      title: '覆寫',
+      description: 'Sparkle 提供強大的覆寫功能，可以對您匯入的訂閱設定進行個人化修改，如新增規則、自訂代理組等，您可以直接匯入別人寫好的覆寫檔案，也可以自己動手編寫，<b>編輯好覆寫檔案一定要記得在需要覆寫的訂閱上啟用</b>，覆寫檔案的語法請參考 <a href="https://mihomo.party/docs/guide/override" target="_blank">官方文件</a>',
+    },
+    dns: {
+      title: 'DNS',
+      description: '軟體預設接管了核心的 DNS 設定，如果您需要使用訂閱設定中的 DNS 設定，可以到應用程式設定中關閉「接管 DNS 設定」，網域名稱嗅探同理',
+    },
+    finish: {
+      title: '教學結束',
+      description: '現在您已經了解了軟體的基本用法，匯入您的訂閱開始使用吧，祝您使用愉快！',
+    },
+    controls: {
+      next: '下一步',
+      prev: '上一步',
+      done: '完成',
+      progress: '{{current}} / {{total}}',
+    },
+  },
 }
