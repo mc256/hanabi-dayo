@@ -2,6 +2,7 @@ import { Button, Input } from '@heroui/react'
 import SettingCard from '../base/base-setting-card'
 import SettingItem from '../base/base-setting-item'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import React, { KeyboardEvent, useState } from 'react'
 import { platform } from '@renderer/utils/init'
 import { registerShortcut } from '@renderer/utils/ipc'
@@ -41,6 +42,7 @@ const keyMap = {
 
 const ShortcutConfig: React.FC = () => {
   const { appConfig, patchAppConfig } = useAppConfig()
+  const { t } = useLanguage()
   const {
     showWindowShortcut = '',
     showFloatingWindowShortcut = '',
@@ -54,8 +56,8 @@ const ShortcutConfig: React.FC = () => {
   } = appConfig || {}
 
   return (
-    <SettingCard title="快捷键设置">
-      <SettingItem title="打开/关闭窗口" divider>
+    <SettingCard title={t('快捷键设置', 'Shortcut Settings')}>
+      <SettingItem title={t('打开/关闭窗口', 'Show/Hide Window')} divider>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={showWindowShortcut}
@@ -64,7 +66,7 @@ const ShortcutConfig: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title="打开/关闭悬浮窗" divider>
+      <SettingItem title={t('打开/关闭悬浮窗', 'Show/Hide Floating Window')} divider>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={showFloatingWindowShortcut}
@@ -73,7 +75,7 @@ const ShortcutConfig: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title="打开/关闭系统代理" divider>
+      <SettingItem title={t('打开/关闭系统代理', 'Toggle System Proxy')} divider>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={triggerSysProxyShortcut}
@@ -82,7 +84,7 @@ const ShortcutConfig: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title="打开/关闭虚拟网卡" divider>
+      <SettingItem title={t('打开/关闭虚拟网卡', 'Toggle TUN')} divider>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={triggerTunShortcut}
@@ -91,7 +93,7 @@ const ShortcutConfig: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title="切换规则模式" divider>
+      <SettingItem title={t('切换规则模式', 'Switch to Rule Mode')} divider>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={ruleModeShortcut}
@@ -100,7 +102,7 @@ const ShortcutConfig: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title="切换全局模式" divider>
+      <SettingItem title={t('切换全局模式', 'Switch to Global Mode')} divider>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={globalModeShortcut}
@@ -109,7 +111,7 @@ const ShortcutConfig: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title="切换直连模式" divider>
+      <SettingItem title={t('切换直连模式', 'Switch to Direct Mode')} divider>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={directModeShortcut}
@@ -118,7 +120,7 @@ const ShortcutConfig: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title="轻量模式" divider>
+      <SettingItem title={t('轻量模式', 'Light Mode')} divider>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={quitWithoutCoreShortcut}
@@ -127,7 +129,7 @@ const ShortcutConfig: React.FC = () => {
           />
         </div>
       </SettingItem>
-      <SettingItem title="重启应用">
+      <SettingItem title={t('重启应用', 'Restart App')}>
         <div className="flex justify-end w-[60%]">
           <ShortcutInput
             value={restartAppShortcut}

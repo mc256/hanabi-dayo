@@ -4,6 +4,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import SubStoreIcon from '../base/substore-icon'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import React from 'react'
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 const SubStoreCard: React.FC<Props> = (props) => {
   const { appConfig } = useAppConfig()
   const { iconOnly } = props
+  const { t } = useLanguage()
   const {
     substoreCardStatus = 'col-span-1',
     useSubStore = true,
@@ -36,7 +38,7 @@ const SubStoreCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${substoreCardStatus} ${!useSubStore ? 'hidden' : ''} flex justify-center`}>
-        <Tooltip content="Sub-Store" placement="right">
+        <Tooltip content={t('Sub-Store', 'Sub-Store')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -88,7 +90,7 @@ const SubStoreCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            Sub-Store
+            {t('Sub-Store', 'Sub-Store')}
           </h3>
         </CardFooter>
       </Card>

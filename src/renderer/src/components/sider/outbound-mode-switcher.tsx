@@ -2,6 +2,7 @@
 import { Tabs, Tab } from '@heroui/react'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import { useGroups } from '@renderer/hooks/use-groups'
 import { mihomoCloseAllConnections, patchMihomoConfig } from '@renderer/utils/ipc'
 import { Key } from 'react'
@@ -15,6 +16,7 @@ const OutboundModeSwitcher: React.FC<Props> = (props) => {
   const { controledMihomoConfig, patchControledMihomoConfig } = useControledMihomoConfig()
   const { mutate: mutateGroups } = useGroups()
   const { appConfig } = useAppConfig()
+  const { t } = useLanguage()
   const { autoCloseConnection = true } = appConfig || {}
   const { mode } = controledMihomoConfig || {}
 
@@ -54,9 +56,9 @@ const OutboundModeSwitcher: React.FC<Props> = (props) => {
       }}
       onSelectionChange={(key: Key) => onChangeMode(key as OutboundMode)}
     >
-      <Tab className={`${mode === 'rule' ? 'font-bold' : ''}`} key="rule" title="规则" />
-      <Tab className={`${mode === 'global' ? 'font-bold' : ''}`} key="global" title="全局" />
-      <Tab className={`${mode === 'direct' ? 'font-bold' : ''}`} key="direct" title="直连" />
+      <Tab className={`${mode === 'rule' ? 'font-bold' : ''}`} key="rule" title={t('规则', 'Rule')} />
+      <Tab className={`${mode === 'global' ? 'font-bold' : ''}`} key="global" title={t('全局', 'Global')} />
+      <Tab className={`${mode === 'direct' ? 'font-bold' : ''}`} key="direct" title={t('直连', 'Direct')} />
     </Tabs>
   )
 }

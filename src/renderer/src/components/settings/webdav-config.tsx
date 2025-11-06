@@ -6,9 +6,11 @@ import { listWebdavBackups, webdavBackup } from '@renderer/utils/ipc'
 import WebdavRestoreModal from './webdav-restore-modal'
 import debounce from '@renderer/utils/debounce'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 
 const WebdavConfig: React.FC = () => {
   const { appConfig, patchAppConfig } = useAppConfig()
+  const { t } = useLanguage()
   const { webdavUrl, webdavUsername, webdavPassword, webdavDir = 'sparkle' } = appConfig || {}
   const [backuping, setBackuping] = useState(false)
   const [restoring, setRestoring] = useState(false)
@@ -23,7 +25,7 @@ const WebdavConfig: React.FC = () => {
     setBackuping(true)
     try {
       await webdavBackup()
-      new window.Notification('备份成功', { body: '备份文件已上传至 WebDAV' })
+      new window.Notification(t('备份成功', 'Backup Successful'), { body: t('备份文件已上传至 WebDAV', 'Backup file uploaded to WebDAV') })
     } catch (e) {
       alert(e)
     } finally {
@@ -38,7 +40,7 @@ const WebdavConfig: React.FC = () => {
       setFilenames(filenames)
       setRestoreOpen(true)
     } catch (e) {
-      alert(`获取备份列表失败：${e}`)
+      alert(`${t('获取备份列表失败', 'Failed to get backup list')}：${e}`)
     } finally {
       setRestoring(false)
     }
@@ -48,8 +50,8 @@ const WebdavConfig: React.FC = () => {
       {restoreOpen && (
         <WebdavRestoreModal filenames={filenames} onClose={() => setRestoreOpen(false)} />
       )}
-      <SettingCard title="WebDAV 备份">
-        <SettingItem title="WebDAV 地址" divider>
+      <SettingCard title={t('WebDAV 备份', 'WebDAV Backup')}>
+        <SettingItem title={t('WebDAV 地址', 'WebDAV URL')} divider>
           <Input
             size="sm"
             className="w-[60%]"
@@ -60,7 +62,7 @@ const WebdavConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title="WebDAV 备份目录" divider>
+        <SettingItem title={t('WebDAV 备份目录', 'WebDAV Backup Directory')} divider>
           <Input
             size="sm"
             className="w-[60%]"
@@ -71,7 +73,7 @@ const WebdavConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title="WebDAV 用户名" divider>
+        <SettingItem title={t('WebDAV 用户名', 'WebDAV Username')} divider>
           <Input
             size="sm"
             className="w-[60%]"
@@ -82,7 +84,7 @@ const WebdavConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title="WebDAV 密码" divider>
+        <SettingItem title={t('WebDAV 密码', 'WebDAV Password')} divider>
           <Input
             size="sm"
             className="w-[60%]"
@@ -96,7 +98,7 @@ const WebdavConfig: React.FC = () => {
         </SettingItem>
         <div className="flex justify0between">
           <Button isLoading={backuping} fullWidth size="sm" className="mr-1" onPress={handleBackup}>
-            备份
+            {t('备份', 'Backup')}
           </Button>
           <Button
             isLoading={restoring}
@@ -105,7 +107,7 @@ const WebdavConfig: React.FC = () => {
             className="ml-1"
             onPress={handleRestore}
           >
-            恢复
+            {t('恢复', 'Restore')}
           </Button>
         </div>
       </SettingCard>

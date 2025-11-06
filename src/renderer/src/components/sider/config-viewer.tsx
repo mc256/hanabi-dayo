@@ -18,12 +18,14 @@ import {
 } from '@renderer/utils/ipc'
 import useSWR from 'swr'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 
 interface Props {
   onClose: () => void
 }
 const ConfigViewer: React.FC<Props> = ({ onClose }) => {
   const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
+  const { t } = useLanguage()
   const [runtimeConfig, setRuntimeConfig] = useState('')
   const [rawProfile, setRawProfile] = useState('')
   const [profileConfig, setProfileConfig] = useState('')
@@ -61,7 +63,9 @@ const ConfigViewer: React.FC<Props> = ({ onClose }) => {
       scrollBehavior="inside"
     >
       <ModalContent className="h-full w-[calc(100%-100px)]">
-        <ModalHeader className="flex pb-0 app-drag">当前运行时配置</ModalHeader>
+        <ModalHeader className="flex pb-0 app-drag">
+          {t('当前运行时配置', 'Current Runtime Config')}
+        </ModalHeader>
         <ModalBody className="h-full">
           <BaseEditor
             language="yaml"
@@ -82,9 +86,9 @@ const ConfigViewer: React.FC<Props> = ({ onClose }) => {
         <ModalFooter className="pt-0 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Switch size="sm" isSelected={isDiff} onValueChange={setIsDiff} />
-            <span className="text-sm">对比当前配置</span>
+            <span className="text-sm">{t('对比当前配置', 'Compare Current Config')}</span>
             <Switch size="sm" isSelected={sideBySide} onValueChange={setSideBySide} />
-            <span className="text-sm">侧边显示</span>
+            <span className="text-sm">{t('侧边显示', 'Side by Side')}</span>
             <Switch
               size="sm"
               isSelected={isRaw}
@@ -95,7 +99,7 @@ const ConfigViewer: React.FC<Props> = ({ onClose }) => {
                 }
               }}
             />
-            <span className="text-sm">显示原始文本</span>
+            <span className="text-sm">{t('显示原始文本', 'Show Raw Text')}</span>
             <Switch
               size="sm"
               isSelected={isOverride}
@@ -106,10 +110,10 @@ const ConfigViewer: React.FC<Props> = ({ onClose }) => {
                 }
               }}
             />
-            <span className="text-sm">显示覆写后文本</span>
+            <span className="text-sm">{t('显示覆写后文本', 'Show Overridden Text')}</span>
           </div>
           <Button size="sm" variant="light" onPress={onClose}>
-            关闭
+            {t('关闭', 'Close')}
           </Button>
         </ModalFooter>
       </ModalContent>

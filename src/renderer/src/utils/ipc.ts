@@ -119,6 +119,14 @@ export async function patchAppConfig(patch: Partial<AppConfig>): Promise<void> {
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('patchAppConfig', patch))
 }
 
+export async function getAppLocale(): Promise<'en' | 'zh-CN'> {
+  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('getAppLocale'))
+}
+
+export async function setAppLocale(locale: 'en' | 'zh-CN'): Promise<void> {
+  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('setAppLocale', locale))
+}
+
 export async function getControledMihomoConfig(force = false): Promise<Partial<MihomoConfig>> {
   return ipcErrorWrapper(
     await window.electron.ipcRenderer.invoke('getControledMihomoConfig', force)

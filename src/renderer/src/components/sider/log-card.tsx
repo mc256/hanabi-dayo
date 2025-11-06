@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import React from 'react'
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 const LogCard: React.FC<Props> = (props) => {
   const { appConfig } = useAppConfig()
   const { iconOnly } = props
+  const { t } = useLanguage()
   const { logCardStatus = 'col-span-1', disableAnimation = false } = appConfig || {}
   const location = useLocation()
   const navigate = useNavigate()
@@ -32,7 +34,7 @@ const LogCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${logCardStatus} flex justify-center`}>
-        <Tooltip content="日志" placement="right">
+        <Tooltip content={t('日志', 'Logs')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -84,7 +86,7 @@ const LogCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            日志
+            {t('日志', 'Logs')}
           </h3>
         </CardFooter>
       </Card>

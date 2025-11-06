@@ -3,6 +3,7 @@ import SettingCard from '../base/base-setting-card'
 import SettingItem from '../base/base-setting-item'
 import { Button, Input, Select, SelectItem, Switch, Tab, Tabs, Tooltip } from '@heroui/react'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import debounce from '@renderer/utils/debounce'
 import {
   getGistUrl,
@@ -17,6 +18,7 @@ import { platform } from '@renderer/utils/init'
 
 const MihomoConfig: React.FC = () => {
   const { appConfig, patchAppConfig } = useAppConfig()
+  const { t } = useLanguage()
   const {
     diffWorkDir = false,
     controlDns = true,
@@ -51,60 +53,60 @@ const MihomoConfig: React.FC = () => {
   }
 
   return (
-    <SettingCard title="订阅与代理组设置">
-      <SettingItem title="订阅拉取 UA" divider>
+    <SettingCard title={t('订阅与代理组设置', 'Subscription & Proxy Group Settings')}>
+      <SettingItem title={t('订阅拉取 UA', 'Subscription User Agent')} divider>
         <Input
           size="sm"
           className="w-[60%]"
           value={ua}
-          placeholder={`默认 ${defaultUserAgent}`}
+          placeholder={`${t('默认', 'Default')} ${defaultUserAgent}`}
           onValueChange={(v) => {
             setUa(v)
             setUaDebounce(v)
           }}
         ></Input>
       </SettingItem>
-      <SettingItem title="延迟测试地址" divider>
+      <SettingItem title={t('延迟测试地址', 'Delay Test URL')} divider>
         <Input
           size="sm"
           className="w-[60%]"
           value={url}
-          placeholder="默认 https://www.gstatic.com/generate_204"
+          placeholder={`${t('默认', 'Default')} https://www.gstatic.com/generate_204`}
           onValueChange={(v) => {
             setUrl(v)
             setUrlDebounce(v)
           }}
         ></Input>
       </SettingItem>
-      <SettingItem title="延迟测试并发数量" divider>
+      <SettingItem title={t('延迟测试并发数量', 'Delay Test Concurrency')} divider>
         <Input
           type="number"
           size="sm"
           className="w-[60%]"
           value={delayTestConcurrency?.toString()}
-          placeholder="默认 50"
+          placeholder={`${t('默认', 'Default')} 50`}
           onValueChange={(v) => {
             patchAppConfig({ delayTestConcurrency: parseInt(v) })
           }}
         />
       </SettingItem>
-      <SettingItem title="延迟测试超时时间" divider>
+      <SettingItem title={t('延迟测试超时时间', 'Delay Test Timeout')} divider>
         <Input
           type="number"
           size="sm"
           className="w-[60%]"
           value={delayTestTimeout?.toString()}
-          placeholder="默认 5000"
+          placeholder={`${t('默认', 'Default')} 5000`}
           onValueChange={(v) => {
             patchAppConfig({ delayTestTimeout: parseInt(v) })
           }}
         />
       </SettingItem>
       <SettingItem
-        title="同步运行时配置到 Gist"
+        title={t('同步运行时配置到 Gist', 'Sync Runtime Config to Gist')}
         actions={
           <Button
-            title="复制 Gist URL"
+            title={t('复制 Gist URL', 'Copy Gist URL')}
             isIconOnly
             size="sm"
             variant="light"
@@ -135,7 +137,7 @@ const MihomoConfig: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title="代理节点展示列数" divider>
+      <SettingItem title={t('代理节点展示列数', 'Proxy Columns')} divider>
         <Select
           classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
           className="w-[150px]"
@@ -146,14 +148,14 @@ const MihomoConfig: React.FC = () => {
             await patchAppConfig({ proxyCols: v.currentKey as 'auto' | '1' | '2' | '3' | '4' })
           }}
         >
-          <SelectItem key="auto">自动</SelectItem>
-          <SelectItem key="1">一列</SelectItem>
-          <SelectItem key="2">两列</SelectItem>
-          <SelectItem key="3">三列</SelectItem>
-          <SelectItem key="4">四列</SelectItem>
+          <SelectItem key="auto">{t('自动', 'Auto')}</SelectItem>
+          <SelectItem key="1">{t('一列', 'One Column')}</SelectItem>
+          <SelectItem key="2">{t('两列', 'Two Columns')}</SelectItem>
+          <SelectItem key="3">{t('三列', 'Three Columns')}</SelectItem>
+          <SelectItem key="4">{t('四列', 'Four Columns')}</SelectItem>
         </Select>
       </SettingItem>
-      <SettingItem title="代理组详细信息" divider>
+      <SettingItem title={t('代理组详细信息', 'Group Display Layout')} divider>
         <Tabs
           size="sm"
           color="primary"
@@ -164,12 +166,12 @@ const MihomoConfig: React.FC = () => {
             })
           }}
         >
-          <Tab key="hidden" title="隐藏" />
-          <Tab key="single" title="单行" />
-          <Tab key="double" title="双行" />
+          <Tab key="hidden" title={t('隐藏', 'Hidden')} />
+          <Tab key="single" title={t('单行', 'Single')} />
+          <Tab key="double" title={t('双行', 'Double')} />
         </Tabs>
       </SettingItem>
-      <SettingItem title="代理节点详细信息" divider>
+      <SettingItem title={t('代理节点详细信息', 'Proxy Display Layout')} divider>
         <Tabs
           size="sm"
           color="primary"
@@ -180,13 +182,13 @@ const MihomoConfig: React.FC = () => {
             })
           }}
         >
-          <Tab key="hidden" title="隐藏" />
-          <Tab key="single" title="单行" />
-          <Tab key="double" title="双行" />
+          <Tab key="hidden" title={t('隐藏', 'Hidden')} />
+          <Tab key="single" title={t('单行', 'Single')} />
+          <Tab key="double" title={t('双行', 'Double')} />
         </Tabs>
       </SettingItem>
       {platform === 'win32' && (
-        <SettingItem title="内核进程优先级" divider>
+        <SettingItem title={t('内核进程优先级', 'Core Process Priority')} divider>
           <Select
             classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
             className="w-[150px]"
@@ -204,19 +206,19 @@ const MihomoConfig: React.FC = () => {
               }
             }}
           >
-            <SelectItem key="PRIORITY_HIGHEST">实时</SelectItem>
-            <SelectItem key="PRIORITY_HIGH">高</SelectItem>
-            <SelectItem key="PRIORITY_ABOVE_NORMAL">高于正常</SelectItem>
-            <SelectItem key="PRIORITY_NORMAL">正常</SelectItem>
-            <SelectItem key="PRIORITY_BELOW_NORMAL">低于正常</SelectItem>
-            <SelectItem key="PRIORITY_LOW">低</SelectItem>
+            <SelectItem key="PRIORITY_HIGHEST">{t('实时', 'Realtime')}</SelectItem>
+            <SelectItem key="PRIORITY_HIGH">{t('高', 'High')}</SelectItem>
+            <SelectItem key="PRIORITY_ABOVE_NORMAL">{t('高于正常', 'Above Normal')}</SelectItem>
+            <SelectItem key="PRIORITY_NORMAL">{t('正常', 'Normal')}</SelectItem>
+            <SelectItem key="PRIORITY_BELOW_NORMAL">{t('低于正常', 'Below Normal')}</SelectItem>
+            <SelectItem key="PRIORITY_LOW">{t('低', 'Low')}</SelectItem>
           </Select>
         </SettingItem>
       )}
       <SettingItem
-        title="为不同订阅分别指定工作目录"
+        title={t('为不同订阅分别指定工作目录', 'Separate Work Directory for Each Subscription')}
         actions={
-          <Tooltip content="开启后可以避免不同订阅中存在相同代理组名时无法分别保存选择的节点">
+          <Tooltip content={t('开启后可以避免不同订阅中存在相同代理组名时无法分别保存选择的节点', 'When enabled, it prevents conflicts when different subscriptions have the same proxy group name')}>
             <Button isIconOnly size="sm" variant="light">
               <IoIosHelpCircle className="text-lg" />
             </Button>
@@ -237,7 +239,7 @@ const MihomoConfig: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title="接管 DNS 设置" divider>
+      <SettingItem title={t('接管 DNS 设置', 'Control DNS Settings')} divider>
         <Switch
           size="sm"
           isSelected={controlDns}
@@ -252,7 +254,7 @@ const MihomoConfig: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title="接管域名嗅探设置" divider>
+      <SettingItem title={t('接管域名嗅探设置', 'Control Domain Sniffing')} divider>
         <Switch
           size="sm"
           isSelected={controlSniff}
@@ -267,7 +269,7 @@ const MihomoConfig: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title="自动断开连接" divider>
+      <SettingItem title={t('自动断开连接', 'Auto Close Connection')} divider>
         <Switch
           size="sm"
           isSelected={autoCloseConnection}
@@ -276,7 +278,7 @@ const MihomoConfig: React.FC = () => {
           }}
         />
       </SettingItem>
-      <SettingItem title="在特定的 WiFi SSID 下直连">
+      <SettingItem title={t('在特定的 WiFi SSID 下直连', 'Direct Connection for Specific WiFi SSID')}>
         {pauseSSIDInput.join('') !== pauseSSID.join('') && (
           <Button
             size="sm"
@@ -285,7 +287,7 @@ const MihomoConfig: React.FC = () => {
               patchAppConfig({ pauseSSID: pauseSSIDInput })
             }}
           >
-            确认
+            {t('确认', 'Confirm')}
           </Button>
         )}
       </SettingItem>

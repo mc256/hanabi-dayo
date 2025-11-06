@@ -7,6 +7,7 @@ import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-c
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import React from 'react'
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 const SniffCard: React.FC<Props> = (props) => {
   const { appConfig } = useAppConfig()
   const { iconOnly } = props
+  const { t } = useLanguage()
   const {
     sniffCardStatus = 'col-span-1',
     controlSniff = true,
@@ -45,7 +47,7 @@ const SniffCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${sniffCardStatus} ${!controlSniff ? 'hidden' : ''} flex justify-center`}>
-        <Tooltip content="域名嗅探" placement="right">
+        <Tooltip content={t('域名嗅探', 'Domain Sniffing')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -103,7 +105,7 @@ const SniffCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            域名嗅探
+            {t('域名嗅探', 'Domain Sniffing')}
           </h3>
         </CardFooter>
       </Card>

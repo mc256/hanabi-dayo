@@ -19,6 +19,7 @@ interface IHost {
 
 interface AppConfig {
   updateChannel: 'stable' | 'beta'
+  language?: 'zh-CN' | 'en'
   core: 'mihomo' | 'mihomo-alpha' | 'system'
   systemCorePath?: string
   corePermissionMode?: 'elevated' | 'service'

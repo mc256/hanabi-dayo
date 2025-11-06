@@ -5,6 +5,7 @@ import { LuGroup } from 'react-icons/lu'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useGroups } from '@renderer/hooks/use-groups'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import React from 'react'
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 const ProxyCard: React.FC<Props> = (props) => {
   const { appConfig } = useAppConfig()
   const { iconOnly } = props
+  const { t } = useLanguage()
   const { proxyCardStatus = 'col-span-2', disableAnimation = false } = appConfig || {}
   const location = useLocation()
   const navigate = useNavigate()
@@ -34,7 +36,7 @@ const ProxyCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${proxyCardStatus} flex justify-center`}>
-        <Tooltip content="代理组" placement="right">
+        <Tooltip content={t('代理组', 'Proxy Groups')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -103,7 +105,7 @@ const ProxyCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            代理组
+            {t('代理组', 'Proxy Groups')}
           </h3>
         </CardFooter>
       </Card>

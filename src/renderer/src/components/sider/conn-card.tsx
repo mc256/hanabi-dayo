@@ -7,6 +7,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { IoLink } from 'react-icons/io5'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import { platform } from '@renderer/utils/init'
 import TrafficChart from './traffic-chart'
 
@@ -22,6 +23,7 @@ interface Props {
 const ConnCard: React.FC<Props> = (props) => {
   const { iconOnly } = props
   const { appConfig } = useAppConfig()
+  const { t } = useLanguage()
   const {
     showTraffic = false,
     connectionCardStatus = 'col-span-2',
@@ -105,7 +107,7 @@ const ConnCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${connectionCardStatus} flex justify-center`}>
-        <Tooltip content="连接" placement="right">
+        <Tooltip content={t('连接', 'Connections')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -172,7 +174,7 @@ const ConnCard: React.FC<Props> = (props) => {
               <div
                 className={`flex justify-between items-center w-full text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
               >
-                <h3>连接</h3>
+                <h3>{t('连接', 'Connections')}</h3>
               </div>
             </CardFooter>
             <TrafficChart data={trafficData} isActive={match} />
@@ -205,7 +207,7 @@ const ConnCard: React.FC<Props> = (props) => {
             <h3
               className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
             >
-              连接
+              {t('连接', 'Connections')}
             </h3>
           </CardFooter>
         </Card>

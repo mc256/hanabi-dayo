@@ -7,6 +7,7 @@ import { patchMihomoConfig } from '@renderer/utils/ipc'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import React from 'react'
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 const DNSCard: React.FC<Props> = (props) => {
   const { appConfig } = useAppConfig()
   const { iconOnly } = props
+  const { t } = useLanguage()
   const {
     dnsCardStatus = 'col-span-1',
     controlDns = true,
@@ -45,7 +47,7 @@ const DNSCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${dnsCardStatus} ${!controlDns ? 'hidden' : ''} flex justify-center`}>
-        <Tooltip content="DNS" placement="right">
+        <Tooltip content={t('DNS', 'DNS')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -103,7 +105,7 @@ const DNSCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            DNS
+            {t('DNS', 'DNS')}
           </h3>
         </CardFooter>
       </Card>

@@ -1,4 +1,5 @@
 import { app, dialog, ipcMain } from 'electron'
+import { getLocale, setLocale } from '../i18n'
 import {
   mihomoChangeProxy,
   mihomoCloseAllConnections,
@@ -207,6 +208,10 @@ export function registerIpcMainHandlers(): void {
   ipcMain.handle('setOverrideConfig', (_e, config) => ipcErrorWrapper(setOverrideConfig)(config))
   ipcMain.handle('getOverrideItem', (_e, id) => ipcErrorWrapper(getOverrideItem)(id))
   ipcMain.handle('addOverrideItem', (_e, item) => ipcErrorWrapper(addOverrideItem)(item))
+  ipcMain.handle('getAppLocale', () => getLocale())
+  ipcMain.handle('setAppLocale', (_e, locale: 'en' | 'zh-CN') => {
+    setLocale(locale)
+  })
   ipcMain.handle('removeOverrideItem', (_e, id) => ipcErrorWrapper(removeOverrideItem)(id))
   ipcMain.handle('updateOverrideItem', (_e, item) => ipcErrorWrapper(updateOverrideItem)(item))
   ipcMain.handle('getOverride', (_e, id, ext) => ipcErrorWrapper(getOverride)(id, ext))

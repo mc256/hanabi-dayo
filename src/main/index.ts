@@ -31,11 +31,20 @@ import { showFloatingWindow } from './resolve/floatingWindow'
 import iconv from 'iconv-lite'
 import { getAppConfigSync } from './config/app'
 import { getUserAgent } from './utils/userAgent'
+import { initI18n, t, setLocale } from './i18n'
 
 let quitTimeout: NodeJS.Timeout | null = null
 export let mainWindow: BrowserWindow | null = null
 
 const syncConfig = getAppConfigSync()
+
+// Initialize i18n with user preference
+initI18n(syncConfig.language)
+
+// Handle language change from renderer
+ipcMain.on('changeLanguage', (_event, locale: 'en' | 'zh-CN') => {
+  setLocale(locale)
+})
 
 if (
   process.platform === 'win32' &&
@@ -67,8 +76,8 @@ if (
         // ignore
       }
       dialog.showErrorBox(
-        '首次启动请以管理员权限运行',
-        `首次启动请以管理员权限运行\n${createErrorStr}\n${eStr}`
+        t('main.adminRequired'),
+        `${t('main.adminRequired')}\n${createErrorStr}\n${eStr}`
       )
     } finally {
       app.exit()
@@ -205,7 +214,7 @@ app.whenReady().then(async () => {
   try {
     await initPromise
   } catch (e) {
-    dialog.showErrorBox('应用初始化失败', `${e}`)
+    dialog.showErrorBox(t('main.initFailed'), `${e}`)
     app.quit()
   }
   try {
@@ -214,7 +223,7 @@ app.whenReady().then(async () => {
       await initProfileUpdater()
     })
   } catch (e) {
-    dialog.showErrorBox('内核启动出错', `${e}`)
+    dialog.showErrorBox(t('main.coreStartError'), `${e}`)
   }
   try {
     await startMonitor()
@@ -268,10 +277,10 @@ async function handleDeepLink(url: string): Promise<void> {
             url: profileUrl
           })
           mainWindow?.webContents.send('profileConfigUpdated')
-          new Notification({ title: '订阅导入成功' }).show()
+          new Notification({ title: t('main.subscriptionImportSuccess') }).show()
         }
       } catch (e) {
-        dialog.showErrorBox('订阅导入失败', `${url}\n${e}`)
+        dialog.showErrorBox(t('main.subscriptionImportFailed'), `${url}\n${e}`)
       }
       break
     }
@@ -280,7 +289,7 @@ async function handleDeepLink(url: string): Promise<void> {
         const urlParam = urlObj.searchParams.get('url')
         const profileName = urlObj.searchParams.get('name')
         if (!urlParam) {
-          throw new Error('缺少参数 url')
+          throw new Error(t('main.missingUrlParam'))
         }
 
         const confirmed = await showOverrideInstallConfirm(urlParam, profileName)
@@ -295,10 +304,10 @@ async function handleDeepLink(url: string): Promise<void> {
             ext: url.pathname.endsWith('.js') ? 'js' : 'yaml'
           })
           mainWindow?.webContents.send('overrideConfigUpdated')
-          new Notification({ title: '覆写导入成功' }).show()
+          new Notification({ title: t('main.overrideImportSuccess') }).show()
         }
       } catch (e) {
-        dialog.showErrorBox('覆写导入失败', `${url}\n${e}`)
+        dialog.showErrorBox(t('main.overrideImportFailed'), `${url}\n${e}`)
       }
       break
     }
