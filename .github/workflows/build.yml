@@ -7,8 +7,8 @@ on:
         description: 'Tag version to release'
         required: false
   push:
-    branches:
-      - master
+    # branches:
+    #   - master
     tags:
       - v*
     paths-ignore:
