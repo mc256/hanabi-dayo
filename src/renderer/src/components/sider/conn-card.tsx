@@ -107,7 +107,7 @@ const ConnCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${connectionCardStatus} flex justify-center`}>
-        <Tooltip content={t('连接', 'Connections')} placement="right">
+        <Tooltip content={t('sidebar.connections')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -174,7 +174,7 @@ const ConnCard: React.FC<Props> = (props) => {
               <div
                 className={`flex justify-between items-center w-full text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
               >
-                <h3>{t('连接', 'Connections')}</h3>
+                <h3>{t('sidebar.connections')}</h3>
               </div>
             </CardFooter>
             <TrafficChart data={trafficData} isActive={match} />
@@ -207,7 +207,7 @@ const ConnCard: React.FC<Props> = (props) => {
             <h3
               className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
             >
-              {t('连接', 'Connections')}
+              {t('sidebar.connections')}
             </h3>
           </CardFooter>
         </Card>

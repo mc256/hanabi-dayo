@@ -1,12 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { getAppLocale, setAppLocale } from '@renderer/utils/ipc'
-
-type Locale = 'en' | 'zh-CN'
+import { locales, type Locale, type I18nKey, getNestedValue } from '@renderer/i18n/locales'
 
 interface LanguageContextType {
   locale: Locale
   setLanguage: (locale: Locale) => Promise<void>
-  t: (zhText: string, enText: string) => string
+  t: {
+    // Support key-based translation (new way)
+    (key: I18nKey): string
+    // Support inline translation (legacy way for backward compatibility)
+    (zhText: string, enText: string, jaText?: string, zhHKText?: string): string
+  }
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
@@ -17,7 +21,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   useEffect(() => {
     // Initialize locale from main process
     getAppLocale().then((lang) => {
-      setLocale(lang)
+      setLocale(lang as Locale)
     })
   }, [])
 
@@ -28,12 +32,35 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     window.electron.ipcRenderer.send('changeLanguage', newLocale)
   }
 
-  const t = (zhText: string, enText: string): string => {
-    return locale === 'zh-CN' ? zhText : enText
+  const t = (
+    keyOrZhText: string,
+    enText?: string,
+    jaText?: string,
+    zhHKText?: string
+  ): string => {
+    // If second parameter is provided, use legacy inline translation
+    if (enText !== undefined) {
+      switch (locale) {
+        case 'zh-CN':
+          return keyOrZhText
+        case 'en':
+          return enText
+        case 'ja':
+          return jaText || enText // Fallback to English if Japanese not provided
+        case 'zh-HK':
+          return zhHKText || keyOrZhText // Fallback to Simplified Chinese if Traditional not provided
+        default:
+          return keyOrZhText
+      }
+    }
+
+    // Otherwise, use key-based translation
+    const translations = locales[locale]
+    return getNestedValue(translations, keyOrZhText)
   }
 
   return (
-    <LanguageContext.Provider value={{ locale, setLanguage, t }}>
+    <LanguageContext.Provider value={{ locale, setLanguage, t: t as LanguageContextType['t'] }}>
       {children}
     </LanguageContext.Provider>
   )

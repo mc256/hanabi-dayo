@@ -119,11 +119,11 @@ export async function patchAppConfig(patch: Partial<AppConfig>): Promise<void> {
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('patchAppConfig', patch))
 }
 
-export async function getAppLocale(): Promise<'en' | 'zh-CN'> {
+export async function getAppLocale(): Promise<'en' | 'zh-CN' | 'ja' | 'zh-HK'> {
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('getAppLocale'))
 }
 
-export async function setAppLocale(locale: 'en' | 'zh-CN'): Promise<void> {
+export async function setAppLocale(locale: 'en' | 'zh-CN' | 'ja' | 'zh-HK'): Promise<void> {
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('setAppLocale', locale))
 }
 

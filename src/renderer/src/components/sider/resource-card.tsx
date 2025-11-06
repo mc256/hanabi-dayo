@@ -34,7 +34,7 @@ const ResourceCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${resourceCardStatus} flex justify-center`}>
-        <Tooltip content={t('外部资源', 'Resources')} placement="right">
+        <Tooltip content={t('sidebar.resources')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -86,7 +86,7 @@ const ResourceCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            {t('外部资源', 'Resources')}
+            {t('sidebar.resources')}
           </h3>
         </CardFooter>
       </Card>

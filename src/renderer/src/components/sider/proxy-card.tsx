@@ -36,7 +36,7 @@ const ProxyCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${proxyCardStatus} flex justify-center`}>
-        <Tooltip content={t('代理组', 'Proxy Groups')} placement="right">
+        <Tooltip content={t('sidebar.proxyGroups')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -105,7 +105,7 @@ const ProxyCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            {t('代理组', 'Proxy Groups')}
+            {t('sidebar.proxyGroups')}
           </h3>
         </CardFooter>
       </Card>

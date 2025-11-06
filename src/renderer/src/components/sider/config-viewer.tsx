@@ -64,7 +64,7 @@ const ConfigViewer: React.FC<Props> = ({ onClose }) => {
     >
       <ModalContent className="h-full w-[calc(100%-100px)]">
         <ModalHeader className="flex pb-0 app-drag">
-          {t('当前运行时配置', 'Current Runtime Config')}
+          {t('sidebar.configViewer')}
         </ModalHeader>
         <ModalBody className="h-full">
           <BaseEditor
@@ -86,9 +86,9 @@ const ConfigViewer: React.FC<Props> = ({ onClose }) => {
         <ModalFooter className="pt-0 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Switch size="sm" isSelected={isDiff} onValueChange={setIsDiff} />
-            <span className="text-sm">{t('对比当前配置', 'Compare Current Config')}</span>
+            <span className="text-sm">{t('sidebar.compareConfig')}</span>
             <Switch size="sm" isSelected={sideBySide} onValueChange={setSideBySide} />
-            <span className="text-sm">{t('侧边显示', 'Side by Side')}</span>
+            <span className="text-sm">{t('sidebar.sideBySide')}</span>
             <Switch
               size="sm"
               isSelected={isRaw}
@@ -99,7 +99,7 @@ const ConfigViewer: React.FC<Props> = ({ onClose }) => {
                 }
               }}
             />
-            <span className="text-sm">{t('显示原始文本', 'Show Raw Text')}</span>
+            <span className="text-sm">{t('sidebar.showRawText')}</span>
             <Switch
               size="sm"
               isSelected={isOverride}
@@ -110,10 +110,10 @@ const ConfigViewer: React.FC<Props> = ({ onClose }) => {
                 }
               }}
             />
-            <span className="text-sm">{t('显示覆写后文本', 'Show Overridden Text')}</span>
+            <span className="text-sm">{t('sidebar.showOverriddenText')}</span>
           </div>
           <Button size="sm" variant="light" onPress={onClose}>
-            {t('关闭', 'Close')}
+            {t('common.close')}
           </Button>
         </ModalFooter>
       </ModalContent>

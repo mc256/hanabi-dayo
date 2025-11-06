@@ -38,7 +38,7 @@ const SubStoreCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${substoreCardStatus} ${!useSubStore ? 'hidden' : ''} flex justify-center`}>
-        <Tooltip content={t('Sub-Store', 'Sub-Store')} placement="right">
+        <Tooltip content={t('sidebar.subStore')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -90,7 +90,7 @@ const SubStoreCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            {t('Sub-Store', 'Sub-Store')}
+            {t('sidebar.subStore')}
           </h3>
         </CardFooter>
       </Card>

@@ -1,12 +1,16 @@
 import { en, TranslationKeys } from './locales/en'
 import { zhCN } from './locales/zh-CN'
+import { zhHK } from './locales/zh-HK'
+import { ja } from './locales/ja'
 import { app } from 'electron'
 
-type Locale = 'en' | 'zh-CN'
+type Locale = 'en' | 'zh-CN' | 'ja' | 'zh-HK'
 
 const translations = {
   en,
-  'zh-CN': zhCN
+  ja,
+  'zh-CN': zhCN,
+  'zh-HK': zhHK,
 }
 
 let currentLocale: Locale = 'zh-CN'

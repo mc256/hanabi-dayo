@@ -54,7 +54,7 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${mihomoCoreCardStatus} flex justify-center`}>
-        <Tooltip content={t('内核设置', 'Core Settings')} placement="right">
+        <Tooltip content={t('sidebar.coreSettings')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -127,7 +127,7 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
             <div
               className={`flex justify-between w-full text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
             >
-              <h4>{t('内核设置', 'Core Settings')}</h4>
+              <h4>{t('sidebar.coreSettings')}</h4>
               <h4>{calcTraffic(mem)}</h4>
             </div>
           </CardFooter>
@@ -159,7 +159,7 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
             <h3
               className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
             >
-              {t('内核设置', 'Core Settings')}
+              {t('sidebar.coreSettings')}
             </h3>
           </CardFooter>
         </Card>

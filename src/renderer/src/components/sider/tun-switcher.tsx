@@ -50,7 +50,7 @@ const TunSwitcher: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${tunCardStatus} flex justify-center`}>
-        <Tooltip content={t('虚拟网卡', 'TUN')} placement="right">
+        <Tooltip content={t('sidebar.tun')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -107,7 +107,7 @@ const TunSwitcher: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            {t('虚拟网卡', 'TUN')}
+            {t('sidebar.tun')}
           </h3>
         </CardFooter>
       </Card>

@@ -4,6 +4,7 @@ import { BaseEditor } from '../base/base-editor'
 import { getProfileStr, setProfileStr } from '@renderer/utils/ipc'
 import { useNavigate } from 'react-router-dom'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 
 interface Props {
   id: string
@@ -14,6 +15,7 @@ interface Props {
 const EditFileModal: React.FC<Props> = (props) => {
   const { id, onClose } = props
   const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
+  const { t } = useLanguage()
   const [currData, setCurrData] = useState('')
   const navigate = useNavigate()
 
@@ -42,10 +44,13 @@ const EditFileModal: React.FC<Props> = (props) => {
       <ModalContent className="h-full w-[calc(100%-100px)]">
         <ModalHeader className="flex pb-0 app-drag">
           <div className="flex justify-start">
-            <div className="flex items-center">编辑订阅</div>
+            <div className="flex items-center">{t('编辑订阅', 'Edit Subscription')}</div>
             {props.isRemote && (
               <small className="ml-2 text-foreground-500">
-                注意：此处编辑配置更新订阅后会还原，如需要自定义配置请使用
+                {t(
+                  '注意：此处编辑配置更新订阅后会还原，如需要自定义配置请使用',
+                  'Note: Changes here will be reset after subscription update. To customize, use'
+                )}
                 <Button
                   size="sm"
                   color="primary"
@@ -55,9 +60,9 @@ const EditFileModal: React.FC<Props> = (props) => {
                     navigate('/override')
                   }}
                 >
-                  覆写
+                  {t('覆写', 'Override')}
                 </Button>
-                功能
+                {t('功能', 'feature')}
               </small>
             )}
           </div>
@@ -67,7 +72,7 @@ const EditFileModal: React.FC<Props> = (props) => {
         </ModalBody>
         <ModalFooter className="pt-0">
           <Button size="sm" variant="light" onPress={onClose}>
-            取消
+            {t('取消', 'Cancel')}
           </Button>
           <Button
             size="sm"
@@ -77,7 +82,7 @@ const EditFileModal: React.FC<Props> = (props) => {
               onClose()
             }}
           >
-            确认
+            {t('确认', 'Confirm')}
           </Button>
         </ModalFooter>
       </ModalContent>

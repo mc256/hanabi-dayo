@@ -36,7 +36,7 @@ const RuleCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${ruleCardStatus} flex justify-center`}>
-        <Tooltip content={t('规则', 'Rules')} placement="right">
+        <Tooltip content={t('sidebar.rules')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -106,7 +106,7 @@ const RuleCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            {t('规则', 'Rules')}
+            {t('sidebar.rules')}
           </h3>
         </CardFooter>
       </Card>

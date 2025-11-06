@@ -47,7 +47,7 @@ const DNSCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${dnsCardStatus} ${!controlDns ? 'hidden' : ''} flex justify-center`}>
-        <Tooltip content={t('DNS', 'DNS')} placement="right">
+        <Tooltip content={t('sidebar.dns')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -105,7 +105,7 @@ const DNSCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            {t('DNS', 'DNS')}
+            {t('sidebar.dns')}
           </h3>
         </CardFooter>
       </Card>

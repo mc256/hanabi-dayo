@@ -34,7 +34,7 @@ const LogCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${logCardStatus} flex justify-center`}>
-        <Tooltip content={t('日志', 'Logs')} placement="right">
+        <Tooltip content={t('sidebar.logs')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -86,7 +86,7 @@ const LogCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            {t('日志', 'Logs')}
+            {t('sidebar.logs')}
           </h3>
         </CardFooter>
       </Card>

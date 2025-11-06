@@ -90,19 +90,21 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('语言 / Language', 'Language / 语言')} divider>
+        <SettingItem title={t('settings.general.language')} divider>
           <Select
             size="sm"
             className="w-[150px]"
             selectedKeys={[locale]}
             onChange={async (e) => {
-              const newLang = e.target.value as 'en' | 'zh-CN'
+              const newLang = e.target.value as 'en' | 'zh-CN' | 'ja' | 'zh-HK'
               await patchAppConfig({ language: newLang })
               await setLanguage(newLang)
             }}
           >
             <SelectItem key="zh-CN">简体中文</SelectItem>
+            <SelectItem key="zh-HK">繁體中文</SelectItem>
             <SelectItem key="en">English</SelectItem>
+            <SelectItem key="ja">日本語</SelectItem>
           </Select>
         </SettingItem>
         <SettingItem title={t('静默启动', 'Silent Start')} divider>
