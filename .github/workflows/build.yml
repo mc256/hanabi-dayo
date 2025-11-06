@@ -213,13 +213,6 @@ jobs:
           tag: pre-release
           deleteOnlyFromDrafts: false
 
-      - name: Tag Repo
-        uses: richardsimko/update-tag@v1
-        with:
-          tag_name: pre-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Publish Prerelease
         if: success()
         uses: softprops/action-gh-release@v2
@@ -241,38 +234,6 @@ jobs:
         with:
           fetch-depth: '0'
           fetch-tags: 'true'
-
-      - name: Generate Changelog
-        env:
-          API_URL: ${{ secrets.API_URL }}
-          API_KEY: ${{ secrets.API_KEY }}
-        run: |
-          TEXT=$(git log $(jq -r .version package.json)..HEAD --pretty=format:%s | grep -v '[0-9]\+\.[0-9]\+\.[0-9]\+$' | sed ':a;N;$!ba;s/\n/\\n/g')
-          QUESTION="Translate into Chinese:\n"""\n$TEXT\n""""
-          PAYLOAD=$(cat <<EOF
-          {
-            "stream": false,
-            "model": "gpt-5-mini",
-            "messages": [
-              {
-                "role": "system",
-                "content": "You are a professional translation engine, please translate the text into a colloquial, professional, elegant and fluent content, without the style of machine translation. You must only translate the text content, never interpret it."
-              },
-              {
-                "role": "user",
-                "content": "$QUESTION"
-              }
-            ]
-          }
-          EOF
-          )
-          RESPONSE=$(curl -s -X POST "$API_URL/v1/chat/completions" \
-            -H "Authorization: Bearer $API_KEY" \
-            -H "Content-Type: application/json" \
-            -d "$PAYLOAD" \
-            --max-time 30)
-          echo '# 更新日志' > changelog.md
-          echo $RESPONSE | jq .choices[0].message.content -r | sed 's/\\n/\n/g' | sed 's/^/ - /g' >> changelog.md
 
       - name: Update Version
         run: |
