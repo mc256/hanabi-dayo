@@ -12,6 +12,10 @@ on:
 jobs:
   tag:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version_check.outputs.version }}
+      changed: ${{ steps.version_check.outputs.changed }}
+      tag_exists: ${{ steps.tag_check.outputs.exists }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,6 +70,7 @@ jobs:
           git push origin "v$VERSION"
 
   build:
+    if: needs.tag.outputs.changed == 'true' && needs.tag.outputs.tag_exists == 'false'
     needs: [tag]
     runs-on: ${{ matrix.os }}
     strategy:
@@ -250,7 +255,8 @@ jobs:
             changelog.md
 
   pre-release:
-    needs: [build]
+    if: needs.tag.outputs.changed == 'true' && needs.tag.outputs.tag_exists == 'false'
+    needs: [tag, build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -281,7 +287,8 @@ jobs:
           prerelease: true
 
   release:
-    needs: [build]
+    if: needs.tag.outputs.changed == 'true' && needs.tag.outputs.tag_exists == 'false'
+    needs: [tag, build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -305,15 +312,15 @@ jobs:
         uses: 8Mi-Tech/delete-release-assets-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
+          tag: v${{ needs.tag.outputs.version }}
           deleteOnlyFromDrafts: false
 
       - name: Publish Release
         if: success()
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          body_path: changelog.md
+          tag_name: v${{ needs.tag.outputs.version }}
+          body_path: bin/changelog.md
           files: |
             latest.yml
             bin/dist/*
