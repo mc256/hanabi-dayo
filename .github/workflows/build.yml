@@ -237,12 +237,19 @@ jobs:
 
       - name: Update Version
         run: |
-          INPUT_VERSION="${{ github.event.inputs.version }}"
+          # Get version from manual input or from tag
+          if [ "${{ github.event.inputs.version }}" != "" ]; then
+            INPUT_VERSION="${{ github.event.inputs.version }}"
+          else
+            INPUT_VERSION="${{ github.ref_name }}"
+          fi
+
           CLEAN_VERSION=$(echo "$INPUT_VERSION" | sed 's/^v//')
           if [[ ! "$CLEAN_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid version format: $INPUT_VERSION"
             exit 1
           fi
+
           jq --arg version "$CLEAN_VERSION" '.version = $version' package.json > tmp.json && mv tmp.json package.json
 
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
