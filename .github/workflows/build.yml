@@ -83,11 +83,12 @@ jobs:
           GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
           VERSION=$(jq -r '.version' package.json)
 
-          if [ "${{ github.event.inputs.version }}" == "" ]; then
-            BASE_VERSION=$(echo $VERSION | awk -F. '{print $1"."$2"."$3+1}')
-            VERSION_PREFIX=${VERSION_PREFIX:-beta}
-            RELEASE_VERSION="${BASE_VERSION}-${VERSION_PREFIX}-${GIT_COMMIT_HASH}"
-          else
+          # Check if this is a tag push (official release)
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "Tag-triggered build: using version from package.json: $VERSION"
+            RELEASE_VERSION="$VERSION"
+          # Check if manual dispatch with version input
+          elif [ "${{ github.event.inputs.version }}" != "" ]; then
             INPUT_VERSION="${{ github.event.inputs.version }}"
             CLEAN_VERSION=$(echo "$INPUT_VERSION" | sed 's/^v//')
             if [[ ! "$CLEAN_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -95,8 +96,14 @@ jobs:
               exit 1
             fi
             RELEASE_VERSION="$CLEAN_VERSION"
+          # Otherwise, create a beta/pre-release version
+          else
+            BASE_VERSION=$(echo $VERSION | awk -F. '{print $1"."$2"."$3+1}')
+            VERSION_PREFIX=${VERSION_PREFIX:-beta}
+            RELEASE_VERSION="${BASE_VERSION}-${VERSION_PREFIX}-${GIT_COMMIT_HASH}"
           fi
 
+          echo "Building version: $RELEASE_VERSION"
           jq --arg version "$RELEASE_VERSION" '.version = $version' package.json > tmp.json && mv tmp.json package.json
 
       - name: Keep product name lowercase on Linux
@@ -250,7 +257,7 @@ jobs:
         uses: 8Mi-Tech/delete-release-assets-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.event.inputs.version != '' && github.event.inputs.version || github.ref }}
+          tag: ${{ github.ref_name }}
           deleteOnlyFromDrafts: false
 
       - name: Publish Release

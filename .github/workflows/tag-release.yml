@@ -17,6 +17,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
+          # Use PAT to trigger other workflows. If PAT_TOKEN secret is not set, falls back to GITHUB_TOKEN
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Check if version changed
         id: version_check
@@ -58,9 +60,31 @@ jobs:
 
       - name: Create and push tag
         if: steps.version_check.outputs.changed == 'true' && steps.tag_check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version_check.outputs.version }}"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git tag -a "v$VERSION" -m "Release v$VERSION"
-          git push origin "v$VERSION"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const version = '${{ steps.version_check.outputs.version }}';
+            const tagName = `v${version}`;
+            const sha = context.sha;
+            
+            // Create the tag
+            await github.rest.git.createTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: tagName,
+              message: `Release ${tagName}`,
+              object: sha,
+              type: 'commit'
+            });
+            
+            // Create the reference
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${tagName}`,
+              sha: sha
+            });
+            
+            console.log(`Created and pushed tag ${tagName}`);
+

@@ -60,10 +60,28 @@ git push origin master
    - Creates a git tag (e.g., `v2.0.9`)
    - Pushes the tag to GitHub
 
-2. **Build Workflow** (`build.yml`) triggers on new tag:
-   - Builds artifacts for all platforms
-   - Creates pre-release
-   - Creates official release with artifacts
+2. **Build Workflow** (`build.yml`) triggers automatically on new tag:
+   - Uses the version from `package.json` (already correct)
+   - Builds artifacts for all platforms (Windows x64/ARM64, Linux x64/ARM64/loong64, macOS x64/ARM64)
+   - Creates pre-release with all artifacts
+   - Creates official release with tag and all artifacts
+
+### Complete Flow Example:
+
+```
+npm version patch
+git push origin master
+  ↓
+[tag-release.yml runs]
+  ↓ Detects version 2.0.9
+  ↓ Creates tag v2.0.9
+  ↓
+[build.yml triggers on tag v2.0.9]
+  ↓ Builds all platforms
+  ↓ Uploads artifacts
+  ↓
+✅ Release v2.0.9 published with all artifacts!
+```
 
 ## Workflow Files
 
@@ -116,6 +134,13 @@ npm version prerelease               # 2.0.10-beta.0 -> 2.0.10-beta.1
 
 - Check that package.json version actually changed
 - Check workflow run in Actions tab
+- Verify the commit was pushed to master/main branch
+
+**Q: Tag created but no build/release?**
+
+- Check that build.yml workflow triggered (should trigger automatically on tag push)
+- Look for the build workflow run in Actions tab
+- Verify tag format is `v*` (e.g., v2.0.9)
 
 **Q: Want to skip auto-tagging?**
 
@@ -125,4 +150,31 @@ npm version prerelease               # 2.0.10-beta.0 -> 2.0.10-beta.1
 **Q: Made a mistake with version?**
 
 - Delete the tag: `git tag -d v2.0.9 && git push origin :refs/tags/v2.0.9`
+- Delete the release on GitHub if it was created
 - Fix package.json and push again
+
+**Q: Need to manually trigger a build?**
+
+- Use workflow_dispatch: Go to Actions → Build → Run workflow
+- Or create tag manually: `git tag v2.0.9 && git push origin v2.0.9`
+
+## Testing the Workflow
+
+To test without creating a real release:
+
+```bash
+# 1. Create a test branch
+git checkout -b test-release
+
+# 2. Bump to a test version
+npm version prerelease --preid=test  # e.g., 2.0.9-test.0
+
+# 3. Push to test branch (won't trigger auto-tag on non-master branch)
+git push origin test-release
+
+# 4. Manually create tag to test build
+git tag v2.0.9-test.0
+git push origin v2.0.9-test.0
+
+# This will trigger the build workflow
+```
