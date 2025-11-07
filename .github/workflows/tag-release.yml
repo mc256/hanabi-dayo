@@ -1,0 +1,66 @@
+name: Auto Tag on Version Change
+permissions: write-all
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'package.json'
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if version changed
+        id: version_check
+        run: |
+          # Get current version from package.json
+          CURRENT_VERSION=$(jq -r '.version' package.json)
+
+          # Get previous version from package.json
+          git checkout HEAD~1 -- package.json 2>/dev/null || true
+          PREVIOUS_VERSION=$(jq -r '.version' package.json 2>/dev/null || echo "0.0.0")
+
+          # Restore current package.json
+          git checkout HEAD -- package.json
+
+          echo "Current version: $CURRENT_VERSION"
+          echo "Previous version: $PREVIOUS_VERSION"
+
+          if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
+            echo "Version changed from $PREVIOUS_VERSION to $CURRENT_VERSION"
+            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version unchanged"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if tag exists
+        id: tag_check
+        if: steps.version_check.outputs.changed == 'true'
+        run: |
+          VERSION="${{ steps.version_check.outputs.version }}"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v$VERSION does not exist"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag
+        if: steps.version_check.outputs.changed == 'true' && steps.tag_check.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version_check.outputs.version }}"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
