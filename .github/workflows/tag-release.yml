@@ -66,6 +66,7 @@ jobs:
           git push origin "v$VERSION"
 
   build:
+    needs: [tag]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -280,7 +281,6 @@ jobs:
           prerelease: true
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: [build]
     runs-on: ubuntu-latest
     steps:
