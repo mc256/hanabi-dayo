@@ -23,6 +23,7 @@ import { triggerSysProxy } from '../sys/sysproxy'
 import { quitWithoutCore, restartCore } from '../core/manager'
 import { floatingWindow, triggerFloatingWindow } from './floatingWindow'
 import { t } from '../i18n'
+import { destroyLinuxTrayIcon, initLinuxTrayIcon, updateLinuxTrayIcon } from './trayIcon'
 
 export let tray: Tray | null = null
 
@@ -336,6 +337,7 @@ export async function createTray(): Promise<void> {
     tray = new Tray(pngIcon)
     const menu = await buildContextMenu()
     tray.setContextMenu(menu)
+    await initLinuxTrayIcon()
   }
   if (process.platform === 'darwin') {
     const icon = nativeImage.createFromPath(templateIcon).resize({ height: 16 })
@@ -386,6 +388,8 @@ async function updateTrayMenu(): Promise<void> {
   tray?.popUpContextMenu(menu) // 弹出菜单
   if (process.platform === 'linux') {
     tray?.setContextMenu(menu)
+    const { mode = 'rule' } = await getControledMihomoConfig()
+    updateLinuxTrayIcon(mode)
   }
 }
 
@@ -428,6 +432,7 @@ export async function showTrayIcon(): Promise<void> {
 }
 
 export async function closeTrayIcon(): Promise<void> {
+  destroyLinuxTrayIcon()
   if (tray) {
     tray.destroy()
   }
