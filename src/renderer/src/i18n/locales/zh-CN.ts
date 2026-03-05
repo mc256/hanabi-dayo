@@ -136,23 +136,6 @@ export const zhCN = {
       restartApp: '重启应用',
     },
 
-    // Sub-Store
-    substore: {
-      title: 'Sub-Store 设置',
-      enable: '启用 Sub-Store',
-      allowLAN: '允许局域网连接',
-      useCustomBackend: '使用自建 Sub-Store 后端',
-      customBackendURL: '自建 Sub-Store 后端地址',
-      protocolRequired: '必须包含协议头',
-      enableProxyForRequests: '为 Sub-Store 内所有请求启用代理',
-      scheduledSync: '定时同步订阅/文件',
-      scheduledRestore: '定时恢复配置',
-      scheduledBackup: '定时备份配置',
-      cronExpression: 'Cron 表达式',
-      invalidCron: 'Cron 表达式无效',
-      restartToApply: '重启应用生效',
-    },
-
     // WebDAV
     webdav: {
       title: 'WebDAV 备份',
@@ -201,7 +184,6 @@ export const zhCN = {
     coreSettings: '内核设置',
     sniffing: '域名嗅探',
     logs: '日志',
-    subStore: 'Sub-Store',
     configViewer: '当前运行时配置',
     compareConfig: '对比当前配置',
     sideBySide: '侧边显示',
@@ -319,10 +301,6 @@ export const zhCN = {
     profileImport: {
       title: '订阅导入',
       description: 'Sparkle 支持多种订阅导入方式，在此输入订阅链接，点击导入即可导入您的订阅配置，如果您的订阅需要代理才能更新，请勾选"代理"再点击导入，当然这需要已经有一个可以正常使用的订阅才可以',
-    },
-    substore: {
-      title: 'Sub-Store',
-      description: 'Sparkle 深度集成了 Sub-Store，您可以点击该按钮进入 Sub-Store 或直接导入您通过 Sub-Store 管理的订阅，Sparkle 默认使用内置的 Sub-Store 后端，如果您有自建的 Sub-Store 后端，可以在设置页面中配置，如果您不使用 Sub-Store 也可以在设置页面中关闭',
     },
     localProfile: {
       title: '本地订阅',

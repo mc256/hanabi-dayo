@@ -56,9 +56,6 @@ export const ja = {
   // Misc
   'misc.selectSubscriptionFile': 'サブスクリプションファイルを選択',
   
-  // Sub-Store Server
-  'server.downloadFailed': 'Sub-Storeファイルのダウンロードに失敗しました',
-  
   // Theme
   'theme.default': 'デフォルト',
   
@@ -125,13 +122,6 @@ export const ja = {
   
   // Comments
   'comment.neverTakeOver': 'ステータスの復元を引き継がない',
-  'comment.downloadBackendFiles': 'バックエンドファイルをダウンロード',
-  'comment.downloadFrontendFiles': 'フロントエンドファイルをダウンロード',
-  'comment.createTempDir': '一時ディレクトリを作成',
-  'comment.unzipToTemp': '最初に一時ディレクトリに解凍',
-  'comment.ensureTargetDirExists': 'ターゲットディレクトリが存在し、空であることを確認',
-  'comment.moveDistContents': 'distディレクトリの内容をターゲットディレクトリに移動',
-  'comment.cleanupTempDir': '一時ディレクトリをクリーンアップ',
   'comment.avoidErrorCreatingTray': 'トレイメニュー作成時のエラーを回避'
 } as const
 

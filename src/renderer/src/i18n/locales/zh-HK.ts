@@ -136,23 +136,6 @@ export const zhHK = {
       restartApp: '重啟應用程式',
     },
 
-    // Sub-Store
-    substore: {
-      title: 'Sub-Store 設定',
-      enable: '啟用 Sub-Store',
-      allowLAN: '允許區域網路連接',
-      useCustomBackend: '使用自建 Sub-Store 後端',
-      customBackendURL: '自建 Sub-Store 後端位址',
-      protocolRequired: '必須包含協定頭',
-      enableProxyForRequests: '為 Sub-Store 內所有請求啟用代理',
-      scheduledSync: '定時同步訂閱/檔案',
-      scheduledRestore: '定時還原設定',
-      scheduledBackup: '定時備份設定',
-      cronExpression: 'Cron 表達式',
-      invalidCron: 'Cron 表達式無效',
-      restartToApply: '重啟應用程式生效',
-    },
-
     // WebDAV
     webdav: {
       title: 'WebDAV 備份',
@@ -201,7 +184,6 @@ export const zhHK = {
     coreSettings: '核心設定',
     sniffing: '網域嗅探',
     logs: '日誌',
-    subStore: 'Sub-Store',
     configViewer: '目前執行時設定',
     compareConfig: '對比目前設定',
     sideBySide: '側邊顯示',
@@ -319,10 +301,6 @@ export const zhHK = {
     profileImport: {
       title: '訂閱匯入',
       description: 'Sparkle 支援多種訂閱匯入方式，在此輸入訂閱連結，點選匯入即可匯入您的訂閱設定，如果您的訂閱需要代理才能更新，請勾選「代理」再點選匯入，當然這需要已經有一個可以正常使用的訂閱才可以',
-    },
-    substore: {
-      title: 'Sub-Store',
-      description: 'Sparkle 深度整合了 Sub-Store，您可以點選該按鈕進入 Sub-Store 或直接匯入您透過 Sub-Store 管理的訂閱，Sparkle 預設使用內建的 Sub-Store 後端，如果您有自建的 Sub-Store 後端，可以在設定頁面中設定，如果您不使用 Sub-Store 也可以在設定頁面中關閉',
     },
     localProfile: {
       title: '本機訂閱',

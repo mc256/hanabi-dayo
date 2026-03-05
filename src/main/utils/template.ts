@@ -11,7 +11,6 @@ export const defaultConfig: AppConfig = {
   proxyCols: 'auto',
   connectionDirection: 'asc',
   connectionOrderBy: 'time',
-  useSubStore: true,
   proxyDisplayMode: 'simple',
   proxyDisplayOrder: 'default',
   autoCheckUpdate: false,
@@ -31,8 +30,7 @@ export const defaultConfig: AppConfig = {
     'rule',
     'resource',
     'override',
-    'log',
-    'substore'
+    'log'
   ],
   siderWidth: 250,
   sysProxy: { enable: false, mode: 'manual' },
