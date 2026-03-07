@@ -56,9 +56,6 @@ export const zhHK = {
   // Misc
   'misc.selectSubscriptionFile': '選擇訂閱檔案',
   
-  // Sub-Store Server
-  'server.downloadFailed': '下載 Sub-Store 檔案失敗',
-  
   // Theme
   'theme.default': '預設',
   
@@ -125,13 +122,6 @@ export const zhHK = {
   
   // Comments
   'comment.neverTakeOver': '從不接管狀態恢復',
-  'comment.downloadBackendFiles': '下載後端檔案',
-  'comment.downloadFrontendFiles': '下載前端檔案',
-  'comment.createTempDir': '建立暫存目錄',
-  'comment.unzipToTemp': '先解壓縮到暫存目錄',
-  'comment.ensureTargetDirExists': '確保目標目錄存在並清空',
-  'comment.moveDistContents': '將 dist 目錄中的內容移動到目標目錄',
-  'comment.cleanupTempDir': '清理暫存目錄',
   'comment.avoidErrorCreatingTray': '避免出錯時無法建立系統匣選單'
 } as const
 

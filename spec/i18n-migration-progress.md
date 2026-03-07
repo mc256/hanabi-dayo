@@ -9,7 +9,6 @@
 - ✅ sniff-card.tsx
 - ✅ tun-switcher.tsx
 - ✅ sysproxy-switcher.tsx
-- ✅ substore-card.tsx
 - ✅ rule-card.tsx
 - ✅ resource-card.tsx
 - ✅ outbound-mode-switcher.tsx
@@ -41,7 +40,6 @@
 - ⏳ mihomo-config.tsx (~20 处翻译)
 - ⏳ shortcut-config.tsx (~12 处翻译)
 - ⏳ sider-config.tsx (~15 处翻译)
-- ⏳ substore-config.tsx (~18 处翻译)
 - ⏳ webdav-config.tsx (~10 处翻译)
 - ⏳ actions.tsx (~15 处翻译)
 

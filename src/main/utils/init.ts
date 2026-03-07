@@ -11,7 +11,6 @@ import {
   profilePath,
   profilesDir,
   resourcesFilesDir,
-  subStoreDir,
   themesDir
 } from './dirs'
 import {
@@ -25,11 +24,7 @@ import { stringifyYaml } from './yaml'
 import { mkdir, writeFile, cp, rm, readdir } from 'fs/promises'
 import { existsSync } from 'fs'
 import path from 'path'
-import {
-  startPacServer,
-  startSubStoreBackendServer,
-  startSubStoreFrontendServer
-} from '../resolve/server'
+import { startPacServer } from '../resolve/server'
 import { triggerSysProxy } from '../sys/sysproxy'
 import {
   getAppConfig,
@@ -63,9 +58,6 @@ async function initDirs(): Promise<void> {
   }
   if (!existsSync(mihomoTestDir())) {
     await mkdir(mihomoTestDir())
-  }
-  if (!existsSync(subStoreDir())) {
-    await mkdir(subStoreDir())
   }
 }
 
@@ -105,8 +97,6 @@ async function initFiles(): Promise<void> {
     copy('geoip.dat'),
     copy('geosite.dat'),
     copy('ASN.mmdb'),
-    copy('sub-store.bundle.js'),
-    copy('sub-store-frontend')
   ])
 }
 
@@ -152,12 +142,10 @@ async function migration(): Promise<void> {
       'mihomo',
       'dns',
       'sniff',
-      'log',
-      'substore'
+      'log'
     ],
     appTheme = 'system',
     envType = [process.platform === 'win32' ? 'powershell' : 'bash'],
-    useSubStore = true,
     showFloatingWindow = false,
     disableTray = false,
     encryptedPassword,
@@ -173,9 +161,9 @@ async function migration(): Promise<void> {
     'lan-allowed-ips': lanAllowedIps,
     'lan-disallowed-ips': lanDisallowedIps
   } = await getControledMihomoConfig()
-  // add substore sider card
-  if (useSubStore && !siderOrder.includes('substore')) {
-    await patchAppConfig({ siderOrder: [...siderOrder, 'substore'] })
+  // remove substore from siderOrder if present
+  if (siderOrder.includes('substore')) {
+    await patchAppConfig({ siderOrder: siderOrder.filter((s: string) => s !== 'substore') })
   }
   // add default skip auth prefix
   if (!skipAuthPrefixes) {
@@ -252,8 +240,6 @@ export async function init(): Promise<void> {
   await initFiles()
   await cleanup()
   await initKeyManager()
-  await startSubStoreFrontendServer()
-  await startSubStoreBackendServer()
   const { sysProxy, onlyActiveDevice = false, networkDetection = false } = await getAppConfig()
   if (networkDetection) {
     await startNetworkDetection()

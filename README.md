@@ -11,7 +11,7 @@
 - [x] Built-in stable and preview Mihomo cores
 - [x] One-click backup and restore configurations via WebDAV
 - [x] Powerful override functionality for arbitrary configuration file modifications
-- [x] Deep integration with Sub-Store for easy subscription management
+
 
 ## Development
 

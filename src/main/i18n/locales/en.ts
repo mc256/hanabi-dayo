@@ -56,9 +56,6 @@ export const en = {
   // Misc
   'misc.selectSubscriptionFile': 'Select Subscription File',
   
-  // Sub-Store Server
-  'server.downloadFailed': 'Failed to download Sub-Store files',
-  
   // Theme
   'theme.default': 'Default',
   
@@ -125,13 +122,6 @@ export const en = {
   
   // Comments
   'comment.neverTakeOver': 'Never take over status recovery',
-  'comment.downloadBackendFiles': 'Download backend files',
-  'comment.downloadFrontendFiles': 'Download frontend files',
-  'comment.createTempDir': 'Create temporary directory',
-  'comment.unzipToTemp': 'Unzip to temporary directory first',
-  'comment.ensureTargetDirExists': 'Ensure target directory exists and is empty',
-  'comment.moveDistContents': 'Move contents from dist directory to target directory',
-  'comment.cleanupTempDir': 'Cleanup temporary directory',
   'comment.avoidErrorCreatingTray': 'Avoid errors when creating tray menu'
 } as const
 

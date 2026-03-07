@@ -136,23 +136,6 @@ export const en = {
       restartApp: 'Restart App',
     },
 
-    // Sub-Store
-    substore: {
-      title: 'Sub-Store Settings',
-      enable: 'Enable Sub-Store',
-      allowLAN: 'Allow LAN Connection',
-      useCustomBackend: 'Use Custom Sub-Store Backend',
-      customBackendURL: 'Custom Sub-Store Backend URL',
-      protocolRequired: 'Must include protocol',
-      enableProxyForRequests: 'Enable Proxy for All Requests in Sub-Store',
-      scheduledSync: 'Scheduled Sync Subscriptions/Files',
-      scheduledRestore: 'Scheduled Restore Config',
-      scheduledBackup: 'Scheduled Backup Config',
-      cronExpression: 'Cron expression',
-      invalidCron: 'Invalid Cron expression',
-      restartToApply: 'Restart app to take effect',
-    },
-
     // WebDAV
     webdav: {
       title: 'WebDAV Backup',
@@ -201,7 +184,6 @@ export const en = {
     coreSettings: 'Core Settings',
     sniffing: 'Domain Sniffing',
     logs: 'Logs',
-    subStore: 'Sub-Store',
     configViewer: 'Current Runtime Config',
     compareConfig: 'Compare Current Config',
     sideBySide: 'Side by Side',
@@ -319,10 +301,6 @@ export const en = {
     profileImport: {
       title: 'Subscription Import',
       description: 'Sparkle supports various subscription import methods. Enter the subscription link here and click Import to import your subscription configuration. If your subscription needs a proxy to update, check "Proxy" before clicking Import. Of course, this requires having a working subscription first.',
-    },
-    substore: {
-      title: 'Sub-Store',
-      description: 'Sparkle is deeply integrated with Sub-Store. You can click this button to enter Sub-Store or directly import subscriptions managed through Sub-Store. Sparkle uses the built-in Sub-Store backend by default. If you have a self-built Sub-Store backend, you can configure it in the settings page. If you don\'t use Sub-Store, you can also disable it in the settings page.',
     },
     localProfile: {
       title: 'Local Subscription',

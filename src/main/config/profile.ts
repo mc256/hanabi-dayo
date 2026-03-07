@@ -13,7 +13,6 @@ import crypto from 'crypto'
 import { URL } from 'url'
 import { parseYaml, stringifyYaml } from '../utils/yaml'
 import { defaultProfile } from '../utils/template'
-import { subStorePort } from '../resolve/server'
 import { dirname, join } from 'path'
 import { deepMerge } from '../utils/merge'
 import { getUserAgent } from '../utils/userAgent'
@@ -126,7 +125,6 @@ export async function createProfile(item: Partial<ProfileItem>): Promise<Profile
     fingerprint: item.fingerprint,
     ua: item.ua,
     verify: item.verify ?? false,
-    substore: item.substore || false,
     interval: item.interval || 0,
     override: item.override || [],
     useProxy: item.useProxy || false,
@@ -137,23 +135,7 @@ export async function createProfile(item: Partial<ProfileItem>): Promise<Profile
       const { 'mixed-port': mixedPort = 7890 } = await getControledMihomoConfig()
       if (!item.url) throw new Error(t('profile.emptyUrl'))
       let res: AxiosResponse
-      if (newItem.substore) {
-        const urlObj = new URL(`http://127.0.0.1:${subStorePort}${item.url}`)
-        urlObj.searchParams.set('target', 'ClashMeta')
-        urlObj.searchParams.set('noCache', 'true')
-        if (newItem.useProxy && mixedPort != 0) {
-          urlObj.searchParams.set('proxy', `http://127.0.0.1:${mixedPort}`)
-        } else {
-          urlObj.searchParams.delete('proxy')
-        }
-        res = await axios.get(urlObj.toString(), {
-          headers: {
-            'User-Agent': await getUserAgent()
-          },
-          responseType: 'text'
-        })
-      } else {
-        try {
+      try {
           const httpsAgent = new https.Agent({ rejectUnauthorized: !item.fingerprint })
 
           if (item.fingerprint) {
@@ -230,7 +212,6 @@ export async function createProfile(item: Partial<ProfileItem>): Promise<Profile
           }
           throw error
         }
-      }
 
       const data = res.data
       const headers = res.headers

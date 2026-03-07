@@ -56,9 +56,6 @@ export const zhCN = {
   // Misc
   'misc.selectSubscriptionFile': '选择订阅文件',
   
-  // Sub-Store Server
-  'server.downloadFailed': '下载 Sub-Store 文件失败',
-  
   // Theme
   'theme.default': '默认',
   
@@ -125,12 +122,5 @@ export const zhCN = {
   
   // Comments
   'comment.neverTakeOver': '从不接管状态恢复',
-  'comment.downloadBackendFiles': '下载后端文件',
-  'comment.downloadFrontendFiles': '下载前端文件',
-  'comment.createTempDir': '创建临时目录',
-  'comment.unzipToTemp': '先解压到临时目录',
-  'comment.ensureTargetDirExists': '确保目标目录存在并清空',
-  'comment.moveDistContents': '将 dist 目录中的内容移动到目标目录',
-  'comment.cleanupTempDir': '清理临时目录',
   'comment.avoidErrorCreatingTray': '避免出错时无法创建托盘菜单'
 } as const

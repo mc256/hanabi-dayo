@@ -136,23 +136,6 @@ export const ja = {
       restartApp: 'アプリを再起動',
     },
 
-    // Sub-Store
-    substore: {
-      title: 'Sub-Store 設定',
-      enable: 'Sub-Storeを有効化',
-      allowLAN: 'LAN接続を許可',
-      useCustomBackend: 'カスタムSub-Storeバックエンドを使用',
-      customBackendURL: 'カスタムSub-StoreバックエンドURL',
-      protocolRequired: 'プロトコルを含める必要があります',
-      enableProxyForRequests: 'Sub-Store内のすべてのリクエストでプロキシを有効化',
-      scheduledSync: 'スケジュールされた同期サブスクリプション/ファイル',
-      scheduledRestore: 'スケジュールされた設定復元',
-      scheduledBackup: 'スケジュールされた設定バックアップ',
-      cronExpression: 'Cron式',
-      invalidCron: '無効なCron式',
-      restartToApply: 'アプリを再起動して有効にします',
-    },
-
     // WebDAV
     webdav: {
       title: 'WebDAV バックアップ',
@@ -201,7 +184,6 @@ export const ja = {
     coreSettings: 'コア設定',
     sniffing: 'ドメインスニッフィング',
     logs: 'ログ',
-    subStore: 'Sub-Store',
     configViewer: '現在のランタイム設定',
     compareConfig: '現在の設定と比較',
     sideBySide: '並べて表示',
@@ -319,10 +301,6 @@ export const ja = {
     profileImport: {
       title: 'サブスクリプションのインポート',
       description: 'Sparkle はさまざまなサブスクリプションのインポート方法をサポートしています。ここにサブスクリプションリンクを入力し、インポートをクリックしてサブスクリプション設定をインポートできます。サブスクリプションの更新にプロキシが必要な場合は、インポートをクリックする前に「プロキシ」にチェックを入れてください。もちろん、これには正常に動作するサブスクリプションが既に必要です。',
-    },
-    substore: {
-      title: 'Sub-Store',
-      description: 'Sparkle は Sub-Store と深く統合されています。このボタンをクリックして Sub-Store に入るか、Sub-Store を通じて管理されているサブスクリプションを直接インポートできます。Sparkle はデフォルトで内蔵の Sub-Store バックエンドを使用します。自己構築の Sub-Store バックエンドがある場合は、設定ページで設定できます。Sub-Store を使用しない場合は、設定ページで無効にすることもできます。',
     },
     localProfile: {
       title: 'ローカルサブスクリプション',
