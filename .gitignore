@@ -1,6 +1,7 @@
 node_modules
 resources/files
 resources/sidecar
+sandbox
 extra
 dist
 out
