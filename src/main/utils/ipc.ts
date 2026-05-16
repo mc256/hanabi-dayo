@@ -1,4 +1,4 @@
-import { app, dialog, ipcMain } from 'electron'
+import { app, ipcMain } from 'electron'
 import { getLocale, setLocale } from '../i18n'
 import {
   mihomoChangeProxy,
