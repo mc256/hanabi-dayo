@@ -8,6 +8,7 @@ import http from 'http'
 import tls from 'tls'
 import { parseYaml, stringifyYaml } from '../utils/yaml'
 import { getCertFingerprint } from './profile'
+import { t } from '../i18n'
 
 let overrideConfig: OverrideConfig // override.yaml
 
@@ -34,7 +35,7 @@ export async function updateOverrideItem(item: OverrideItem): Promise<void> {
   const config = await getOverrideConfig()
   const index = config.items.findIndex((i) => i.id === item.id)
   if (index === -1) {
-    throw new Error('Override not found')
+    throw new Error(t('override.notFound'))
   }
   config.items[index] = item
   await setOverrideConfig(config)
@@ -63,7 +64,7 @@ export async function createOverride(item: Partial<OverrideItem>): Promise<Overr
   const id = item.id || new Date().getTime().toString(16)
   const newItem = {
     id,
-    name: item.name || (item.type === 'remote' ? 'Remote File' : 'Local File'),
+    name: item.name || (item.type === 'remote' ? t('override.remoteFile') : t('override.localFile')),
     type: item.type,
     ext: item.ext || 'js',
     url: item.url,
@@ -73,7 +74,7 @@ export async function createOverride(item: Partial<OverrideItem>): Promise<Overr
   switch (newItem.type) {
     case 'remote': {
       const { 'mixed-port': mixedPort = 7890 } = await getControledMihomoConfig()
-      if (!item.url) throw new Error('Empty URL')
+      if (!item.url) throw new Error(t('override.emptyUrl'))
       let res: AxiosResponse
       try {
         const httpsAgent = new https.Agent({ rejectUnauthorized: !item.fingerprint })
@@ -82,7 +83,7 @@ export async function createOverride(item: Partial<OverrideItem>): Promise<Overr
           const expected = item.fingerprint.replace(/:/g, '').toUpperCase()
           const verify = (s: tls.TLSSocket) => {
             if (getCertFingerprint(s.getPeerCertificate()) !== expected)
-              s.destroy(new Error('证书指纹不匹配'))
+              s.destroy(new Error(t('profile.certFingerprintMismatch')))
           }
 
           if (mixedPort != 0) {
@@ -99,7 +100,7 @@ export async function createOverride(item: Partial<OverrideItem>): Promise<Overr
 
               req.on('connect', (res, sock, head) => {
                 if (res.statusCode !== 200) {
-                  cb?.(new Error(`代理连接失败，状态码：${res.statusCode}`), null!)
+                  cb?.(new Error(`${t('profile.proxyConnectFailed')}：${res.statusCode}`), null!)
                   return
                 }
                 if (head.length > 0) sock.unshift(head)
@@ -137,15 +138,15 @@ export async function createOverride(item: Partial<OverrideItem>): Promise<Overr
       } catch (error) {
         if (axios.isAxiosError(error)) {
           if (error.code === 'ECONNRESET' || error.code === 'ECONNABORTED') {
-            throw new Error(`网络连接被重置或超时：${item.url}`)
+            throw new Error(`${t('profile.networkResetTimeout')}：${item.url}`)
           } else if (error.code === 'CERT_HAS_EXPIRED') {
-            throw new Error(`服务器证书已过期：${item.url}`)
+            throw new Error(`${t('profile.certExpired')}：${item.url}`)
           } else if (error.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE') {
-            throw new Error(`无法验证服务器证书：${item.url}`)
+            throw new Error(`${t('profile.certVerifyFailed')}：${item.url}`)
           } else if (error.message.includes('Certificate verification failed')) {
-            throw new Error(`证书验证失败：${item.url}`)
+            throw new Error(`${t('profile.certValidationFailed')}：${item.url}`)
           } else {
-            throw new Error(`请求失败：${error.message}`)
+            throw new Error(`${t('profile.requestFailed')}：${error.message}`)
           }
         }
         throw error

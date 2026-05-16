@@ -14,11 +14,11 @@ import crypto from 'crypto'
 import { URL } from 'url'
 import { parseYaml, stringifyYaml } from '../utils/yaml'
 import { defaultProfile } from '../utils/template'
-import { subStorePort } from '../resolve/server'
 import { dirname, isAbsolute, join, relative, resolve } from 'path'
 import { deepMerge } from '../utils/merge'
 import { getUserAgent } from '../utils/userAgent'
 import { execWithElevation } from '../utils/elevation'
+import { t } from '../i18n'
 
 let profileConfig: ProfileConfig // profile.yaml
 const FILE_PERMISSION_ELEVATION_REQUIRED = 'FILE_PERMISSION_ELEVATION_REQUIRED'
@@ -43,7 +43,7 @@ export async function setProfileConfig(config: ProfileConfig): Promise<void> {
 
 export async function getProfileItem(id: string | undefined): Promise<ProfileItem | undefined> {
   const { items } = await getProfileConfig()
-  if (!id || id === 'default') return { id: 'default', type: 'local', name: '空白订阅' }
+  if (!id || id === 'default') return { id: 'default', type: 'local', name: t('profile.empty') }
   return items.find((item) => item.id === id)
 }
 
@@ -66,7 +66,7 @@ export async function updateProfileItem(item: ProfileItem): Promise<void> {
   const config = await getProfileConfig()
   const index = config.items.findIndex((i) => i.id === item.id)
   if (index === -1) {
-    throw new Error('Profile not found')
+    throw new Error(t('profile.notFound'))
   }
   config.items[index] = item
   if (!item.autoUpdate) await delProfileUpdater(item.id)
@@ -116,21 +116,20 @@ export async function removeProfileItem(id: string): Promise<void> {
 
 export async function getCurrentProfileItem(): Promise<ProfileItem> {
   const { current } = await getProfileConfig()
-  return (await getProfileItem(current)) || { id: 'default', type: 'local', name: '空白订阅' }
+  return (await getProfileItem(current)) || { id: 'default', type: 'local', name: t('profile.empty') }
 }
 
 export async function createProfile(item: Partial<ProfileItem>): Promise<ProfileItem> {
   const id = item.id || new Date().getTime().toString(16)
   const newItem = {
     id,
-    name: item.name || (item.type === 'remote' ? 'Remote File' : 'Local File'),
+    name: item.name || (item.type === 'remote' ? t('profile.remoteFile') : t('profile.localFile')),
     type: item.type,
     url: item.url,
     fingerprint: item.fingerprint,
     ua: item.ua,
     verify: item.verify ?? false,
     autoUpdate: item.autoUpdate ?? true,
-    substore: item.substore || false,
     interval: item.interval || 0,
     override: item.override || [],
     useProxy: item.useProxy || false,
@@ -139,32 +138,16 @@ export async function createProfile(item: Partial<ProfileItem>): Promise<Profile
   switch (newItem.type) {
     case 'remote': {
       const { 'mixed-port': mixedPort = 7890 } = await getControledMihomoConfig()
-      if (!item.url) throw new Error('Empty URL')
+      if (!item.url) throw new Error(t('profile.emptyUrl'))
       let res: AxiosResponse
-      if (newItem.substore) {
-        const urlObj = new URL(`http://127.0.0.1:${subStorePort}${item.url}`)
-        urlObj.searchParams.set('target', 'ClashMeta')
-        urlObj.searchParams.set('noCache', 'true')
-        if (newItem.useProxy && mixedPort != 0) {
-          urlObj.searchParams.set('proxy', `http://127.0.0.1:${mixedPort}`)
-        } else {
-          urlObj.searchParams.delete('proxy')
-        }
-        res = await axios.get(urlObj.toString(), {
-          headers: {
-            'User-Agent': await getUserAgent()
-          },
-          responseType: 'text'
-        })
-      } else {
-        try {
+      try {
           const httpsAgent = new https.Agent({ rejectUnauthorized: !item.fingerprint })
 
           if (item.fingerprint) {
             const expected = item.fingerprint.replace(/:/g, '').toUpperCase()
             const verify = (s: tls.TLSSocket) => {
               if (getCertFingerprint(s.getPeerCertificate()) !== expected)
-                s.destroy(new Error('证书指纹不匹配'))
+                s.destroy(new Error(t('profile.certFingerprintMismatch')))
             }
 
             if (newItem.useProxy && mixedPort != 0) {
@@ -181,7 +164,7 @@ export async function createProfile(item: Partial<ProfileItem>): Promise<Profile
 
                 req.on('connect', (res, sock, head) => {
                   if (res.statusCode !== 200) {
-                    cb?.(new Error(`代理连接失败，状态码：${res.statusCode}`), null!)
+                    cb?.(new Error(`${t('profile.proxyConnectFailed')}：${res.statusCode}`), null!)
                     return
                   }
                   if (head.length > 0) sock.unshift(head)
@@ -221,20 +204,19 @@ export async function createProfile(item: Partial<ProfileItem>): Promise<Profile
         } catch (error) {
           if (axios.isAxiosError(error)) {
             if (error.code === 'ECONNRESET' || error.code === 'ECONNABORTED') {
-              throw new Error(`网络连接被重置或超时：${item.url}`)
+              throw new Error(`${t('profile.networkResetTimeout')}：${item.url}`)
             } else if (error.code === 'CERT_HAS_EXPIRED') {
-              throw new Error(`服务器证书已过期：${item.url}`)
+              throw new Error(`${t('profile.certExpired')}：${item.url}`)
             } else if (error.code === 'UNABLE_TO_VERIFY_LEAF_SIGNATURE') {
-              throw new Error(`无法验证服务器证书：${item.url}`)
+              throw new Error(`${t('profile.certVerifyFailed')}：${item.url}`)
             } else if (error.message.includes('Certificate verification failed')) {
-              throw new Error(`证书验证失败：${item.url}`)
+              throw new Error(`${t('profile.certValidationFailed')}：${item.url}`)
             } else {
-              throw new Error(`请求失败：${error.message}`)
+              throw new Error(`${t('profile.requestFailed')}：${error.message}`)
             }
           }
           throw error
         }
-      }
 
       const data = res.data
       const headers = res.headers
@@ -269,7 +251,7 @@ export async function createProfile(item: Partial<ProfileItem>): Promise<Profile
         try {
           parseYaml<MihomoConfig>(data)
         } catch (error) {
-          throw new Error('订阅格式错误，无法解析为有效的配置文件\n' + (error as Error).message)
+          throw new Error(t('profile.parseError') + '\n' + (error as Error).message)
         }
       }
       await setProfileStr(id, data)

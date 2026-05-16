@@ -5,6 +5,7 @@ import path from 'path'
 import { execSync } from 'child_process'
 import { getAppConfigSync } from '../config/app'
 import { checkCorePermissionPathSync } from '../core/permission-check'
+import { t } from '../i18n'
 
 export const homeDir = app.getPath('home')
 
@@ -26,22 +27,6 @@ export function taskDir(): string {
     mkdirSync(dir, { recursive: true })
   }
   return dir
-}
-
-export function subStoreDir(): string {
-  return path.join(dataDir(), 'substore')
-}
-
-export function subStoreFrontendDir(): string {
-  return path.join(subStoreDir(), 'sub-store-frontend')
-}
-
-export function subStoreBackendPath(): string {
-  return path.join(subStoreDir(), 'sub-store.bundle.js')
-}
-
-export function subStoreTempDir(): string {
-  return path.join(subStoreDir(), 'temp')
 }
 
 export function exeDir(): string {
@@ -105,12 +90,12 @@ export function mihomoCorePath(core: string): string {
   if (core === 'system') {
     const sysPath = systemCorePath()
     if (!sysPath || !existsSync(sysPath)) {
-      const errorMsg = sysPath ? `系统内核路径无效或不存在: ${sysPath}` : '系统内核路径未设置'
+      const errorMsg = sysPath ? `${t('dirs.sysPathInvalid')}: ${sysPath}` : t('dirs.sysPathNotSet')
       throw new Error(errorMsg)
     }
     return sysPath
   }
-  throw new Error('内核路径错误')
+  throw new Error(t('dirs.corePathError'))
 }
 
 function systemCorePath(): string {
@@ -199,10 +184,6 @@ export function appLogPath(): string {
 
 export function coreLogPath(): string {
   return datedLogPath('core')
-}
-
-export function substoreLogPath(): string {
-  return datedLogPath('sub-store')
 }
 
 function hasCommand(command: string): boolean {

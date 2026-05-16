@@ -34,6 +34,7 @@ interface AppConfig {
   updateChannel: 'stable' | 'beta'
   notificationMode?: AppNotificationMode
   showUpdateButtonAfterNotification?: boolean
+  language?: 'zh-CN' | 'en' | 'ja' | 'zh-HK'
   core: 'mihomo' | 'mihomo-alpha' | 'system'
   systemCorePath?: string
   corePermissionMode?: 'elevated' | 'service'
@@ -68,24 +69,17 @@ interface AppConfig {
   resourceCardStatus?: CardStatus
   ruleCardStatus?: CardStatus
   sniffCardStatus?: CardStatus
-  substoreCardStatus?: CardStatus
   sysproxyCardStatus?: CardStatus
   tunCardStatus?: CardStatus
   githubToken?: string
   gistSyncEnabled?: boolean
-  useSubStore: boolean
-  subStoreHost?: string
-  subStoreBackendSyncCron?: string
-  subStoreBackendDownloadCron?: string
-  subStoreBackendUploadCron?: string
   autoLightweight?: boolean
   autoLightweightDelay?: number
   autoLightweightMode?: 'core' | 'tray'
   coreStartupMode?: 'post-up' | 'log'
-  useCustomSubStore?: boolean
-  useProxyInSubStore?: boolean
+  autoQuitWithoutCore?: boolean
+  autoQuitWithoutCoreDelay?: number
   mihomoCpuPriority?: Priority
-  customSubStoreUrl?: string
   diffWorkDir?: boolean
   autoSetDNSMode?: 'none' | 'exec' | 'service'
   originDNS?: string
@@ -164,7 +158,6 @@ interface ProfileItem {
   override?: string[]
   useProxy?: boolean
   extra?: SubscriptionUserInfo
-  substore?: boolean
   locked?: boolean
   autoUpdate?: boolean
 }
@@ -190,11 +183,4 @@ interface OverrideItem {
   url?: string
   file?: string
   fingerprint?: string
-}
-
-interface SubStoreSub {
-  name: string
-  displayName?: string
-  icon?: string
-  tag?: string[]
 }

@@ -11,9 +11,6 @@ import {
   profilePath,
   profilesDir,
   resourcesFilesDir,
-  subStoreBackendPath,
-  subStoreDir,
-  subStoreFrontendDir,
   themesDir
 } from './dirs'
 import {
@@ -27,11 +24,7 @@ import { stringifyYaml } from './yaml'
 import { mkdir, writeFile, cp, rm, readdir } from 'fs/promises'
 import { existsSync } from 'fs'
 import path from 'path'
-import {
-  startPacServer,
-  startSubStoreBackendServer,
-  startSubStoreFrontendServer
-} from '../resolve/server'
+import { startPacServer } from '../resolve/server'
 import { triggerSysProxy } from '../sys/sysproxy'
 import {
   getAppConfig,
@@ -55,8 +48,7 @@ async function initDirs(): Promise<void> {
     overrideDir(),
     mihomoWorkDir(),
     logDir(),
-    mihomoTestDir(),
-    subStoreDir()
+    mihomoTestDir()
   ]
   await Promise.all(
     dirs.map(async (dir) => {
@@ -119,8 +111,6 @@ async function initFiles(): Promise<void> {
     copy('geoip.dat'),
     copy('geosite.dat'),
     copy('ASN.mmdb'),
-    copy('sub-store.bundle.js', subStoreBackendPath()),
-    copy('sub-store-frontend', subStoreFrontendDir())
   ])
 }
 
@@ -173,6 +163,13 @@ async function migration(): Promise<void> {
     }
   }
 
+  // remove substore from siderOrder if present (Sub-Store removed in this fork)
+  if (Array.isArray(appConfig.siderOrder) && appConfig.siderOrder.includes('substore')) {
+    await patchAppConfig({
+      siderOrder: (appConfig.siderOrder as string[]).filter((s) => s !== 'substore')
+    })
+  }
+
   if (mihomoConfig['external-controller-pipe' as keyof MihomoConfig]) {
     mihomoConfigPatch['external-controller-pipe' as keyof MihomoConfig] = undefined as never
   }
@@ -205,6 +202,14 @@ async function migration(): Promise<void> {
 }
 
 function initDeeplink(): void {
+  // On Linux, scheme handlers are registered declaratively via the bundled
+  // .desktop file (MimeType=x-scheme-handler/...) and `update-desktop-database`
+  // in the package postinst. Calling app.setAsDefaultProtocolClient() here is
+  // redundant, and on GNOME it is harmful: Electron shells out to
+  // `xdg-settings set default-url-scheme-handler`, whose gnome3 code path also
+  // runs `set_browser_mime` with no MIME argument, which is hard-coded to
+  // `text/html` — hijacking the default HTML/browser handler on every launch.
+  if (process.platform === 'linux') return
   if (process.defaultApp) {
     if (process.argv.length >= 2) {
       app.setAsDefaultProtocolClient('clash', process.execPath, [path.resolve(process.argv[1])])
@@ -227,8 +232,6 @@ function runBackgroundInitTask(name: string, task: Promise<void>): void {
 function startBackgroundInit(appConfig: AppConfig): void {
   const { sysProxy, onlyActiveDevice = false, networkDetection = false } = appConfig
 
-  runBackgroundInitTask('substore frontend', startSubStoreFrontendServer())
-  runBackgroundInitTask('substore backend', startSubStoreBackendServer())
   runBackgroundInitTask('ssid check', startSSIDCheck())
 
   if (networkDetection) {

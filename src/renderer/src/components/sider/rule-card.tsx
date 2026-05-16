@@ -5,6 +5,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useRules } from '@renderer/hooks/use-rules'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import React from 'react'
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 const RuleCard: React.FC<Props> = (props) => {
   const { appConfig } = useAppConfig()
   const { iconOnly } = props
+  const { t } = useLanguage()
   const { ruleCardStatus = 'col-span-1', disableAnimation = false } = appConfig || {}
   const location = useLocation()
   const navigate = useNavigate()
@@ -34,7 +36,7 @@ const RuleCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${ruleCardStatus} flex justify-center`}>
-        <Tooltip content="规则" placement="right">
+        <Tooltip content={t('sidebar.rules')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -104,7 +106,7 @@ const RuleCard: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            规则
+            {t('sidebar.rules')}
           </h3>
         </CardFooter>
       </Card>

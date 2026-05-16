@@ -24,6 +24,7 @@ import { handleDeepLink } from './resolve/deepLink'
 import { initAppQuitLifecycle } from './resolve/appLifecycle'
 import { showNotification } from './utils/notification'
 import { appendAppLog } from './utils/log'
+import { initI18n } from './i18n'
 
 export { setNotQuitDialog } from './resolve/appLifecycle'
 
@@ -68,6 +69,9 @@ async function scheduleLightweightMode(): Promise<void> {
 }
 
 const syncConfig = getAppConfigSync()
+
+// Initialize i18n with the user's saved language preference
+initI18n(syncConfig.language)
 
 function exitApp(): void {
   disableSysProxySync()

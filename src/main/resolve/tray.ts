@@ -36,6 +36,8 @@ import { is } from '@electron-toolkit/utils'
 import { extname, join } from 'path'
 import { applyTheme } from './theme'
 import { existsSync } from 'fs'
+import { t } from '../i18n'
+import { destroyLinuxTrayIcon, initLinuxTrayIcon, updateLinuxTrayIcon } from './trayIcon'
 
 export let tray: Tray | null = null
 let customTrayWindow: BrowserWindow | null = null
@@ -245,7 +247,7 @@ export const buildContextMenu = async (): Promise<Menu> => {
           submenu: [
             {
               id: `${group.name}-test`,
-              label: '重新测试',
+              label: t('tray.retest'),
               type: 'normal',
               click: async (): Promise<void> => {
                 try {
@@ -524,6 +526,7 @@ export async function createTray(): Promise<void> {
     tray = new Tray(pngIcon)
     trayMenu = await buildContextMenu()
     tray.setContextMenu(trayMenu)
+    await initLinuxTrayIcon()
   }
   if (process.platform === 'darwin') {
     tray = new Tray(createDarwinTrayIcon())
@@ -616,6 +619,8 @@ async function updateTrayMenu(): Promise<void> {
   tray?.popUpContextMenu(menu) // 弹出菜单
   if (process.platform === 'linux') {
     tray?.setContextMenu(menu)
+    const { mode = 'rule' } = await getControledMihomoConfig()
+    updateLinuxTrayIcon(mode)
   }
 }
 
@@ -670,6 +675,7 @@ export async function showTrayIcon(): Promise<void> {
 }
 
 export async function closeTrayIcon(): Promise<void> {
+  destroyLinuxTrayIcon()
   if (tray) {
     tray.destroy()
   }

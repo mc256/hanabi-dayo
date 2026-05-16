@@ -1,6 +1,7 @@
 import { Button, Card, CardBody, CardFooter, Tooltip } from '@heroui/react'
 import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-config'
 import BorderSwitch from '@renderer/components/base/border-swtich'
+import { useLanguage } from '@renderer/hooks/use-language'
 import { TbDeviceIpadHorizontalBolt } from 'react-icons/tb'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { restartCore } from '@renderer/utils/ipc'
@@ -19,6 +20,7 @@ const TunSwitcher: React.FC<Props> = (props) => {
   const navigate = useNavigate()
   const match = location.pathname.includes('/tun') || false
   const { appConfig } = useAppConfig()
+  const { t } = useLanguage()
   const { tunCardStatus = 'col-span-1', disableAnimation = false } = appConfig || {}
   const { controledMihomoConfig, patchControledMihomoConfig } = useControledMihomoConfig()
   const { tun } = controledMihomoConfig || {}
@@ -48,7 +50,7 @@ const TunSwitcher: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${tunCardStatus} flex justify-center`}>
-        <Tooltip content="虚拟网卡" placement="right">
+        <Tooltip content={t('sidebar.tun')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -105,7 +107,7 @@ const TunSwitcher: React.FC<Props> = (props) => {
           <h3
             className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
           >
-            虚拟网卡
+            {t('sidebar.tun')}
           </h3>
         </CardFooter>
       </Card>

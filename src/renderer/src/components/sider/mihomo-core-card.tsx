@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import PubSub from 'pubsub-js'
 import useSWR from 'swr'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import { LuCpu } from 'react-icons/lu'
 import { notify } from '@renderer/utils/notification'
 
@@ -19,6 +20,7 @@ interface Props {
 const MihomoCoreCard: React.FC<Props> = (props) => {
   const { appConfig } = useAppConfig()
   const { iconOnly } = props
+  const { t } = useLanguage()
   const { mihomoCoreCardStatus = 'col-span-2', disableAnimation = false } = appConfig || {}
   const { data: version, mutate } = useSWR('mihomoVersion', mihomoVersion, {
     errorRetryInterval: 200,
@@ -61,7 +63,7 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${mihomoCoreCardStatus} flex justify-center`}>
-        <Tooltip content="内核设置" placement="right">
+        <Tooltip content={t('sidebar.coreSettings')} placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -140,7 +142,7 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
             <div
               className={`flex justify-between w-full text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
             >
-              <h4>内核设置</h4>
+              <h4>{t('sidebar.coreSettings')}</h4>
               <h4>{calcTraffic(mem)}</h4>
             </div>
           </CardFooter>
@@ -172,7 +174,7 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
             <h3
               className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
             >
-              内核设置
+              {t('sidebar.coreSettings')}
             </h3>
           </CardFooter>
         </Card>

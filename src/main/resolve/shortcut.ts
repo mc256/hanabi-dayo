@@ -11,6 +11,7 @@ import { patchMihomoConfig } from '../core/mihomoApi'
 import { quitWithoutCore, restartCore } from '../core/manager'
 import { floatingWindow, triggerFloatingWindow } from './floatingWindow'
 import { showNotification } from '../utils/notification'
+import { t } from '../i18n'
 
 export async function registerShortcut(
   oldShortcut: string,
@@ -44,7 +45,7 @@ export async function registerShortcut(
           await triggerSysProxy(!enable, onlyActiveDevice)
           await patchAppConfig({ sysProxy: { enable: !enable } })
           void showNotification({
-            title: `系统代理已${!enable ? '开启' : '关闭'}`
+            title: !enable ? t('shortcut.sysProxyEnabled') : t('shortcut.sysProxyDisabled')
           })
           mainWindow?.webContents.send('appConfigUpdated')
           floatingWindow?.webContents.send('appConfigUpdated')
@@ -67,7 +68,7 @@ export async function registerShortcut(
           }
           await restartCore()
           void showNotification({
-            title: `虚拟网卡已${!enable ? '开启' : '关闭'}`
+            title: !enable ? t('shortcut.tunEnabled') : t('shortcut.tunDisabled')
           })
           mainWindow?.webContents.send('controledMihomoConfigUpdated')
           floatingWindow?.webContents.send('appConfigUpdated')
@@ -83,7 +84,7 @@ export async function registerShortcut(
         await patchControledMihomoConfig({ mode: 'rule' })
         await patchMihomoConfig({ mode: 'rule' })
         void showNotification({
-          title: '已切换至规则模式'
+          title: t('shortcut.ruleMode')
         })
         mainWindow?.webContents.send('controledMihomoConfigUpdated')
         ipcMain.emit('updateTrayMenu')
@@ -94,7 +95,7 @@ export async function registerShortcut(
         await patchControledMihomoConfig({ mode: 'global' })
         await patchMihomoConfig({ mode: 'global' })
         void showNotification({
-          title: '已切换至全局模式'
+          title: t('shortcut.globalMode')
         })
         mainWindow?.webContents.send('controledMihomoConfigUpdated')
         ipcMain.emit('updateTrayMenu')
@@ -105,7 +106,7 @@ export async function registerShortcut(
         await patchControledMihomoConfig({ mode: 'direct' })
         await patchMihomoConfig({ mode: 'direct' })
         void showNotification({
-          title: '已切换至直连模式'
+          title: t('shortcut.directMode')
         })
         mainWindow?.webContents.send('controledMihomoConfigUpdated')
         ipcMain.emit('updateTrayMenu')

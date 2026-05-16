@@ -135,6 +135,14 @@ export async function patchAppConfig(patch: Partial<AppConfig>): Promise<AppConf
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('patchAppConfig', patch))
 }
 
+export async function getAppLocale(): Promise<'en' | 'zh-CN' | 'ja' | 'zh-HK'> {
+  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('getAppLocale'))
+}
+
+export async function setAppLocale(locale: 'en' | 'zh-CN' | 'ja' | 'zh-HK'): Promise<void> {
+  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('setAppLocale', locale))
+}
+
 export async function getControledMihomoConfig(force = false): Promise<Partial<MihomoConfig>> {
   return ipcErrorWrapper(
     await window.electron.ipcRenderer.invoke('getControledMihomoConfig', force)
@@ -452,41 +460,6 @@ export async function setNativeTheme(theme: 'system' | 'light' | 'dark'): Promis
 
 export async function getGistUrl(): Promise<string> {
   return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('getGistUrl'))
-}
-
-export async function startSubStoreFrontendServer(): Promise<void> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('startSubStoreFrontendServer'))
-}
-
-export async function stopSubStoreFrontendServer(): Promise<void> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('stopSubStoreFrontendServer'))
-}
-
-export async function startSubStoreBackendServer(): Promise<void> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('startSubStoreBackendServer'))
-}
-
-export async function stopSubStoreBackendServer(): Promise<void> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('stopSubStoreBackendServer'))
-}
-export async function downloadSubStore(): Promise<void> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('downloadSubStore'))
-}
-
-export async function subStorePort(): Promise<number> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('subStorePort'))
-}
-
-export async function subStoreFrontendPort(): Promise<number> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('subStoreFrontendPort'))
-}
-
-export async function subStoreSubs(): Promise<SubStoreSub[]> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('subStoreSubs'))
-}
-
-export async function subStoreCollections(): Promise<SubStoreSub[]> {
-  return ipcErrorWrapper(await window.electron.ipcRenderer.invoke('subStoreCollections'))
 }
 
 export async function showTrayIcon(): Promise<void> {

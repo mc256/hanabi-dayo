@@ -21,7 +21,6 @@ export const defaultConfig: AppConfig = {
   connectionOrderBy: 'time',
   connectionInterval: 500,
   gistSyncEnabled: false,
-  useSubStore: true,
   proxyDisplayOrder: 'default',
   autoCheckUpdate: false,
   autoCloseConnection: true,
@@ -41,8 +40,7 @@ export const defaultConfig: AppConfig = {
     'rule',
     'resource',
     'override',
-    'log',
-    'substore'
+    'log'
   ],
   siderWidth: 250,
   sysProxy: { enable: false, mode: 'manual', guard: false, guardNotify: false },

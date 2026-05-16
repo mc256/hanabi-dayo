@@ -24,7 +24,6 @@ import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { applyTheme, checkUpdate, setNativeTheme, setTitleBarOverlay } from '@renderer/utils/ipc'
 import { platform } from '@renderer/utils/init'
 import { TitleBarOverlayOptions } from 'electron'
-import SubStoreCard from '@renderer/components/sider/substore-card'
 import MihomoIcon from './components/base/mihomo-icon'
 import useSWR from 'swr'
 import ConfirmModal from '@renderer/components/base/base-confirm'
@@ -46,8 +45,7 @@ const defaultSiderOrder = [
   'rule',
   'resource',
   'override',
-  'log',
-  'substore'
+  'log'
 ]
 
 const siderCardRouteMap = {
@@ -62,8 +60,7 @@ const siderCardRouteMap = {
   'log-card': '/logs',
   'rule-card': '/rules',
   'resource-card': '/resources',
-  'override-card': '/override',
-  'substore-card': '/substore'
+  'override-card': '/override'
 } as const
 const siderCardSelector = Object.keys(siderCardRouteMap)
   .map((className) => `.${className}`)
@@ -275,8 +272,7 @@ const App: React.FC = () => {
     log: LogCard,
     rule: RuleCard,
     resource: ResourceCard,
-    override: OverrideCard,
-    substore: SubStoreCard
+    override: OverrideCard
   }
 
   const [showQuitConfirm, setShowQuitConfirm] = useState(false)
