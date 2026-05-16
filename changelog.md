@@ -12,4 +12,4 @@
 
 ### Bug Fixes
 
-- null
+- 修复 Linux (GNOME) 下应用每次启动时会将自身错误注册为 HTML/默认浏览器打开程序的问题

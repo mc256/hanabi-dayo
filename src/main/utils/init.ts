@@ -220,6 +220,14 @@ async function migration(): Promise<void> {
 }
 
 function initDeeplink(): void {
+  // On Linux, scheme handlers are registered declaratively via the bundled
+  // .desktop file (MimeType=x-scheme-handler/...) and `update-desktop-database`
+  // in the package postinst. Calling app.setAsDefaultProtocolClient() here is
+  // redundant, and on GNOME it is harmful: Electron shells out to
+  // `xdg-settings set default-url-scheme-handler`, whose gnome3 code path also
+  // runs `set_browser_mime` with no MIME argument, which is hard-coded to
+  // `text/html` — hijacking the default HTML/browser handler on every launch.
+  if (process.platform === 'linux') return
   if (process.defaultApp) {
     if (process.argv.length >= 2) {
       app.setAsDefaultProtocolClient('clash', process.execPath, [path.resolve(process.argv[1])])
