@@ -36,51 +36,65 @@ import { app } from 'electron'
 import { startSSIDCheck } from '../sys/ssid'
 import { startNetworkDetection } from '../core/manager'
 import { initKeyManager } from '../service/manager'
+import { appendAppLog } from './log'
 
 async function initDirs(): Promise<void> {
   if (!existsSync(dataDir())) {
     await mkdir(dataDir())
   }
-  if (!existsSync(themesDir())) {
-    await mkdir(themesDir())
-  }
-  if (!existsSync(profilesDir())) {
-    await mkdir(profilesDir())
-  }
-  if (!existsSync(overrideDir())) {
-    await mkdir(overrideDir())
-  }
-  if (!existsSync(mihomoWorkDir())) {
-    await mkdir(mihomoWorkDir())
-  }
-  if (!existsSync(logDir())) {
-    await mkdir(logDir())
-  }
-  if (!existsSync(mihomoTestDir())) {
-    await mkdir(mihomoTestDir())
-  }
+  const dirs = [
+    themesDir(),
+    profilesDir(),
+    overrideDir(),
+    mihomoWorkDir(),
+    logDir(),
+    mihomoTestDir()
+  ]
+  await Promise.all(
+    dirs.map(async (dir) => {
+      if (!existsSync(dir)) {
+        await mkdir(dir, { recursive: true })
+      }
+    })
+  )
 }
 
 async function initConfig(): Promise<void> {
+  const configTasks: Promise<void>[] = []
+
   if (!existsSync(appConfigPath())) {
-    await writeFile(appConfigPath(), stringifyYaml(defaultConfig))
+    configTasks.push(writeFile(appConfigPath(), stringifyYaml(defaultConfig)))
   }
   if (!existsSync(profileConfigPath())) {
-    await writeFile(profileConfigPath(), stringifyYaml(defaultProfileConfig))
+    configTasks.push(writeFile(profileConfigPath(), stringifyYaml(defaultProfileConfig)))
   }
   if (!existsSync(overrideConfigPath())) {
-    await writeFile(overrideConfigPath(), stringifyYaml(defaultOverrideConfig))
+    configTasks.push(writeFile(overrideConfigPath(), stringifyYaml(defaultOverrideConfig)))
   }
   if (!existsSync(profilePath('default'))) {
-    await writeFile(profilePath('default'), stringifyYaml(defaultProfile))
+    configTasks.push(writeFile(profilePath('default'), stringifyYaml(defaultProfile)))
   }
   if (!existsSync(controledMihomoConfigPath())) {
-    await writeFile(controledMihomoConfigPath(), stringifyYaml(defaultControledMihomoConfig))
+    configTasks.push(
+      writeFile(controledMihomoConfigPath(), stringifyYaml(defaultControledMihomoConfig))
+    )
+  }
+
+  if (configTasks.length > 0) {
+    await Promise.all(configTasks)
   }
 }
 
 async function initFiles(): Promise<void> {
-  const copy = async (file: string): Promise<void> => {
+  const copy = async (file: string, customTargetPath?: string): Promise<void> => {
+    if (customTargetPath) {
+      const sourcePath = path.join(resourcesFilesDir(), file)
+      if (!existsSync(customTargetPath) && existsSync(sourcePath)) {
+        await cp(sourcePath, customTargetPath, { recursive: true })
+      }
+      return
+    }
+
     const targetPath = path.join(mihomoWorkDir(), file)
     const testTargetPath = path.join(mihomoTestDir(), file)
     const sourcePath = path.join(resourcesFilesDir(), file)
@@ -116,7 +130,12 @@ async function cleanup(): Promise<void> {
   const { maxLogDays = 7 } = await getAppConfig()
   const logs = await readdir(logDir())
   for (const log of logs) {
-    const date = new Date(log.split('.')[0])
+    const dateStr = log.match(/(\d{4}-\d{1,2}-\d{1,2})(?=\.log$)/)?.[1]
+    if (!dateStr) continue
+
+    const date = new Date(dateStr)
+    if (Number.isNaN(date.getTime())) continue
+
     const diff = Date.now() - date.getTime()
     if (diff > maxLogDays * 24 * 60 * 60 * 1000) {
       try {
@@ -129,93 +148,56 @@ async function cleanup(): Promise<void> {
 }
 
 async function migration(): Promise<void> {
-  const {
-    siderOrder = [
-      'sysproxy',
-      'tun',
-      'profile',
-      'proxy',
-      'rule',
-      'resource',
-      'override',
-      'connection',
-      'mihomo',
-      'dns',
-      'sniff',
-      'log'
-    ],
-    appTheme = 'system',
-    envType = [process.platform === 'win32' ? 'powershell' : 'bash'],
-    showFloatingWindow = false,
-    disableTray = false,
-    encryptedPassword,
-    hosts = []
-  } = await getAppConfig()
-  const {
-    'external-controller-pipe': externalControllerPipe,
-    'external-controller-unix': externalControllerUnix,
-    'external-controller': externalController,
-    'skip-auth-prefixes': skipAuthPrefixes,
-    authentication,
-    'bind-address': bindAddress,
-    'lan-allowed-ips': lanAllowedIps,
-    'lan-disallowed-ips': lanDisallowedIps
-  } = await getControledMihomoConfig()
-  // remove substore from siderOrder if present
-  if (siderOrder.includes('substore')) {
-    await patchAppConfig({ siderOrder: siderOrder.filter((s: string) => s !== 'substore') })
+  const appConfig = await getAppConfig()
+  const mihomoConfig = await getControledMihomoConfig()
+
+  const mihomoConfigPatch: Partial<MihomoConfig> = {}
+
+  for (const key in defaultControledMihomoConfig) {
+    if (
+      !(key in mihomoConfig) &&
+      defaultControledMihomoConfig[key as keyof MihomoConfig] !== undefined
+    ) {
+      ;(mihomoConfigPatch as Record<string, unknown>)[key] =
+        defaultControledMihomoConfig[key as keyof MihomoConfig]
+    }
   }
-  // add default skip auth prefix
-  if (!skipAuthPrefixes) {
-    await patchControledMihomoConfig({ 'skip-auth-prefixes': ['127.0.0.1/32'] })
-  }
-  // add default authentication
-  if (!authentication) {
-    await patchControledMihomoConfig({ authentication: [] })
-  }
-  // add default bind address
-  if (!bindAddress) {
-    await patchControledMihomoConfig({ 'bind-address': '*' })
-  }
-  // add default lan allowed ips
-  if (!lanAllowedIps) {
-    await patchControledMihomoConfig({ 'lan-allowed-ips': ['0.0.0.0/0', '::/0'] })
-  }
-  // add default lan disallowed ips
-  if (!lanDisallowedIps) {
-    await patchControledMihomoConfig({ 'lan-disallowed-ips': [] })
-  }
-  // add default hosts
-  if (!hosts.length) {
-    await patchAppConfig({ hosts: [] })
-  }
-  // remove custom app theme
-  if (!['system', 'light', 'dark'].includes(appTheme)) {
-    await patchAppConfig({ appTheme: 'system' })
-  }
-  // change env type
-  if (typeof envType === 'string') {
-    await patchAppConfig({ envType: [envType] })
-  }
-  // use unix socket
-  if (externalControllerUnix) {
-    await patchControledMihomoConfig({ 'external-controller-unix': undefined })
-  }
-  // use named pipe
-  if (externalControllerPipe) {
-    await patchControledMihomoConfig({
-      'external-controller-pipe': undefined
+
+  // remove substore from siderOrder if present (Sub-Store removed in this fork)
+  if (Array.isArray(appConfig.siderOrder) && appConfig.siderOrder.includes('substore')) {
+    await patchAppConfig({
+      siderOrder: (appConfig.siderOrder as string[]).filter((s) => s !== 'substore')
     })
   }
-  if (externalController === undefined) {
-    await patchControledMihomoConfig({ 'external-controller': '' })
+
+  if (mihomoConfig['external-controller-pipe' as keyof MihomoConfig]) {
+    mihomoConfigPatch['external-controller-pipe' as keyof MihomoConfig] = undefined as never
   }
-  if (!showFloatingWindow && disableTray) {
-    await patchAppConfig({ disableTray: false })
+  if (mihomoConfig['external-controller-unix' as keyof MihomoConfig]) {
+    mihomoConfigPatch['external-controller-unix' as keyof MihomoConfig] = undefined as never
   }
-  // remove password
-  if (encryptedPassword) {
-    await patchAppConfig({ encryptedPassword: undefined })
+
+  if (mihomoConfig['external-controller'] === undefined) {
+    mihomoConfigPatch['external-controller'] = ''
+  }
+  if (mihomoConfig['global-client-fingerprint'] !== undefined) {
+    mihomoConfigPatch['global-client-fingerprint'] = undefined as never
+  }
+
+  if (Object.keys(mihomoConfigPatch).length > 0) {
+    await patchControledMihomoConfig(mihomoConfigPatch)
+  }
+
+  const appConfigPatch: Partial<AppConfig> = {}
+
+  for (const key in defaultConfig) {
+    if (!(key in appConfig) && defaultConfig[key as keyof AppConfig] !== undefined) {
+      ;(appConfigPatch as Record<string, unknown>)[key] = defaultConfig[key as keyof AppConfig]
+    }
+  }
+
+  if (Object.keys(appConfigPatch).length > 0) {
+    await patchAppConfig(appConfigPatch)
   }
 }
 
@@ -241,26 +223,46 @@ function initDeeplink(): void {
   }
 }
 
-export async function init(): Promise<void> {
-  await initDirs()
-  await initConfig()
-  await migration()
-  await initFiles()
-  await cleanup()
-  await initKeyManager()
-  const { sysProxy, onlyActiveDevice = false, networkDetection = false } = await getAppConfig()
+function runBackgroundInitTask(name: string, task: Promise<void>): void {
+  task.catch((error) => {
+    appendAppLog(`[App]: background init task ${name} failed, ${error}\n`).catch(() => {})
+  })
+}
+
+function startBackgroundInit(appConfig: AppConfig): void {
+  const { sysProxy, onlyActiveDevice = false, networkDetection = false } = appConfig
+
+  runBackgroundInitTask('ssid check', startSSIDCheck())
+
   if (networkDetection) {
-    await startNetworkDetection()
+    runBackgroundInitTask('network detection', startNetworkDetection())
   }
-  try {
-    if (sysProxy.enable) {
-      await startPacServer()
-    }
-    await triggerSysProxy(sysProxy.enable, onlyActiveDevice)
-  } catch {
-    // ignore
-  }
-  await startSSIDCheck()
+
+  runBackgroundInitTask(
+    'sysproxy restore',
+    (async (): Promise<void> => {
+      if (sysProxy.enable) {
+        await startPacServer()
+      }
+      await triggerSysProxy(sysProxy.enable, onlyActiveDevice)
+    })()
+  )
+}
+
+export async function init(): Promise<AppConfig> {
+  await initDirs()
+  await Promise.all([initConfig(), initFiles()])
+  await migration()
+
+  const [appConfig] = await Promise.all([
+    getAppConfig(),
+    initKeyManager(),
+    cleanup().catch(() => {
+      // ignore
+    })
+  ])
 
   initDeeplink()
+  startBackgroundInit(appConfig)
+  return appConfig
 }

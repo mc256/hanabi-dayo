@@ -10,18 +10,29 @@ import {
   cancelUpdate
 } from '@renderer/utils/ipc'
 import { useState, useEffect } from 'react'
-import UpdaterModal from '../updater/updater-modal'
+import UpdaterDrawer from '../updater/updater-drawer'
 import { version } from '@renderer/utils/init'
 import { IoIosHelpCircle } from 'react-icons/io'
-import { firstDriver } from '@renderer/App'
+import { startTour } from '@renderer/utils/driver'
+import { useNavigate } from 'react-router-dom'
 import ConfirmModal from '../base/base-confirm'
-import { useLanguage } from '@renderer/hooks/use-language'
+import { notify } from '@renderer/utils/notification'
+
+async function handleCreateHeapSnapshot(): Promise<void> {
+  try {
+    const snapshotPath = await createHeapSnapshot()
+    notify(`堆快照已创建\n${snapshotPath}`, { variant: 'success' })
+  } catch (e) {
+    notify(`创建堆快照失败\n${e}`, { variant: 'danger' })
+  }
+}
 
 const Actions: React.FC = () => {
-  const { t } = useLanguage()
+  const navigate = useNavigate()
   const [newVersion, setNewVersion] = useState('')
   const [changelog, setChangelog] = useState('')
   const [openUpdate, setOpenUpdate] = useState(false)
+  const [updateDrawerReopenSignal, setUpdateDrawerReopenSignal] = useState(0)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<{
@@ -57,39 +68,45 @@ const Actions: React.FC = () => {
     }
   }
 
+  const openUpdateDrawer = (): void => {
+    setOpenUpdate(true)
+    setUpdateDrawerReopenSignal((signal) => signal + 1)
+  }
+
   return (
     <>
       {openUpdate && (
-        <UpdaterModal
+        <UpdaterDrawer
           onClose={() => setOpenUpdate(false)}
           version={newVersion}
           changelog={changelog}
           updateStatus={updateStatus}
+          reopenSignal={updateDrawerReopenSignal}
           onCancel={handleCancelUpdate}
         />
       )}
       {confirmOpen && (
         <ConfirmModal
           onChange={setConfirmOpen}
-          title={t('确认删除配置？', 'Confirm Delete Configuration?')}
+          title="确认删除配置？"
           description={
             <>
-              ⚠️ {t('删除配置，', 'Delete configuration, ')}
-              <span className="text-red-500">{t('操作不可撤销', 'this action cannot be undone')}</span>
+              ⚠️ 删除配置，
+              <span className="text-red-500">操作不可撤销</span>
             </>
           }
-          confirmText={t('确认删除', 'Confirm Delete')}
-          cancelText={t('取消', 'Cancel')}
+          confirmText="确认删除"
+          cancelText="取消"
           onConfirm={resetAppConfig}
         />
       )}
       <SettingCard>
-        <SettingItem title={t('打开引导页面', 'Open Guide')} divider>
-          <Button size="sm" onPress={() => firstDriver.drive()}>
-            {t('打开引导页面', 'Open Guide')}
+        <SettingItem compatKey="legacy" title="打开引导页面" divider>
+          <Button size="sm" onPress={() => startTour(navigate)}>
+            打开引导页面
           </Button>
         </SettingItem>
-        <SettingItem title={t('检查更新', 'Check Update')} divider>
+        <SettingItem compatKey="legacy" title="检查更新" divider>
           <Button
             size="sm"
             isLoading={checkingUpdate}
@@ -100,24 +117,35 @@ const Actions: React.FC = () => {
                 if (version) {
                   setNewVersion(version.version)
                   setChangelog(version.changelog)
-                  setOpenUpdate(true)
+                  notify('发现新版本', {
+                    actionProps: {
+                      children: '查看内容',
+                      onPress: openUpdateDrawer,
+                      variant: 'secondary'
+                    },
+                    body: `${version.version} 版本就绪`,
+                    forceToast: true,
+                    timeout: 8000,
+                    variant: 'accent'
+                  })
                 } else {
-                  new window.Notification(t('当前已是最新版本', 'Already up to date'), { body: t('无需更新', 'No update needed') })
+                  notify('当前已是最新版本', { body: '无需更新' })
                 }
               } catch (e) {
-                alert(e)
+                notify(e, { variant: 'danger' })
               } finally {
                 setCheckingUpdate(false)
               }
             }}
           >
-            {t('检查更新', 'Check Update')}
+            检查更新
           </Button>
         </SettingItem>
         <SettingItem
-          title={t('重置软件', 'Reset App')}
+          compatKey="legacy"
+          title="重置软件"
           actions={
-            <Tooltip content={t('删除所有配置，将软件恢复初始状态', 'Delete all configurations and restore the app to its initial state')}>
+            <Tooltip content="删除所有配置，将软件恢复初始状态">
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -126,13 +154,14 @@ const Actions: React.FC = () => {
           divider
         >
           <Button size="sm" onPress={() => setConfirmOpen(true)}>
-            {t('重置软件', 'Reset App')}
+            重置软件
           </Button>
         </SettingItem>
         <SettingItem
-          title={t('清除缓存', 'Clear Cache')}
+          compatKey="legacy"
+          title="清除缓存"
           actions={
-            <Tooltip content={t('清除软件渲染进程缓存', 'Clear renderer process cache')}>
+            <Tooltip content="清除软件渲染进程缓存">
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -141,13 +170,14 @@ const Actions: React.FC = () => {
           divider
         >
           <Button size="sm" onPress={() => localStorage.clear()}>
-            {t('清除缓存', 'Clear Cache')}
+            清除缓存
           </Button>
         </SettingItem>
         <SettingItem
-          title={t('创建堆快照', 'Create Heap Snapshot')}
+          compatKey="legacy"
+          title="创建堆快照"
           actions={
-            <Tooltip content={t('创建主进程堆快照，用于排查内存问题', 'Create main process heap snapshot for debugging memory issues')}>
+            <Tooltip content="创建主进程堆快照，用于排查内存问题">
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -155,14 +185,15 @@ const Actions: React.FC = () => {
           }
           divider
         >
-          <Button size="sm" onPress={createHeapSnapshot}>
-            {t('创建堆快照', 'Create Heap Snapshot')}
+          <Button size="sm" onPress={handleCreateHeapSnapshot}>
+            创建堆快照
           </Button>
         </SettingItem>
         <SettingItem
-          title={t('轻量模式', 'Light Mode')}
+          compatKey="legacy"
+          title="保留内核退出"
           actions={
-            <Tooltip content={t('完全退出软件，只保留内核进程', 'Exit app completely, keep only core process')}>
+            <Tooltip content="完全退出软件，只保留内核进程">
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -171,15 +202,15 @@ const Actions: React.FC = () => {
           divider
         >
           <Button size="sm" onPress={quitWithoutCore}>
-            {t('轻量模式', 'Light Mode')}
+            退出
           </Button>
         </SettingItem>
-        <SettingItem title={t('退出应用', 'Quit App')} divider>
+        <SettingItem compatKey="legacy" title="退出应用" divider>
           <Button size="sm" onPress={quitApp}>
-            {t('退出应用', 'Quit App')}
+            退出应用
           </Button>
         </SettingItem>
-        <SettingItem title={t('应用版本', 'App Version')}>
+        <SettingItem compatKey="legacy" title="应用版本">
           <div>v{version}</div>
         </SettingItem>
       </SettingCard>

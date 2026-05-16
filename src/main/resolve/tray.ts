@@ -11,21 +11,201 @@ import pngIcon from '../../../resources/icon.png?asset'
 import templateIcon from '../../../resources/iconTemplate.png?asset'
 import {
   mihomoChangeProxy,
-  mihomoCloseAllConnections,
+  mihomoCloseConnections,
   mihomoGroups,
   mihomoGroupDelay,
   patchMihomoConfig
 } from '../core/mihomoApi'
 import { mainWindow, setNotQuitDialog, showMainWindow, triggerMainWindow } from '..'
-import { app, clipboard, ipcMain, Menu, nativeImage, shell, Tray } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  ipcMain,
+  Menu,
+  nativeImage,
+  screen,
+  shell,
+  Tray
+} from 'electron'
 import { dataDir, logDir, mihomoCoreDir, mihomoWorkDir } from '../utils/dirs'
 import { triggerSysProxy } from '../sys/sysproxy'
 import { quitWithoutCore, restartCore } from '../core/manager'
 import { floatingWindow, triggerFloatingWindow } from './floatingWindow'
+import { is } from '@electron-toolkit/utils'
+import { extname, join } from 'path'
+import { applyTheme } from './theme'
+import { existsSync } from 'fs'
 import { t } from '../i18n'
 import { destroyLinuxTrayIcon, initLinuxTrayIcon, updateLinuxTrayIcon } from './trayIcon'
 
 export let tray: Tray | null = null
+let customTrayWindow: BrowserWindow | null = null
+let trayMenu: Menu | null = null
+let trayIconUpdateListenerRegistered = false
+let updateTrayMenuListenerRegistered = false
+let lastTrafficTrayIcon: string | null = null
+type TrayImage = Electron.NativeImage | string
+const customTrayIconSize = 16
+const customTrayIconScaleFactors = [1, 1.25, 1.5, 2, 2.5, 3]
+
+function formatDelayText(delay: number): string {
+  if (delay === 0) {
+    return 'Timeout'
+  } else if (delay > 0) {
+    return `${delay} ms`
+  }
+  return ''
+}
+
+function createDarwinTrayIcon(): Electron.NativeImage {
+  const icon = nativeImage.createFromPath(templateIcon).resize({ height: 16 })
+  icon.setTemplateImage(true)
+  return icon
+}
+
+function resizeTrayImageForScale(
+  icon: Electron.NativeImage,
+  scaleFactor: number
+): Electron.NativeImage {
+  const targetHeight = Math.round(customTrayIconSize * scaleFactor)
+
+  return icon.resize({ height: targetHeight, quality: 'best' })
+}
+
+function createMultiScaleTrayImage(icon: Electron.NativeImage): Electron.NativeImage {
+  const trayImage = nativeImage.createEmpty()
+
+  for (const scaleFactor of customTrayIconScaleFactors) {
+    const resizedIcon = resizeTrayImageForScale(icon, scaleFactor)
+    if (resizedIcon.isEmpty()) continue
+
+    trayImage.addRepresentation({
+      scaleFactor,
+      buffer: resizedIcon.toPNG()
+    })
+  }
+
+  if (!trayImage.isEmpty()) return trayImage
+
+  return resizeTrayImageForScale(icon, 1)
+}
+
+function createCustomTrayImage(customTrayIcon: string): TrayImage | null {
+  if (!customTrayIcon) return null
+
+  if (customTrayIcon.startsWith('data:image/')) {
+    const icon = nativeImage.createFromDataURL(customTrayIcon)
+    if (icon.isEmpty()) return null
+
+    return createMultiScaleTrayImage(icon)
+  }
+
+  if (!existsSync(customTrayIcon)) return null
+
+  const icon = nativeImage.createFromPath(customTrayIcon)
+  if (icon.isEmpty()) return null
+
+  const iconExt = extname(customTrayIcon).toLowerCase()
+  if (process.platform === 'win32' && iconExt === '.ico') {
+    return customTrayIcon
+  }
+  if (process.platform === 'linux') {
+    return customTrayIcon
+  }
+
+  return createMultiScaleTrayImage(icon)
+}
+
+function createTrafficTrayImage(png: string): Electron.NativeImage | null {
+  const image = nativeImage.createFromDataURL(png).resize({ height: customTrayIconSize })
+  if (image.isEmpty()) return null
+
+  image.setTemplateImage(true)
+  return image
+}
+
+function positionCustomTrayWindow(win: BrowserWindow): void {
+  if (!tray) return
+  const trayBounds = tray.getBounds()
+  const { width: winW, height: winH } = win.getBounds()
+  const display = screen.getDisplayNearestPoint({ x: trayBounds.x, y: trayBounds.y })
+  const { x: dx, y: dy, width: dw, height: dh } = display.workArea
+  let x = Math.round(trayBounds.x + trayBounds.width / 2 - winW / 2)
+  let y =
+    process.platform === 'darwin'
+      ? Math.round(trayBounds.y + trayBounds.height + 6)
+      : Math.round(trayBounds.y - winH - 6)
+  x = Math.min(Math.max(x, dx), dx + dw - winW)
+  y = Math.min(Math.max(y, dy), dy + dh - winH)
+  win.setPosition(x, y, false)
+}
+
+function hideCustomTray(): void {
+  if (customTrayWindow && !customTrayWindow.isDestroyed()) {
+    customTrayWindow.hide()
+  }
+}
+
+async function showCustomTray(): Promise<void> {
+  const { useCustomTrayMenu = false, customTheme = 'default.css' } = await getAppConfig()
+  if (!useCustomTrayMenu) {
+    await updateTrayMenu()
+    return
+  }
+
+  if (!customTrayWindow || customTrayWindow.isDestroyed()) {
+    customTrayWindow = new BrowserWindow({
+      width: 380,
+      height: 520,
+      show: false,
+      frame: false,
+      transparent: true,
+      resizable: false,
+      movable: false,
+      alwaysOnTop: true,
+      skipTaskbar: true,
+      fullscreenable: false,
+      focusable: true,
+      hasShadow: true,
+      webPreferences: {
+        preload: join(__dirname, '../preload/index.js'),
+        spellcheck: false,
+        sandbox: false,
+        ...(is.dev ? { webSecurity: false } : {})
+      }
+    })
+
+    customTrayWindow.on('blur', () => {
+      hideCustomTray()
+    })
+    customTrayWindow.on('close', () => {
+      customTrayWindow = null
+    })
+    customTrayWindow.on('ready-to-show', () => {
+      applyTheme(customTheme)
+    })
+
+    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+      await customTrayWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/traymenu.html`)
+    } else {
+      await customTrayWindow.loadFile(join(__dirname, '../renderer/traymenu.html'))
+    }
+  }
+
+  positionCustomTrayWindow(customTrayWindow)
+  customTrayWindow.show()
+  customTrayWindow.focus()
+}
+
+async function handleTrayClick(): Promise<void> {
+  const { useCustomTrayMenu = false } = await getAppConfig()
+  if (useCustomTrayMenu) {
+    await showCustomTray()
+  } else {
+    await updateTrayMenu()
+  }
+}
 
 export const buildContextMenu = async (): Promise<Menu> => {
   const { mode, tun } = await getControledMihomoConfig()
@@ -35,6 +215,8 @@ export const buildContextMenu = async (): Promise<Menu> => {
     envType = process.platform === 'win32' ? ['powershell'] : ['bash'],
     autoCloseConnection,
     proxyInTray = true,
+    trayProxyDelayLayout = 'new-line',
+    // useCustomTrayMenu = false,
     triggerSysProxyShortcut = '',
     showFloatingWindowShortcut = '',
     showWindowShortcut = '',
@@ -54,16 +236,13 @@ export const buildContextMenu = async (): Promise<Menu> => {
         const delay = currentProxy?.history.length
           ? currentProxy.history[currentProxy.history.length - 1].delay
           : -1
-        let displayDelay = ''
-        if (delay === 0) {
-          displayDelay = '(Timeout)'
-        } else if (delay > 0) {
-          displayDelay = `(${delay}ms)`
-        }
+        const displayDelay = formatDelayText(delay)
 
+        const isNewLine = trayProxyDelayLayout === 'new-line'
         return {
           id: group.name,
-          label: `${group.name}   ${displayDelay}`,
+          label: isNewLine ? group.name : `${group.name}   ${displayDelay}`,
+          sublabel: isNewLine ? displayDelay : '',
           type: 'submenu',
           submenu: [
             {
@@ -84,22 +263,19 @@ export const buildContextMenu = async (): Promise<Menu> => {
               const proxyDelay = proxy.history.length
                 ? proxy.history[proxy.history.length - 1].delay
                 : -1
-              let proxyDisplayDelay = `(${proxyDelay}ms)`
-              if (proxyDelay === -1) {
-                proxyDisplayDelay = ''
-              }
-              if (proxyDelay === 0) {
-                proxyDisplayDelay = '(Timeout)'
-              }
+              const proxyDisplayDelay = formatDelayText(proxyDelay)
+
+              const isNewLine = trayProxyDelayLayout === 'new-line'
               return {
                 id: proxy.name,
-                label: `${proxy.name}   ${proxyDisplayDelay}`,
+                label: isNewLine ? proxy.name : `${proxy.name}   ${proxyDisplayDelay}`,
+                sublabel: isNewLine ? proxyDisplayDelay : '',
                 type: 'radio' as const,
                 checked: proxy.name === group.now,
                 click: async (): Promise<void> => {
                   await mihomoChangeProxy(group.name, proxy.name)
                   if (autoCloseConnection) {
-                    await mihomoCloseAllConnections()
+                    await mihomoCloseConnections()
                   }
                 }
               }
@@ -134,6 +310,16 @@ export const buildContextMenu = async (): Promise<Menu> => {
         await triggerFloatingWindow()
       }
     },
+    // { type: 'separator' },
+    // {
+    //   type: 'checkbox',
+    //   label: '自定义托盘菜单',
+    //   checked: useCustomTrayMenu,
+    //   click: async (item): Promise<void> => {
+    //     await patchAppConfig({ useCustomTrayMenu: item.checked })
+    //     ipcMain.emit('updateTrayMenu')
+    //   }
+    // },
     { type: 'separator' },
     {
       type: 'checkbox',
@@ -298,7 +484,7 @@ export const buildContextMenu = async (): Promise<Menu> => {
     { type: 'separator' },
     {
       id: 'quitWithoutCore',
-      label: '轻量模式',
+      label: '保留内核退出',
       type: 'normal',
       accelerator: quitWithoutCoreShortcut,
       click: (): void => {
@@ -333,58 +519,103 @@ export const buildContextMenu = async (): Promise<Menu> => {
 
 export async function createTray(): Promise<void> {
   const { useDockIcon = true } = await getAppConfig()
+  if (tray) {
+    return
+  }
   if (process.platform === 'linux') {
     tray = new Tray(pngIcon)
-    const menu = await buildContextMenu()
-    tray.setContextMenu(menu)
+    trayMenu = await buildContextMenu()
+    tray.setContextMenu(trayMenu)
     await initLinuxTrayIcon()
   }
   if (process.platform === 'darwin') {
-    const icon = nativeImage.createFromPath(templateIcon).resize({ height: 16 })
-    icon.setTemplateImage(true)
-    tray = new Tray(icon)
+    tray = new Tray(createDarwinTrayIcon())
   }
   if (process.platform === 'win32') {
     tray = new Tray(icoIcon)
   }
   tray?.setToolTip('Sparkle')
   tray?.setIgnoreDoubleClickEvents(true)
+  await updateTrayIcon()
   if (process.platform === 'darwin') {
     if (!useDockIcon && app.dock) {
       app.dock.hide()
     }
-    ipcMain.on('trayIconUpdate', async (_, png: string) => {
-      const image = nativeImage.createFromDataURL(png).resize({ height: 16 })
-      image.setTemplateImage(true)
-      tray?.setImage(image)
-    })
+    if (!trayIconUpdateListenerRegistered) {
+      ipcMain.on('trayIconUpdate', async (_, png?: string) => {
+        const { customTrayIcon = '' } = await getAppConfig()
+        const customIcon = createCustomTrayImage(customTrayIcon)
+        if (customIcon) {
+          tray?.setImage(customIcon)
+          return
+        }
+        if (!png) {
+          lastTrafficTrayIcon = null
+          tray?.setImage(createDarwinTrayIcon())
+          return
+        }
+        lastTrafficTrayIcon = png
+        const image = createTrafficTrayImage(png)
+        if (!image) {
+          return
+        }
+        tray?.setImage(image)
+      })
+      trayIconUpdateListenerRegistered = true
+    }
     tray?.addListener('right-click', async () => {
-      triggerMainWindow()
+      await triggerMainWindow()
     })
     tray?.addListener('click', async () => {
-      await updateTrayMenu()
+      await handleTrayClick()
     })
   }
   if (process.platform === 'win32') {
-    tray?.addListener('click', () => {
-      triggerMainWindow()
+    tray?.addListener('click', async () => {
+      await triggerMainWindow()
     })
     tray?.addListener('right-click', async () => {
-      await updateTrayMenu()
+      await handleTrayClick()
     })
   }
   if (process.platform === 'linux') {
-    tray?.addListener('click', () => {
-      triggerMainWindow()
+    tray?.addListener('click', async () => {
+      await triggerMainWindow()
     })
-    ipcMain.on('updateTrayMenu', async () => {
-      await updateTrayMenu()
-    })
+    if (!updateTrayMenuListenerRegistered) {
+      ipcMain.on('updateTrayMenu', async () => {
+        await updateTrayMenu()
+      })
+      updateTrayMenuListenerRegistered = true
+    }
   }
+}
+
+export async function updateTrayIcon(): Promise<void> {
+  if (!tray) return
+
+  const { customTrayIcon = '' } = await getAppConfig()
+  const customIcon = createCustomTrayImage(customTrayIcon)
+  if (customIcon) {
+    tray.setImage(customIcon)
+    return
+  }
+
+  if (process.platform === 'darwin') {
+    const trafficIcon = lastTrafficTrayIcon ? createTrafficTrayImage(lastTrafficTrayIcon) : null
+    tray.setImage(trafficIcon || createDarwinTrayIcon())
+    return
+  }
+  if (process.platform === 'win32') {
+    tray.setImage(icoIcon)
+    return
+  }
+  tray.setImage(pngIcon)
 }
 
 async function updateTrayMenu(): Promise<void> {
   const menu = await buildContextMenu()
+  trayMenu = menu
   tray?.popUpContextMenu(menu) // 弹出菜单
   if (process.platform === 'linux') {
     tray?.setContextMenu(menu)
@@ -393,7 +624,13 @@ async function updateTrayMenu(): Promise<void> {
   }
 }
 
-export async function copyEnv(type: 'bash' | 'cmd' | 'powershell' | 'nushell'): Promise<void> {
+ipcMain.on('customTray:close', () => {
+  hideCustomTray()
+})
+
+export async function copyEnv(
+  type: 'bash' | 'fish' | 'cmd' | 'powershell' | 'nushell'
+): Promise<void> {
   const { 'mixed-port': mixedPort = 7890 } = await getControledMihomoConfig()
   const { sysProxy } = await getAppConfig()
   const { host, bypass = [] } = sysProxy
@@ -401,6 +638,12 @@ export async function copyEnv(type: 'bash' | 'cmd' | 'powershell' | 'nushell'): 
     case 'bash': {
       clipboard.writeText(
         `export https_proxy=http://${host || '127.0.0.1'}:${mixedPort} http_proxy=http://${host || '127.0.0.1'}:${mixedPort} all_proxy=http://${host || '127.0.0.1'}:${mixedPort} no_proxy=${bypass.join(',')}`
+      )
+      break
+    }
+    case 'fish': {
+      clipboard.writeText(
+        `set -xg http_proxy "http://${host || '127.0.0.1'}:${mixedPort}" && set -xg https_proxy "http://${host || '127.0.0.1'}:${mixedPort}" && set -xg no_proxy "${bypass.join(',')}"`
       )
       break
     }
@@ -437,4 +680,19 @@ export async function closeTrayIcon(): Promise<void> {
     tray.destroy()
   }
   tray = null
+  trayMenu = null
+  if (customTrayWindow) {
+    customTrayWindow.destroy()
+  }
+  customTrayWindow = null
+}
+
+export function setDockVisible(visible: boolean): void {
+  if (process.platform === 'darwin' && app.dock) {
+    if (visible) {
+      app.dock.show()
+    } else {
+      app.dock.hide()
+    }
+  }
 }

@@ -1,10 +1,11 @@
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@heroui/react'
+import { Button, Label, Modal, Switch } from '@heroui-v3/react'
+import { Spinner } from '@heroui/react'
 import React, { useEffect, useState } from 'react'
-import { BaseEditor } from '../base/base-editor'
+import { BaseEditor } from '../base/base-editor-lazy'
 import { getProfileStr, setProfileStr } from '@renderer/utils/ipc'
 import { useNavigate } from 'react-router-dom'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
-import { useLanguage } from '@renderer/hooks/use-language'
+import ConfirmModal from '../base/base-confirm'
 
 interface Props {
   id: string
@@ -13,14 +14,34 @@ interface Props {
 }
 
 const EditFileModal: React.FC<Props> = (props) => {
-  const { id, onClose } = props
-  const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
-  const { t } = useLanguage()
+  const { id, isRemote, onClose } = props
+  useAppConfig()
   const [currData, setCurrData] = useState('')
+  const [originalData, setOriginalData] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [isDiff, setIsDiff] = useState(false)
+  const [sideBySide, setSideBySide] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const navigate = useNavigate()
 
+  const isModified = currData !== originalData
+
+  const handleClose = (): void => {
+    if (isModified) {
+      setIsConfirmOpen(true)
+    } else {
+      onClose()
+    }
+  }
+
   const getContent = async (): Promise<void> => {
-    setCurrData(await getProfileStr(id))
+    try {
+      const data = await getProfileStr(id)
+      setCurrData(data)
+      setOriginalData(data)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -28,64 +49,99 @@ const EditFileModal: React.FC<Props> = (props) => {
   }, [])
 
   return (
-    <Modal
-      backdrop={disableAnimation ? 'transparent' : 'blur'}
-      disableAnimation={disableAnimation}
-      classNames={{
-        base: 'max-w-none w-full',
-        backdrop: 'top-[48px]'
-      }}
-      size="5xl"
-      hideCloseButton
-      isOpen={true}
-      onOpenChange={onClose}
-      scrollBehavior="inside"
-    >
-      <ModalContent className="h-full w-[calc(100%-100px)]">
-        <ModalHeader className="flex pb-0 app-drag">
-          <div className="flex justify-start">
-            <div className="flex items-center">{t('编辑订阅', 'Edit Subscription')}</div>
-            {props.isRemote && (
-              <small className="ml-2 text-foreground-500">
-                {t(
-                  '注意：此处编辑配置更新订阅后会还原，如需要自定义配置请使用',
-                  'Note: Changes here will be reset after subscription update. To customize, use'
+    <Modal>
+      {isConfirmOpen && (
+        <ConfirmModal
+          title="确认取消"
+          description="您有未保存的修改，确定要取消吗？"
+          confirmText="放弃修改"
+          cancelText="继续编辑"
+          onChange={setIsConfirmOpen}
+          onConfirm={onClose}
+        />
+      )}
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={handleClose}
+        variant="blur"
+        className="top-12 h-[calc(100%-48px)]"
+      >
+        <Modal.Container scroll="inside">
+          <Modal.Dialog className="mt-4 h-[calc(100%-32px)] max-w-none w-[calc(100%-100px)]">
+            <Modal.Header className="app-drag pb-0">
+              <div className="flex justify-start">
+                <Modal.Heading className="flex items-center">编辑订阅</Modal.Heading>
+                {isRemote && (
+                  <small className="ml-2 text-foreground-500">
+                    注意：此处编辑配置更新订阅后会还原，如需要自定义配置请使用
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="app-nodrag"
+                      onPress={() => {
+                        navigate('/override')
+                      }}
+                    >
+                      覆写
+                    </Button>
+                    功能
+                  </small>
                 )}
+              </div>
+            </Modal.Header>
+            <Modal.Body className="h-full">
+              {isLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <Spinner size="lg" />
+                </div>
+              ) : (
+                <BaseEditor
+                  language="yaml"
+                  value={currData}
+                  originalValue={isDiff ? originalData : undefined}
+                  onChange={(value) => setCurrData(value)}
+                  diffRenderSideBySide={sideBySide}
+                />
+              )}
+            </Modal.Body>
+            <Modal.Footer className="flex justify-between pt-0 pb-0">
+              <div className="flex items-center space-x-2">
+                <Switch size="sm" isSelected={isDiff} onChange={setIsDiff}>
+                  <Switch.Content>
+                    <Label>显示修改</Label>
+                  </Switch.Content>
+                  <Switch.Control>
+                    <Switch.Thumb />
+                  </Switch.Control>
+                </Switch>
+                <Switch size="sm" isSelected={sideBySide} onChange={setSideBySide}>
+                  <Switch.Content>
+                    <Label>侧边显示</Label>
+                  </Switch.Content>
+                  <Switch.Control>
+                    <Switch.Thumb />
+                  </Switch.Control>
+                </Switch>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="secondary" onPress={handleClose}>
+                  取消
+                </Button>
                 <Button
                   size="sm"
-                  color="primary"
-                  variant="light"
-                  className="app-nodrag"
-                  onPress={() => {
-                    navigate('/override')
+                  variant="primary"
+                  onPress={async () => {
+                    await setProfileStr(id, currData)
+                    onClose()
                   }}
                 >
-                  {t('覆写', 'Override')}
+                  保存
                 </Button>
-                {t('功能', 'feature')}
-              </small>
-            )}
-          </div>
-        </ModalHeader>
-        <ModalBody className="h-full">
-          <BaseEditor language="yaml" value={currData} onChange={(value) => setCurrData(value)} />
-        </ModalBody>
-        <ModalFooter className="pt-0">
-          <Button size="sm" variant="light" onPress={onClose}>
-            {t('取消', 'Cancel')}
-          </Button>
-          <Button
-            size="sm"
-            color="primary"
-            onPress={async () => {
-              await setProfileStr(id, currData)
-              onClose()
-            }}
-          >
-            {t('确认', 'Confirm')}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+              </div>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   )
 }

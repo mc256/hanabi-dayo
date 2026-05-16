@@ -1,46 +1,26 @@
 import React, { useState } from 'react'
 import SettingCard from '../base/base-setting-card'
 import SettingItem from '../base/base-setting-item'
-import { Button, Input, Select, SelectItem, Switch, Tab, Tabs, Tooltip } from '@heroui/react'
-import { BiCopy } from 'react-icons/bi'
+import { Button, Switch, Tab, Tabs, Tooltip } from '@heroui/react'
 import useSWR from 'swr'
-import {
-  checkAutoRun,
-  copyEnv,
-  disableAutoRun,
-  enableAutoRun,
-  relaunchApp,
-  startNetworkDetection,
-  stopNetworkDetection
-} from '@renderer/utils/ipc'
+import { checkAutoRun, disableAutoRun, enableAutoRun, relaunchApp } from '@renderer/utils/ipc'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
-import { useLanguage } from '@renderer/hooks/use-language'
-import { platform } from '@renderer/utils/init'
 import { IoIosHelpCircle } from 'react-icons/io'
-import EditableList from '../base/base-list-editor'
 import ConfirmModal from '../base/base-confirm'
-import { IoLanguage } from 'react-icons/io5'
+import { notify } from '@renderer/utils/notification'
 
 const GeneralConfig: React.FC = () => {
   const { data: enable, mutate: mutateEnable } = useSWR('checkAutoRun', checkAutoRun)
   const { appConfig, patchAppConfig } = useAppConfig()
-  const { locale, setLanguage, t } = useLanguage()
   const {
     silentStart = false,
-    autoQuitWithoutCore = false,
-    autoQuitWithoutCoreDelay = 60,
-    envType = [platform === 'win32' ? 'powershell' : 'bash'],
     autoCheckUpdate,
     updateChannel = 'stable',
-    networkDetection = false,
-    networkDetectionBypass = ['VMware', 'vEthernet'],
-    networkDetectionInterval = 10,
+    notificationMode = 'system',
     disableGPU = false,
     disableAnimation = false
   } = appConfig || {}
 
-  const [bypass, setBypass] = useState(networkDetectionBypass)
-  const [interval, setInterval] = useState(networkDetectionInterval)
   const [showRestartConfirm, setShowRestartConfirm] = useState(false)
   const [pendingDisableGPU, setPendingDisableGPU] = useState(disableGPU)
 
@@ -48,14 +28,14 @@ const GeneralConfig: React.FC = () => {
     <>
       {showRestartConfirm && (
         <ConfirmModal
-          title={t('确定要重启应用吗？', 'Are you sure you want to restart the app?')}
+          title="确定要重启应用吗？"
           description={
             <div>
-              <p>{t('修改 GPU 加速设置需要重启应用才能生效', 'Changing GPU acceleration settings requires restarting the app to take effect')}</p>
+              <p>修改 GPU 加速设置需要重启应用才能生效</p>
             </div>
           }
-          confirmText={t('重启', 'Restart')}
-          cancelText={t('取消', 'Cancel')}
+          confirmText="重启"
+          cancelText="取消"
           onChange={(open) => {
             if (!open) {
               setPendingDisableGPU(disableGPU)
@@ -72,33 +52,7 @@ const GeneralConfig: React.FC = () => {
         />
       )}
       <SettingCard>
-        <SettingItem title={t('settings.general.language')} actions={
-          <Tooltip content={t('选择界面语言', 'Select interface language')}>
-            <Button isIconOnly size="sm" variant="light">
-              <IoLanguage className="text-lg" />
-            </Button>
-          </Tooltip>
-
-        }>
-          <Select
-            size="sm"
-            className="w-[150px]"
-            selectedKeys={[locale]}
-            onChange={async (e) => {
-              const newLang = e.target.value as 'en' | 'zh-CN' | 'ja' | 'zh-HK'
-              await patchAppConfig({ language: newLang })
-              await setLanguage(newLang)
-            }}
-          >
-            <SelectItem key="zh-CN">简体中文</SelectItem>
-            <SelectItem key="zh-HK">繁體中文</SelectItem>
-            <SelectItem key="en">English</SelectItem>
-            <SelectItem key="ja">日本語</SelectItem>
-          </Select>
-        </SettingItem>
-      </SettingCard>
-      <SettingCard>
-        <SettingItem title={t('开机自启', 'Start on Boot')} divider>
+        <SettingItem compatKey="legacy" title="开机自启" divider>
           <Switch
             size="sm"
             isSelected={enable}
@@ -110,14 +64,14 @@ const GeneralConfig: React.FC = () => {
                   await disableAutoRun()
                 }
               } catch (e) {
-                alert(e)
+                notify(e, { variant: 'danger' })
               } finally {
                 mutateEnable()
               }
             }}
           />
         </SettingItem>
-        <SettingItem title={t('静默启动', 'Silent Start')} divider>
+        <SettingItem compatKey="legacy" title="静默启动" divider>
           <Switch
             size="sm"
             isSelected={silentStart}
@@ -126,7 +80,7 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('自动检查更新', 'Auto Check Update')} divider>
+        <SettingItem compatKey="legacy" title="自动检查更新" divider>
           <Switch
             size="sm"
             isSelected={autoCheckUpdate}
@@ -135,7 +89,7 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem title={t('更新通道', 'Update Channel')} divider>
+        <SettingItem compatKey="legacy" title="更新通道" divider>
           <Tabs
             size="sm"
             color="primary"
@@ -144,89 +98,29 @@ const GeneralConfig: React.FC = () => {
               patchAppConfig({ updateChannel: v as 'stable' | 'beta' })
             }}
           >
-            <Tab key="stable" title={t('正式版', 'Stable')} />
-            <Tab key="beta" title={t('测试版', 'Beta')} />
+            <Tab key="stable" title="正式版" />
+            <Tab key="beta" title="测试版" />
           </Tabs>
         </SettingItem>
-        <SettingItem
-          title={t('自动开启轻量模式', 'Auto Enable Light Mode')}
-          actions={
-            <Tooltip content={t('关闭窗口指定时间后自动进入轻量模式', 'Automatically enter light mode after closing the window for a specified time')}>
-              <Button isIconOnly size="sm" variant="light">
-                <IoIosHelpCircle className="text-lg" />
-              </Button>
-            </Tooltip>
-          }
-          divider
-        >
-          <Switch
+        <SettingItem compatKey="legacy" title="通知形式" divider>
+          <Tabs
             size="sm"
-            isSelected={autoQuitWithoutCore}
-            onValueChange={(v) => {
-              patchAppConfig({ autoQuitWithoutCore: v })
-            }}
-          />
-        </SettingItem>
-        {autoQuitWithoutCore && (
-          <SettingItem title={t('自动开启轻量模式延时', 'Light Mode Delay')} divider>
-            <Input
-              size="sm"
-              className="w-[100px]"
-              type="number"
-              endContent={t('秒', 'sec')}
-              value={autoQuitWithoutCoreDelay.toString()}
-              onValueChange={async (v: string) => {
-                let num = parseInt(v)
-                if (isNaN(num)) num = 5
-                if (num < 5) num = 5
-                await patchAppConfig({ autoQuitWithoutCoreDelay: num })
-              }}
-            />
-          </SettingItem>
-        )}
-        <SettingItem
-          title={t('复制环境变量类型', 'Copy Environment Variables Type')}
-          actions={envType.map((type) => (
-            <Button
-              key={type}
-              title={type}
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => copyEnv(type)}
-            >
-              <BiCopy className="text-lg" />
-            </Button>
-          ))}
-          divider
-        >
-          <Select
-            classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-            className="w-[150px]"
-            size="sm"
-            selectionMode="multiple"
-            selectedKeys={new Set(envType)}
-            disallowEmptySelection={true}
-            onSelectionChange={async (v) => {
-              try {
-                await patchAppConfig({
-                  envType: Array.from(v) as ('bash' | 'cmd' | 'powershell')[]
-                })
-              } catch (e) {
-                alert(e)
-              }
+            color="primary"
+            selectedKey={notificationMode}
+            onSelectionChange={(v) => {
+              patchAppConfig({ notificationMode: v as AppNotificationMode })
             }}
           >
-            <SelectItem key="bash">Bash</SelectItem>
-            <SelectItem key="cmd">CMD</SelectItem>
-            <SelectItem key="powershell">PowerShell</SelectItem>
-            <SelectItem key="nushell">NuShell</SelectItem>
-          </Select>
+            <Tab key="system" title="系统" />
+            <Tab key="toast" title="应用内" />
+          </Tabs>
         </SettingItem>
+
         <SettingItem
-          title={t('禁用 GPU 加速', 'Disable GPU Acceleration')}
+          compatKey="legacy"
+          title="禁用 GPU 加速"
           actions={
-            <Tooltip content={t('开启后，应用将禁用 GPU 加速，可能会提高稳定性，但会降低性能', 'When enabled, the app will disable GPU acceleration, which may improve stability but reduce performance')}>
+            <Tooltip content="开启后，应用将禁用 GPU 加速，可能会提高稳定性，但会降低性能">
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -244,15 +138,15 @@ const GeneralConfig: React.FC = () => {
           />
         </SettingItem>
         <SettingItem
-          title={t('禁用动画', 'Disable Animation')}
+          compatKey="legacy"
+          title="禁用动画"
           actions={
-            <Tooltip content={t('开启后，应用将减轻绝大部分动画效果，可能会提高性能', 'When enabled, the app will reduce most animation effects, which may improve performance')}>
+            <Tooltip content="开启后，应用将减轻绝大部分动画效果，可能会提高性能">
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
             </Tooltip>
           }
-          divider
         >
           <Switch
             size="sm"
@@ -262,90 +156,6 @@ const GeneralConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem
-          title={t('断网时停止内核', 'Stop Core on Network Disconnection')}
-          actions={
-            <Tooltip content={t('开启后，应用会在检测到网络断开时自动停止内核，并在网络恢复后自动重启内核', 'When enabled, the app will automatically stop the core when network disconnection is detected and restart it when the network is restored')}>
-              <Button isIconOnly size="sm" variant="light">
-                <IoIosHelpCircle className="text-lg" />
-              </Button>
-            </Tooltip>
-          }
-          divider={networkDetection}
-        >
-          <Switch
-            size="sm"
-            isSelected={networkDetection}
-            onValueChange={(v) => {
-              patchAppConfig({ networkDetection: v })
-              if (v) {
-                startNetworkDetection()
-              } else {
-                stopNetworkDetection()
-              }
-            }}
-          />
-        </SettingItem>
-        {networkDetection && (
-          <>
-            <SettingItem
-              title={t('断网检测间隔', 'Network Detection Interval')}
-              actions={
-                <Tooltip content={t('设置断网检测的间隔时间，单位为秒', 'Set the interval time for network detection, in seconds')}>
-                  <Button isIconOnly size="sm" variant="light">
-                    <IoIosHelpCircle className="text-lg" />
-                  </Button>
-                </Tooltip>
-              }
-              divider
-            >
-              <div className="flex">
-                {interval !== networkDetectionInterval && (
-                  <Button
-                    size="sm"
-                    color="primary"
-                    className="mr-2"
-                    onPress={async () => {
-                      await patchAppConfig({ networkDetectionInterval: interval })
-                      await startNetworkDetection()
-                    }}
-                  >
-                    {t('确认', 'Confirm')}
-                  </Button>
-                )}
-                <Input
-                  size="sm"
-                  type="number"
-                  className="w-[100px]"
-                  value={interval.toString()}
-                  min={1}
-                  onValueChange={(v) => {
-                    setInterval(parseInt(v))
-                  }}
-                />
-              </div>
-            </SettingItem>
-            <SettingItem title={t('绕过检测的接口', 'Bypass Detection Interfaces')}>
-              {bypass.length != networkDetectionBypass.length && (
-                <Button
-                  size="sm"
-                  color="primary"
-                  onPress={async () => {
-                    await patchAppConfig({ networkDetectionBypass: bypass })
-                    await startNetworkDetection()
-                  }}
-                >
-                  {t('确认', 'Confirm')}
-                </Button>
-              )}
-            </SettingItem>
-            <EditableList
-              items={bypass}
-              onChange={(list) => setBypass(list as string[])}
-              divider={false}
-            />
-          </>
-        )}
       </SettingCard>
     </>
   )

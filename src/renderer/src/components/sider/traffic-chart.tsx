@@ -24,15 +24,15 @@ const TrafficChart: React.FC<TrafficChartProps> = (props) => {
   }, [data])
 
   const chartColor = useMemo(() => {
-    return isActive 
-      ? 'hsl(var(--heroui-primary-foreground))' 
-      : 'hsl(var(--heroui-foreground))'
+    return isActive ? 'hsl(var(--heroui-primary-foreground))' : 'hsl(var(--heroui-foreground))'
   }, [isActive])
 
   return (
     <ResponsiveContainer
       height="100%"
       width="100%"
+      minWidth={1}
+      minHeight={1}
       className="absolute top-0 left-0 pointer-events-none rounded-[14px]"
     >
       <AreaChart data={validData} margin={{ top: 50, right: 0, left: 0, bottom: 0 }}>

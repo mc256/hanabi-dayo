@@ -11,14 +11,7 @@ import BasePage from '@renderer/components/base/base-page'
 import { getFilePath, readTextFile } from '@renderer/utils/ipc'
 import { useEffect, useRef, useState } from 'react'
 import { MdContentPaste } from 'react-icons/md'
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent
-} from '@dnd-kit/core'
+import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext } from '@dnd-kit/sortable'
 import { useOverrideConfig } from '@renderer/hooks/use-override-config'
 import OverrideItem from '@renderer/components/override/override-item'
@@ -26,6 +19,10 @@ import EditInfoModal from '@renderer/components/override/edit-info-modal'
 import { FaPlus } from 'react-icons/fa6'
 import { HiOutlineDocumentText } from 'react-icons/hi'
 import { RiArchiveLine } from 'react-icons/ri'
+import { useCardDndSensors } from '@renderer/hooks/use-card-dnd-sensors'
+import { notify } from '@renderer/utils/notification'
+
+const emptyItems: OverrideItem[] = []
 
 const Override: React.FC = () => {
   const {
@@ -36,20 +33,15 @@ const Override: React.FC = () => {
     removeOverrideItem,
     mutateOverrideConfig
   } = useOverrideConfig()
-  const { items = [] } = overrideConfig || {}
-  const [sortedItems, setSortedItems] = useState(items)
+  const { items } = overrideConfig || {}
+  const itemsArray = items ?? emptyItems
+  const [sortedItems, setSortedItems] = useState(itemsArray)
   const [importing, setImporting] = useState(false)
   const [fileOver, setFileOver] = useState(false)
   const [url, setUrl] = useState('')
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingItem, setEditingItem] = useState<OverrideItem | null>(null)
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 2
-      }
-    })
-  )
+  const sensors = useCardDndSensors()
   const isProcessingDrop = useRef(false)
   const handleImport = async (): Promise<void> => {
     setImporting(true)
@@ -75,8 +67,10 @@ const Override: React.FC = () => {
         const newOrder = sortedItems.slice()
         const activeIndex = newOrder.findIndex((item) => item.id === active.id)
         const overIndex = newOrder.findIndex((item) => item.id === over.id)
-        newOrder.splice(activeIndex, 1)
-        newOrder.splice(overIndex, 0, items[activeIndex])
+        if (activeIndex === -1 || overIndex === -1) return
+        const [activeItem] = newOrder.splice(activeIndex, 1)
+        if (!activeItem) return
+        newOrder.splice(overIndex, 0, activeItem)
         setSortedItems(newOrder)
         await setOverrideConfig({ items: newOrder })
       }
@@ -120,10 +114,10 @@ const Override: React.FC = () => {
               ext: file.name.endsWith('.js') ? 'js' : 'yaml'
             })
           } catch (e) {
-            alert('文件导入失败' + e)
+            notify('文件导入失败' + e, { variant: 'danger' })
           }
         } else {
-          alert('不支持的文件类型')
+          notify('不支持的文件类型', { variant: 'danger' })
         }
       }
       isProcessingDrop.current = false
@@ -137,19 +131,19 @@ const Override: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    setSortedItems(items)
-  }, [items])
+    setSortedItems(itemsArray)
+  }, [itemsArray])
 
   return (
     <BasePage
       ref={pageRef}
       title="覆写"
+      contentClassName="no-scrollbar"
       header={
         <>
           <Button
             size="sm"
             variant="light"
-            title="使用文档"
             isIconOnly
             className="app-nodrag"
             onPress={() => {
@@ -160,7 +154,6 @@ const Override: React.FC = () => {
           </Button>
           <Button
             className="app-nodrag"
-            title="常用覆写仓库"
             isIconOnly
             variant="light"
             size="sm"
@@ -173,7 +166,7 @@ const Override: React.FC = () => {
         </>
       }
     >
-      <div className="sticky top-0 z-40 bg-background">
+      <div className="sticky top-0 z-40">
         <div className="flex p-2">
           <Input
             size="sm"
@@ -226,7 +219,7 @@ const Override: React.FC = () => {
                       })
                     }
                   } catch (e) {
-                    alert(e)
+                    notify(e, { variant: 'danger' })
                   }
                 } else if (key === 'new-yaml') {
                   await addOverrideItem({

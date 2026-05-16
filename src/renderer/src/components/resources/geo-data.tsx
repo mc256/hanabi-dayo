@@ -2,34 +2,45 @@ import { Button, Input, Switch, Tab, Tabs } from '@heroui/react'
 import SettingCard from '@renderer/components/base/base-setting-card'
 import SettingItem from '@renderer/components/base/base-setting-item'
 import { useControledMihomoConfig } from '@renderer/hooks/use-controled-mihomo-config'
-import { useLanguage } from '@renderer/hooks/use-language'
 import { mihomoUpgradeGeo } from '@renderer/utils/ipc'
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { IoMdRefresh } from 'react-icons/io'
+import { notify } from '@renderer/utils/notification'
+
+const defaultGeoxUrl = {
+  geoip: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat',
+  geosite: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat',
+  mmdb: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb',
+  asn: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb'
+}
 
 const GeoData: React.FC = () => {
   const { controledMihomoConfig, patchControledMihomoConfig } = useControledMihomoConfig()
-  const { t } = useLanguage()
   const {
-    'geox-url': geoxUrl = {
-      geoip: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat',
-      geosite: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat',
-      mmdb: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb',
-      asn: 'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb'
-    },
+    'geox-url': geoxUrlRaw,
     'geodata-mode': geoMode = false,
     'geo-auto-update': geoAutoUpdate = false,
     'geo-update-interval': geoUpdateInterval = 24
   } = controledMihomoConfig || {}
+
+  const geoxUrl = useMemo(() => ({ ...defaultGeoxUrl, ...geoxUrlRaw }), [geoxUrlRaw])
+
   const [geoipInput, setGeoIpInput] = useState(geoxUrl.geoip)
   const [geositeInput, setGeositeInput] = useState(geoxUrl.geosite)
   const [mmdbInput, setMmdbInput] = useState(geoxUrl.mmdb)
   const [asnInput, setAsnInput] = useState(geoxUrl.asn)
   const [updating, setUpdating] = useState(false)
 
+  useEffect(() => {
+    setGeoIpInput(geoxUrl.geoip)
+    setGeositeInput(geoxUrl.geosite)
+    setMmdbInput(geoxUrl.mmdb)
+    setAsnInput(geoxUrl.asn)
+  }, [geoxUrl])
+
   return (
     <SettingCard>
-      <SettingItem title={t('GeoIP 数据库', 'GeoIP Database')} divider>
+      <SettingItem compatKey="legacy" title="GeoIP-DAT 数据库" divider>
         <div className="flex w-[70%]">
           {geoipInput !== geoxUrl.geoip && (
             <Button
@@ -40,30 +51,13 @@ const GeoData: React.FC = () => {
                 patchControledMihomoConfig({ 'geox-url': { ...geoxUrl, geoip: geoipInput } })
               }}
             >
-              {t('确认', 'Confirm')}
+              确认
             </Button>
           )}
           <Input size="sm" value={geoipInput} onValueChange={setGeoIpInput} />
         </div>
       </SettingItem>
-      <SettingItem title={t('GeoSite 数据库', 'GeoSite Database')} divider>
-        <div className="flex w-[70%]">
-          {geositeInput !== geoxUrl.geosite && (
-            <Button
-              size="sm"
-              color="primary"
-              className="mr-2"
-              onPress={() => {
-                patchControledMihomoConfig({ 'geox-url': { ...geoxUrl, geosite: geositeInput } })
-              }}
-            >
-              {t('确认', 'Confirm')}
-            </Button>
-          )}
-          <Input size="sm" value={geositeInput} onValueChange={setGeositeInput} />
-        </div>
-      </SettingItem>
-      <SettingItem title={t('MMDB 数据库', 'MMDB Database')} divider>
+      <SettingItem compatKey="legacy" title="GeoIP-MMDB 数据库" divider>
         <div className="flex w-[70%]">
           {mmdbInput !== geoxUrl.mmdb && (
             <Button
@@ -74,13 +68,31 @@ const GeoData: React.FC = () => {
                 patchControledMihomoConfig({ 'geox-url': { ...geoxUrl, mmdb: mmdbInput } })
               }}
             >
-              {t('确认', 'Confirm')}
+              确认
             </Button>
           )}
           <Input size="sm" value={mmdbInput} onValueChange={setMmdbInput} />
         </div>
       </SettingItem>
-      <SettingItem title={t('ASN 数据库', 'ASN Database')} divider>
+      <SettingItem compatKey="legacy" title="GeoSite 数据库" divider>
+        <div className="flex w-[70%]">
+          {geositeInput !== geoxUrl.geosite && (
+            <Button
+              size="sm"
+              color="primary"
+              className="mr-2"
+              onPress={() => {
+                patchControledMihomoConfig({ 'geox-url': { ...geoxUrl, geosite: geositeInput } })
+              }}
+            >
+              确认
+            </Button>
+          )}
+          <Input size="sm" value={geositeInput} onValueChange={setGeositeInput} />
+        </div>
+      </SettingItem>
+
+      <SettingItem compatKey="legacy" title="IP-ASN 数据库" divider>
         <div className="flex w-[70%]">
           {asnInput !== geoxUrl.asn && (
             <Button
@@ -91,13 +103,13 @@ const GeoData: React.FC = () => {
                 patchControledMihomoConfig({ 'geox-url': { ...geoxUrl, asn: asnInput } })
               }}
             >
-              {t('确认', 'Confirm')}
+              确认
             </Button>
           )}
           <Input size="sm" value={asnInput} onValueChange={setAsnInput} />
         </div>
       </SettingItem>
-      <SettingItem title={t('GeoIP 数据模式', 'GeoIP Data Mode')} divider>
+      <SettingItem compatKey="legacy" title="GeoIP 模式" divider>
         <Tabs
           size="sm"
           color="primary"
@@ -111,7 +123,8 @@ const GeoData: React.FC = () => {
         </Tabs>
       </SettingItem>
       <SettingItem
-        title={t('自动更新 Geo 数据库', 'Auto Update Geo Database')}
+        compatKey="legacy"
+        title="自动更新数据库"
         actions={
           <Button
             size="sm"
@@ -121,9 +134,9 @@ const GeoData: React.FC = () => {
               setUpdating(true)
               try {
                 await mihomoUpgradeGeo()
-                new Notification(t('Geo 数据库更新成功', 'Geo database updated successfully'))
+                notify('数据库更新成功', { variant: 'success' })
               } catch (e) {
-                alert(e)
+                notify(e, { variant: 'danger' })
               } finally {
                 setUpdating(false)
               }
@@ -143,11 +156,11 @@ const GeoData: React.FC = () => {
         />
       </SettingItem>
       {geoAutoUpdate && (
-        <SettingItem title={t('更新间隔(小时)', 'Update Interval (hours)')}>
+        <SettingItem compatKey="legacy" title="更新间隔(小时)">
           <Input
             size="sm"
             type="number"
-            className="w-[100px]"
+            className="w-25"
             value={geoUpdateInterval.toString()}
             onValueChange={(v) => {
               patchControledMihomoConfig({ 'geo-update-interval': parseInt(v) })

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@heroui/react'
+import { Button, Modal } from '@heroui-v3/react'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 
 export interface ConfirmButton {
@@ -10,6 +10,18 @@ export interface ConfirmButton {
   onPress: () => void | Promise<void>
 }
 
+function mapButtonVariant(
+  variant?: ConfirmButton['variant'],
+  color?: ConfirmButton['color']
+): 'primary' | 'secondary' | 'tertiary' | 'outline' | 'ghost' | 'danger' | 'danger-soft' {
+  if (color === 'danger') return 'danger'
+  if (color === 'warning') return 'danger-soft'
+  if (variant === 'light' || variant === 'flat' || variant === 'faded') return 'secondary'
+  if (variant === 'bordered') return 'outline'
+  if (variant === 'ghost') return 'ghost'
+  return 'primary'
+}
+
 interface Props {
   onChange: (open: boolean) => void
   title?: string
@@ -18,6 +30,7 @@ interface Props {
   cancelText?: string
   onConfirm?: () => void | Promise<void>
   buttons?: ConfirmButton[]
+  className?: string
 }
 
 const ConfirmModal: React.FC<Props> = (props) => {
@@ -28,9 +41,10 @@ const ConfirmModal: React.FC<Props> = (props) => {
     confirmText = '确认',
     cancelText = '取消',
     onConfirm,
-    buttons
+    buttons,
+    className
   } = props
-  const { appConfig: { disableAnimation = false } = {} } = useAppConfig()
+  useAppConfig()
 
   const renderButtons = () => {
     if (buttons && buttons.length > 0) {
@@ -38,8 +52,7 @@ const ConfirmModal: React.FC<Props> = (props) => {
         <Button
           key={button.key}
           size="sm"
-          color={button.color || 'primary'}
-          variant={button.variant || 'solid'}
+          variant={mapButtonVariant(button.variant, button.color)}
           onPress={async () => {
             await button.onPress()
             onChange(false)
@@ -52,12 +65,12 @@ const ConfirmModal: React.FC<Props> = (props) => {
 
     return (
       <>
-        <Button size="sm" variant="light" onPress={() => onChange(false)}>
+        <Button size="sm" variant="secondary" onPress={() => onChange(false)}>
           {cancelText}
         </Button>
         <Button
           size="sm"
-          color="danger"
+          variant="danger"
           onPress={async () => {
             if (onConfirm) {
               await onConfirm()
@@ -72,26 +85,25 @@ const ConfirmModal: React.FC<Props> = (props) => {
   }
 
   return (
-    <Modal
-      backdrop={disableAnimation ? 'transparent' : 'blur'}
-      disableAnimation={disableAnimation}
-      hideCloseButton
-      isOpen={true}
-      size="5xl"
-      onOpenChange={onChange}
-      scrollBehavior="inside"
-      classNames={{
-        base: 'max-w-none w-full',
-        backdrop: 'top-[48px]'
-      }}
-    >
-      <ModalContent className="w-[400px]">
-        <ModalHeader>{title}</ModalHeader>
-        <ModalBody>
-          <div className="leading-relaxed">{description}</div>
-        </ModalBody>
-        <ModalFooter className="space-x-2">{renderButtons()}</ModalFooter>
-      </ModalContent>
+    <Modal>
+      <Modal.Backdrop
+        isOpen={true}
+        onOpenChange={onChange}
+        variant="blur"
+        className="top-12 h-[calc(100%-48px)]"
+      >
+        <Modal.Container scroll="inside">
+          <Modal.Dialog className={['w-100', className].filter(Boolean).join(' ')}>
+            <Modal.Header>
+              <Modal.Heading>{title}</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="leading-relaxed">{description}</div>
+            </Modal.Body>
+            <Modal.Footer className="space-x-2">{renderButtons()}</Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   )
 }

@@ -16,7 +16,7 @@ import {
   overridePath
 } from '../utils/dirs'
 import { parseYaml, stringifyYaml } from '../utils/yaml'
-import { copyFile, mkdir, writeFile } from 'fs/promises'
+import { copyFile, mkdir, readdir, writeFile } from 'fs/promises'
 import { deepMerge } from '../utils/merge'
 import vm from 'vm'
 import { existsSync, writeFileSync } from 'fs'
@@ -30,19 +30,26 @@ let runtimeConfigStr: string,
 
 export async function generateProfile(): Promise<void> {
   const { current } = await getProfileConfig()
-  const { diffWorkDir = false } = await getAppConfig()
+  const { diffWorkDir = false, controlDns = true, controlSniff = true } = await getAppConfig()
   const currentProfileConfig = await getProfile(current)
   rawProfileStr = await getProfileStr(current)
   currentProfileStr = stringifyYaml(currentProfileConfig)
   const currentProfile = await overrideProfile(current, currentProfileConfig)
   overrideProfileStr = stringifyYaml(currentProfile)
   const controledMihomoConfig = await getControledMihomoConfig()
-  const profile = deepMerge(
-    JSON.parse(JSON.stringify(currentProfile)),
-    JSON.parse(JSON.stringify(controledMihomoConfig))
-  )
 
-  await cleanProfile(profile)
+  const configToMerge = JSON.parse(JSON.stringify(controledMihomoConfig))
+  if (!controlDns) {
+    delete configToMerge.dns
+    delete configToMerge.hosts
+  }
+  if (!controlSniff) {
+    delete configToMerge.sniffer
+  }
+
+  const profile = deepMerge(JSON.parse(JSON.stringify(currentProfile)), configToMerge)
+
+  await cleanProfile(profile, controlDns, controlSniff)
 
   runtimeConfig = profile
   runtimeConfigStr = stringifyYaml(profile)
@@ -55,21 +62,23 @@ export async function generateProfile(): Promise<void> {
   )
 }
 
-async function cleanProfile(profile: MihomoConfig): Promise<void> {
-  const { controlDns = true } = await getAppConfig()
-
+async function cleanProfile(
+  profile: MihomoConfig,
+  controlDns: boolean,
+  controlSniff: boolean
+): Promise<void> {
   if (!['info', 'debug'].includes(profile['log-level'])) {
     profile['log-level'] = 'info'
   }
 
   configureLanSettings(profile)
   cleanBooleanConfigs(profile)
-  cleanPortConfigs(profile)
+  cleanNumberConfigs(profile)
   cleanStringConfigs(profile)
   cleanAuthenticationConfig(profile)
   cleanTunConfig(profile)
   cleanDnsConfig(profile, controlDns)
-  cleanSnifferConfig(profile)
+  cleanSnifferConfig(profile, controlSniff)
   cleanProxyConfigs(profile)
 }
 
@@ -78,7 +87,13 @@ function cleanBooleanConfigs(profile: MihomoConfig): void {
     delete (profile as Partial<MihomoConfig>).ipv6
   }
 
-  const booleanConfigs = ['unified-delay', 'tcp-concurrent', 'geodata-mode', 'geo-auto-update']
+  const booleanConfigs = [
+    'unified-delay',
+    'tcp-concurrent',
+    'geodata-mode',
+    'geo-auto-update',
+    'disable-keep-alive'
+  ]
 
   booleanConfigs.forEach((key) => {
     if (!profile[key]) delete (profile as Partial<MihomoConfig>)[key]
@@ -97,8 +112,16 @@ function cleanBooleanConfigs(profile: MihomoConfig): void {
   }
 }
 
-function cleanPortConfigs(profile: MihomoConfig): void {
-  ;['port', 'socks-port', 'redir-port', 'tproxy-port', 'mixed-port'].forEach((key) => {
+function cleanNumberConfigs(profile: MihomoConfig): void {
+  ;[
+    'port',
+    'socks-port',
+    'redir-port',
+    'tproxy-port',
+    'mixed-port',
+    'keep-alive-idle',
+    'keep-alive-interval'
+  ].forEach((key) => {
     if (profile[key] === 0) delete (profile as Partial<MihomoConfig>)[key]
   })
 }
@@ -215,15 +238,26 @@ function cleanDnsConfig(profile: MihomoConfig, controlDns: boolean): void {
     if (dnsConfig[key]?.length === 0) delete dnsConfig[key]
   })
 
+  if (dnsConfig['respect-rules'] === false || dnsConfig['proxy-server-nameserver']?.length === 0) {
+    delete dnsConfig['respect-rules']
+  }
+
   if (dnsConfig['nameserver-policy'] && Object.keys(dnsConfig['nameserver-policy']).length === 0) {
     delete dnsConfig['nameserver-policy']
+  }
+  if (
+    dnsConfig['proxy-server-nameserver-policy'] &&
+    Object.keys(dnsConfig['proxy-server-nameserver-policy']).length === 0
+  ) {
+    delete dnsConfig['proxy-server-nameserver-policy']
   }
 
   delete dnsConfig.fallback
   delete dnsConfig['fallback-filter']
 }
 
-function cleanSnifferConfig(profile: MihomoConfig): void {
+function cleanSnifferConfig(profile: MihomoConfig, controlSniff: boolean): void {
+  if (!controlSniff) return
   if (!profile.sniffer?.enable) {
     delete (profile as Partial<MihomoConfig>).sniffer
   }
@@ -253,23 +287,24 @@ function cleanProxyConfigs(profile: MihomoConfig): void {
 }
 
 async function prepareProfileWorkDir(current: string | undefined): Promise<void> {
-  if (!existsSync(mihomoProfileWorkDir(current))) {
-    await mkdir(mihomoProfileWorkDir(current), { recursive: true })
+  const targetDir = mihomoProfileWorkDir(current)
+  const sourceDir = mihomoWorkDir()
+  if (!existsSync(targetDir)) {
+    await mkdir(targetDir, { recursive: true })
   }
   const copy = async (file: string): Promise<void> => {
-    const targetPath = path.join(mihomoProfileWorkDir(current), file)
-    const sourcePath = path.join(mihomoWorkDir(), file)
+    const targetPath = path.join(targetDir, file)
+    const sourcePath = path.join(sourceDir, file)
     if (!existsSync(targetPath) && existsSync(sourcePath)) {
       await copyFile(sourcePath, targetPath)
     }
   }
-  await Promise.all([
-    copy('country.mmdb'),
-    copy('geoip.metadb'),
-    copy('geoip.dat'),
-    copy('geosite.dat'),
-    copy('ASN.mmdb')
-  ])
+  const files = await readdir(sourceDir, { withFileTypes: true })
+  await Promise.all(
+    files
+      .filter((file) => file.isFile() && /(?:db|dat)$/i.test(file.name))
+      .map((file) => copy(file.name))
+  )
 }
 
 async function overrideProfile(

@@ -16,17 +16,16 @@ import { getFilePath, readTextFile } from '@renderer/utils/ipc'
 import type { KeyboardEvent } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { MdContentPaste } from 'react-icons/md'
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent
-} from '@dnd-kit/core'
+import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext } from '@dnd-kit/sortable'
 import { FaPlus } from 'react-icons/fa6'
 import { IoMdRefresh } from 'react-icons/io'
+import { MdTune } from 'react-icons/md'
+import ProfileSettingDrawer from '@renderer/components/profiles/profile-setting-drawer'
+import { useCardDndSensors } from '@renderer/hooks/use-card-dnd-sensors'
+import { notify } from '@renderer/utils/notification'
+
+const emptyItems: ProfileItem[] = []
 
 const Profiles: React.FC = () => {
   const {
@@ -38,26 +37,24 @@ const Profiles: React.FC = () => {
     changeCurrentProfile,
     mutateProfileConfig
   } = useProfileConfig()
-  const { current, items = [] } = profileConfig || {}
-  const [sortedItems, setSortedItems] = useState(items)
+  const { current, items } = profileConfig || {}
+  const itemsArray = items ?? emptyItems
+  const [sortedItems, setSortedItems] = useState(itemsArray)
   const [useProxy, setUseProxy] = useState(false)
   const [importing, setImporting] = useState(false)
   const [updating, setUpdating] = useState(false)
+  const [switching, setSwitching] = useState(false)
   const [fileOver, setFileOver] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [isSettingDrawerOpen, setIsSettingDrawerOpen] = useState(false)
+  const [settingDrawerReopenSignal, setSettingDrawerReopenSignal] = useState(0)
   const [editingItem, setEditingItem] = useState<ProfileItem | null>(null)
   const [url, setUrl] = useState('')
   const isUrlEmpty = url.trim() === ''
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 2
-      }
-    })
-  )
+  const sensors = useCardDndSensors()
   const handleImport = async (importUrl: string): Promise<void> => {
     setImporting(true)
-    await addProfileItem({ name: '', type: 'remote', url: importUrl, useProxy })
+    await addProfileItem({ name: '', type: 'remote', url: importUrl, useProxy, autoUpdate: true })
     setUrl('')
     setImporting(false)
   }
@@ -70,8 +67,10 @@ const Profiles: React.FC = () => {
         const newOrder = sortedItems.slice()
         const activeIndex = newOrder.findIndex((item) => item.id === active.id)
         const overIndex = newOrder.findIndex((item) => item.id === over.id)
-        newOrder.splice(activeIndex, 1)
-        newOrder.splice(overIndex, 0, items[activeIndex])
+        if (activeIndex === -1 || overIndex === -1) return
+        const [activeItem] = newOrder.splice(activeIndex, 1)
+        if (!activeItem) return
+        newOrder.splice(overIndex, 0, activeItem)
         setSortedItems(newOrder)
         await setProfileConfig({ current, items: newOrder })
       }
@@ -115,10 +114,10 @@ const Profiles: React.FC = () => {
             const content = await readTextFile(path)
             await addProfileItem({ name: file.name, type: 'local', file: content })
           } catch (e) {
-            alert('文件导入失败' + e)
+            notify('文件导入失败' + e, { variant: 'danger' })
           }
         } else {
-          alert('不支持的文件类型')
+          notify('不支持的文件类型', { variant: 'danger' })
         }
       }
       setFileOver(false)
@@ -131,41 +130,62 @@ const Profiles: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    setSortedItems(items)
-  }, [items])
+    setSortedItems(itemsArray)
+  }, [itemsArray])
 
   return (
     <BasePage
       ref={pageRef}
       title="订阅管理"
+      contentClassName="no-scrollbar"
       header={
-        <Button
-          size="sm"
-          title="更新全部订阅"
-          className="app-nodrag"
-          variant="light"
-          isIconOnly
-          onPress={async () => {
-            setUpdating(true)
-            for (const item of items) {
-              if (item.id === current) continue
-              if (item.type !== 'remote') continue
-              await addProfileItem(item)
-            }
-            const currentItem = items.find((item) => item.id === current)
-            if (currentItem && currentItem.type === 'remote') {
-              await addProfileItem(currentItem)
-            }
-            setUpdating(false)
-          }}
-        >
-          <IoMdRefresh className={`text-lg ${updating ? 'animate-spin' : ''}`} />
-        </Button>
+        <>
+          <Button
+            size="sm"
+            className="app-nodrag"
+            variant="light"
+            isIconOnly
+            onPress={async () => {
+              setUpdating(true)
+              for (const item of itemsArray) {
+                if (item.id === current) continue
+                if (item.type !== 'remote') continue
+                await addProfileItem(item)
+              }
+              const currentItem = itemsArray.find((item) => item.id === current)
+              if (currentItem && currentItem.type === 'remote') {
+                await addProfileItem(currentItem)
+              }
+              setUpdating(false)
+            }}
+          >
+            <IoMdRefresh className={`text-lg ${updating ? 'animate-spin' : ''}`} />
+          </Button>
+          <Button
+            size="sm"
+            className="app-nodrag"
+            variant="light"
+            isIconOnly
+            onPress={() => {
+              setIsSettingDrawerOpen(true)
+              setSettingDrawerReopenSignal((signal) => signal + 1)
+            }}
+          >
+            <MdTune className="text-lg" />
+          </Button>
+        </>
       }
     >
+      {isSettingDrawerOpen && (
+        <ProfileSettingDrawer
+          reopenSignal={settingDrawerReopenSignal}
+          onClose={() => setIsSettingDrawerOpen(false)}
+        />
+      )}
       {showEditModal && editingItem && (
         <EditInfoModal
           item={editingItem}
+          isCurrent={editingItem.id === current}
           updateProfileItem={async (item: ProfileItem) => {
             await addProfileItem(item)
             setShowEditModal(false)
@@ -177,7 +197,7 @@ const Profiles: React.FC = () => {
           }}
         />
       )}
-      <div className="sticky profiles-sticky top-0 z-40 bg-background">
+      <div className="sticky profiles-sticky top-0 z-40">
         <div className="flex p-2">
           <Input
             size="sm"
@@ -238,7 +258,7 @@ const Profiles: React.FC = () => {
                         await addProfileItem({ name: fileName, type: 'local', file: content })
                       }
                     } catch (e) {
-                      alert(e)
+                      notify(e, { variant: 'danger' })
                     }
                     break
                   }
@@ -258,7 +278,8 @@ const Profiles: React.FC = () => {
                       name: '',
                       type: 'remote',
                       url: '',
-                      useProxy: false
+                      useProxy: false,
+                      autoUpdate: true
                     }
                     setEditingItem(newRemoteProfile)
                     setShowEditModal(true)
@@ -293,8 +314,14 @@ const Profiles: React.FC = () => {
                 mutateProfileConfig={mutateProfileConfig}
                 updateProfileItem={updateProfileItem}
                 info={item}
+                switching={switching}
                 onClick={async () => {
+                  setSwitching(true)
                   await changeCurrentProfile(item.id)
+                  await new Promise((resolve) => {
+                    setTimeout(resolve, 500)
+                  })
+                  setSwitching(false)
                 }}
               />
             ))}

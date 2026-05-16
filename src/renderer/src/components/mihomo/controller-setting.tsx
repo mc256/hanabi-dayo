@@ -9,6 +9,7 @@ import { IoMdCloudDownload, IoMdRefresh } from 'react-icons/io'
 import { HiExternalLink } from 'react-icons/hi'
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 import { isValidListenAddress } from '@renderer/utils/validate'
+import { notify } from '@renderer/utils/notification'
 
 const ControllerSetting: React.FC = () => {
   const { controledMihomoConfig, patchControledMihomoConfig } = useControledMihomoConfig()
@@ -41,9 +42,9 @@ const ControllerSetting: React.FC = () => {
     try {
       setUpgrading(true)
       await mihomoUpgradeUI()
-      new Notification('面板更新成功')
+      notify('面板更新成功', { variant: 'success' })
     } catch (e) {
-      alert(e)
+      notify(e, { variant: 'danger' })
     } finally {
       setUpgrading(false)
     }
@@ -51,9 +52,11 @@ const ControllerSetting: React.FC = () => {
   const onChangeNeedRestart = async (patch: Partial<MihomoConfig>): Promise<void> => {
     await patchControledMihomoConfig(patch)
     await restartCore()
-    setTimeout(async () => {
-      await upgradeUI()
-    }, 1000)
+    if ('external-ui-url' in patch) {
+      setTimeout(async () => {
+        await upgradeUI()
+      }, 1000)
+    }
   }
   const generateRandomString = (length: number): string => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -61,8 +64,8 @@ const ControllerSetting: React.FC = () => {
   }
 
   return (
-    <SettingCard title="外部控制器">
-      <SettingItem title="监听地址" divider={externalController !== ''}>
+    <SettingCard header="外部控制器">
+      <SettingItem compatKey="legacy" title="监听地址" divider={externalController !== ''}>
         <div className="flex">
           {externalControllerInput != externalController && !externalControllerError && (
             <Button
@@ -89,7 +92,7 @@ const ControllerSetting: React.FC = () => {
           >
             <Input
               size="sm"
-              className={`w-[200px] ${externalControllerError ? 'border-red-500 ring-1 ring-red-500 rounded-lg' : ''}`}
+              className={`w-50 ${externalControllerError ? 'border-red-500 ring-1 ring-red-500 rounded-lg' : ''}`}
               value={externalControllerInput}
               onValueChange={(v) => {
                 setExternalControllerInput(v)
@@ -103,12 +106,12 @@ const ControllerSetting: React.FC = () => {
       {externalController && externalController !== '' && (
         <>
           <SettingItem
+            compatKey="legacy"
             title="访问密钥"
             actions={
               <Button
                 size="sm"
                 isIconOnly
-                title="生成密钥"
                 variant="light"
                 onPress={() => setSecretInput(generateRandomString(32))}
               >
@@ -133,7 +136,7 @@ const ControllerSetting: React.FC = () => {
               <Input
                 size="sm"
                 type={showPassword ? 'text' : 'password'}
-                className="w-[200px]"
+                className="w-50"
                 value={secretInput}
                 onValueChange={setSecretInput}
                 startContent={
@@ -152,7 +155,7 @@ const ControllerSetting: React.FC = () => {
               />
             </div>
           </SettingItem>
-          <SettingItem title="启用控制器面板" divider>
+          <SettingItem compatKey="legacy" title="启用控制器面板" divider>
             <Switch
               size="sm"
               isSelected={enableExternalUi}
@@ -166,13 +169,13 @@ const ControllerSetting: React.FC = () => {
           </SettingItem>
           {enableExternalUi && (
             <SettingItem
+              compatKey="legacy"
               title="控制器面板"
               actions={
                 <>
                   <Button
                     size="sm"
                     isIconOnly
-                    title="更新面板"
                     variant="light"
                     isLoading={upgrading}
                     onPress={upgradeUI}
@@ -180,7 +183,6 @@ const ControllerSetting: React.FC = () => {
                     <IoMdCloudDownload className="text-lg" />
                   </Button>
                   <Button
-                    title="在浏览器中打开"
                     isIconOnly
                     size="sm"
                     className="app-nodrag"
@@ -236,8 +238,9 @@ const ControllerSetting: React.FC = () => {
                   </Button>
                 )}
                 <Select
+                  aria-label="外部 UI 来源"
                   classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
-                  className="w-[150px]"
+                  className="w-37.5"
                   size="sm"
                   selectedKeys={new Set([externalUiUrlInput])}
                   disallowEmptySelection={true}
@@ -264,9 +267,9 @@ const ControllerSetting: React.FC = () => {
               </div>
             </SettingItem>
           )}
-          <SettingItem title="CORS 配置"></SettingItem>
+          <SettingItem compatKey="legacy" title="CORS 配置"></SettingItem>
           <div className="flex flex-col space-y-2 mt-2"></div>
-          <SettingItem title="允许私有网络访问">
+          <SettingItem compatKey="legacy" title="允许私有网络访问">
             <Switch
               size="sm"
               isSelected={allowPrivateNetwork}
@@ -281,7 +284,7 @@ const ControllerSetting: React.FC = () => {
             />
           </SettingItem>
           <div className="mt-1"></div>
-          <SettingItem title="允许的来源">
+          <SettingItem compatKey="legacy" title="允许的来源">
             {allowOriginsInput.join(',') != initialAllowOrigins.join(',') && (
               <Button
                 size="sm"

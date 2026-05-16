@@ -132,14 +132,57 @@ export const isValidPortRange = (s: string | undefined): boolean => {
   return true
 }
 
-export const isValidDnsServer = (s: string | undefined): ValidationResult => {
+export const isValidDnsServer = (s: string | undefined, ipOnly = false): ValidationResult => {
   if (!s || s.trim() === '') return { ok: false, error: '不能为空' }
   const v = s.trim()
-  const [serverPart, paramsPart] = v.split('#')
+  const hashIndex = v.indexOf('#')
+  const serverPart = hashIndex === -1 ? v : v.slice(0, hashIndex)
+  const paramsPart = hashIndex === -1 ? '' : v.slice(hashIndex + 1)
+
   if (!serverPart) return { ok: false, error: '服务器地址不能为空' }
-  if (paramsPart) {
-    if (!/^[a-zA-Z0-9-_]+(?:,[a-zA-Z0-9-_]+)*$/.test(paramsPart)) {
-      return { ok: false, error: '参数格式不合法（仅允许字母数字、- 和 _，可逗号分隔）' }
+  if (hashIndex !== -1) {
+    if (!paramsPart || paramsPart.trim() === '') {
+      return { ok: false, error: '# 后面的参数不能为空' }
+    }
+    const boolParams = ['ecs-override', 'h3', 'skip-cert-verify', 'disable-ipv4', 'disable-ipv6']
+    const allowedParams = ['ecs', ...boolParams]
+
+    const params = paramsPart
+      .split('&')
+      .map((p) => p.trim())
+      .filter(Boolean)
+    for (const param of params) {
+      if (param.includes('=')) {
+        const [key, value] = param.split('=')
+        if (!key || !value) {
+          return { ok: false, error: '参数格式不合法，key=value 格式中 key 和 value 都不能为空' }
+        }
+        if (!/^[a-zA-Z0-9-_]+$/.test(key)) {
+          return { ok: false, error: `参数名 "${key}" 不合法` }
+        }
+        if (!allowedParams.includes(key)) {
+          return {
+            ok: false,
+            error: `不支持的参数 "${key}"，允许的参数：${allowedParams.join(', ')}`
+          }
+        }
+        if (boolParams.includes(key) && value !== 'true' && value !== 'false') {
+          return { ok: false, error: `参数 "${key}" 的值必须是 true 或 false` }
+        }
+        if (key === 'ecs' && !/^[a-zA-Z0-9-_./:]+$/.test(value)) {
+          return { ok: false, error: `参数值 "${value}" 不合法` }
+        }
+      } else {
+        if (!param || param.trim() === '') {
+          return { ok: false, error: `参数不能为空` }
+        }
+        if (!/^[a-zA-Z0-9\u4e00-\u9fa5\s-_]+$/.test(param)) {
+          return {
+            ok: false,
+            error: `参数 "${param}" 不合法，如有需要请关闭软件 DNS 覆盖使用`
+          }
+        }
+      }
     }
   }
 
@@ -172,6 +215,20 @@ export const isValidDnsServer = (s: string | undefined): ValidationResult => {
     try {
       const u = new URL(serverPart)
       if (!u.hostname) return { ok: false, error: '无效的 URL 主机名' }
+      if (ipOnly) {
+        const hostname = u.hostname
+        if (/^[0-9.]+$/.test(hostname)) {
+          const r = isIPv4(hostname)
+          if (!r.ok) return { ok: false, error: '无效的 IPv4 地址' }
+          return { ok: true }
+        }
+        if (hostname.includes(':')) {
+          const r = isIPv6(hostname)
+          if (!r.ok) return { ok: false, error: '无效的 IPv6 地址' }
+          return { ok: true }
+        }
+        return { ok: false, error: '主机必须是 IP 地址，不支持域名' }
+      }
       return { ok: true }
     } catch (e) {
       return { ok: false, error: '无效的 URL 格式' }
@@ -205,6 +262,9 @@ export const isValidDnsServer = (s: string | undefined): ValidationResult => {
       const r = isIPv6(inner)
       if (!r.ok) return { ok: false, error: '无效的 IPv6 地址' }
     } else {
+      if (ipOnly) {
+        return { ok: false, error: '主机必须是 IP 地址，不支持域名' }
+      }
       if (!/^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/.test(host)) {
         return { ok: false, error: '无效的主机名' }
       }
@@ -232,6 +292,9 @@ export const isValidDnsServer = (s: string | undefined): ValidationResult => {
       const r = isIPv6(inner)
       return r.ok ? { ok: true } : { ok: false, error: '无效的 IPv6 地址' }
     }
+    if (ipOnly) {
+      return { ok: false, error: '主机必须是 IP 地址，不支持域名' }
+    }
     return /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/.test(host)
       ? { ok: true }
       : { ok: false, error: '无效的主机名' }
@@ -245,6 +308,9 @@ export const isValidDnsServer = (s: string | undefined): ValidationResult => {
   if (/^[0-9.]+$/.test(serverPart)) {
     const r = isIPv4(serverPart)
     return r.ok ? { ok: true } : { ok: false, error: '无效的 IPv4 地址' }
+  }
+  if (ipOnly) {
+    return { ok: false, error: '主机必须是 IP 地址，不支持域名' }
   }
   if (/^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/.test(serverPart)) return { ok: true }
   return { ok: false, error: '无效的服务器地址' }

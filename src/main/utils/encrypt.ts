@@ -1,47 +1,24 @@
 import { safeStorage } from 'electron'
 
-const ENCRYPTED_PREFIX = 'enc:'
+const LEGACY_ENCRYPTED_PREFIX = 'enc:'
 
-export function encryptString(plainText: string): string {
-  if (!plainText) return ''
+// Legacy safeStorage compatibility only. New writes must stay plaintext.
+// TODO(next version): remove this file after one release of read-time plaintext migration.
 
-  if (plainText.startsWith(ENCRYPTED_PREFIX)) {
-    return plainText
+export function isLegacyEncryptedString(value: unknown): value is string {
+  return typeof value === 'string' && value.startsWith(LEGACY_ENCRYPTED_PREFIX)
+}
+
+export function decryptLegacyString(encryptedText: string): string {
+  if (!isLegacyEncryptedString(encryptedText)) {
+    return encryptedText
   }
 
   if (!safeStorage.isEncryptionAvailable()) {
-    return plainText
+    throw new Error('Legacy safeStorage data is not decryptable on this system')
   }
 
-  try {
-    const buffer = safeStorage.encryptString(plainText)
-    return ENCRYPTED_PREFIX + buffer.toString('base64')
-  } catch (e) {
-    return plainText
-  }
-}
-
-export function decryptString(encryptedText: string): string {
-  if (!encryptedText) return ''
-
-  if (!encryptedText.startsWith(ENCRYPTED_PREFIX)) {
-    throw new Error('无效的加密格式')
-  }
-
-  if (!safeStorage.isEncryptionAvailable()) {
-    return encryptedText.substring(ENCRYPTED_PREFIX.length)
-  }
-
-  try {
-    const base64Data = encryptedText.substring(ENCRYPTED_PREFIX.length)
-    const buffer = Buffer.from(base64Data, 'base64')
-    return safeStorage.decryptString(buffer)
-  } catch (e) {
-    return ''
-  }
-}
-
-export function isEncrypted(text: string): boolean {
-  if (!text) return false
-  return text.startsWith(ENCRYPTED_PREFIX)
+  const base64Data = encryptedText.substring(LEGACY_ENCRYPTED_PREFIX.length)
+  const buffer = Buffer.from(base64Data, 'base64')
+  return safeStorage.decryptString(buffer)
 }

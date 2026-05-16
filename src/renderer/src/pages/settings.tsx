@@ -4,19 +4,17 @@ import BasePage from '@renderer/components/base/base-page'
 import { IoLogoGithub } from 'react-icons/io5'
 import WebdavConfig from '@renderer/components/settings/webdav-config'
 import GeneralConfig from '@renderer/components/settings/general-config'
-import MihomoConfig from '@renderer/components/settings/mihomo-config'
+import AdvancedSettings from '@renderer/components/settings/advanced-settings'
 import Actions from '@renderer/components/settings/actions'
 import ShortcutConfig from '@renderer/components/settings/shortcut-config'
 import { FaTelegramPlane } from 'react-icons/fa'
 import SiderConfig from '@renderer/components/settings/sider-config'
 import AppearanceConfig from '@renderer/components/settings/appearance-confis'
-import { useLanguage } from '@renderer/hooks/use-language'
 
 const Settings: React.FC = () => {
-  const { t } = useLanguage()
   return (
     <BasePage
-      title={t('应用设置', 'Application Settings')}
+      title="应用设置"
       header={
         <>
           {/* <Button
@@ -36,9 +34,8 @@ const Settings: React.FC = () => {
             size="sm"
             variant="light"
             className="app-nodrag"
-            title={t('GitHub 仓库', 'GitHub Repository')}
             onPress={() => {
-              window.open('https://github.com/mc256/hanabi-dayo')
+              window.open('https://github.com/xishang0128/sparkle')
             }}
           >
             <IoLogoGithub className="text-lg" />
@@ -48,7 +45,6 @@ const Settings: React.FC = () => {
             size="sm"
             variant="light"
             className="app-nodrag"
-            title={t('Telegram 频道', 'Telegram Channel')}
             onPress={() => {
               window.open('https://t.me/atri0828')
             }}
@@ -62,7 +58,7 @@ const Settings: React.FC = () => {
       <AppearanceConfig />
       <SiderConfig />
       <WebdavConfig />
-      <MihomoConfig />
+      <AdvancedSettings />
       <ShortcutConfig />
       <Actions />
     </BasePage>

@@ -8,12 +8,11 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  Progress,
   Tooltip
 } from '@heroui/react'
-import { calcPercent, calcTraffic } from '@renderer/utils/calc'
+import { Meter } from '@heroui-v3/react'
+import { calcTraffic } from '@renderer/utils/calc'
 import { IoMdMore, IoMdRefresh } from 'react-icons/io'
-import { useLanguage } from '@renderer/hooks/use-language'
 import dayjs from 'dayjs'
 import React, { Key, useEffect, useMemo, useState } from 'react'
 import EditFileModal from './edit-file-modal'
@@ -23,6 +22,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { openFile } from '@renderer/utils/ipc'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import ConfirmModal from '../base/base-confirm'
+import QRCodeModal from '../base/base-qrcode-modal'
 
 interface Props {
   info: ProfileItem
@@ -32,6 +32,7 @@ interface Props {
   removeProfileItem: (id: string) => Promise<void>
   mutateProfileConfig: () => void
   onClick: () => Promise<void>
+  switching: boolean
 }
 
 interface MenuItem {
@@ -41,8 +42,8 @@ interface MenuItem {
   color: 'default' | 'danger'
   className: string
 }
+
 const ProfileItem: React.FC<Props> = (props) => {
-  const { t } = useLanguage()
   const {
     info,
     addProfileItem,
@@ -50,7 +51,8 @@ const ProfileItem: React.FC<Props> = (props) => {
     mutateProfileConfig,
     updateProfileItem,
     onClick,
-    isCurrent
+    isCurrent,
+    switching
   } = props
   const extra = info?.extra
   const usage = (extra?.upload ?? 0) + (extra?.download ?? 0)
@@ -74,33 +76,45 @@ const ProfileItem: React.FC<Props> = (props) => {
   const transform = tf ? { x: tf.x, y: tf.y, scaleX: 1, scaleY: 1 } : null
   const [disableSelect, setDisableSelect] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [showQrCode, setShowQrCode] = useState(false)
 
   const menuItems: MenuItem[] = useMemo(() => {
     const list = [
       {
         key: 'edit-info',
-        label: t('编辑信息', 'Edit Info'),
+        label: '编辑信息',
         showDivider: false,
         color: 'default',
         className: ''
       } as MenuItem,
       {
         key: 'edit-file',
-        label: t('编辑文件', 'Edit File'),
+        label: '编辑文件',
         showDivider: false,
         color: 'default',
         className: ''
       } as MenuItem,
       {
         key: 'open-file',
-        label: t('打开文件', 'Open File'),
-        showDivider: true,
+        label: '打开文件',
+        showDivider: !(info.type === 'remote' && info.url),
         color: 'default',
         className: ''
       } as MenuItem,
+      ...(info.type === 'remote' && info.url
+        ? [
+            {
+              key: 'qrcode',
+              label: '二维码',
+              showDivider: true,
+              color: 'default',
+              className: ''
+            } as MenuItem
+          ]
+        : []),
       {
         key: 'delete',
-        label: t('删除', 'Delete'),
+        label: '删除',
         showDivider: false,
         color: 'danger',
         className: 'text-danger'
@@ -109,14 +123,14 @@ const ProfileItem: React.FC<Props> = (props) => {
     if (info.home) {
       list.unshift({
         key: 'home',
-        label: t('主页', 'Home'),
+        label: '主页',
         showDivider: false,
         color: 'default',
         className: ''
       } as MenuItem)
     }
     return list
-  }, [info, t])
+  }, [info])
 
   const onMenuAction = async (key: Key): Promise<void> => {
     switch (key) {
@@ -130,6 +144,10 @@ const ProfileItem: React.FC<Props> = (props) => {
       }
       case 'open-file': {
         openFile('profile', info.id)
+        break
+      }
+      case 'qrcode': {
+        setShowQrCode(true)
         break
       }
       case 'delete': {
@@ -146,19 +164,21 @@ const ProfileItem: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (isDragging) {
-      setTimeout(() => {
-        setDisableSelect(true)
-      }, 100)
-    } else {
-      setTimeout(() => {
-        setDisableSelect(false)
-      }, 100)
+      setDisableSelect(true)
+      return
     }
+
+    const timer = window.setTimeout(() => {
+      setDisableSelect(false)
+    }, 160)
+
+    return (): void => window.clearTimeout(timer)
   }, [isDragging])
 
   return (
     <div
-      className="grid col-span-1"
+      ref={setNodeRef}
+      className="grid col-span-1 touch-sortable-card"
       style={{
         position: 'relative',
         transform: CSS.Transform.toString(transform),
@@ -176,16 +196,20 @@ const ProfileItem: React.FC<Props> = (props) => {
       {openInfoEditor && (
         <EditInfoModal
           item={info}
+          isCurrent={isCurrent}
           onClose={() => setOpenInfoEditor(false)}
           updateProfileItem={updateProfileItem}
         />
       )}
+      {showQrCode && info.url && (
+        <QRCodeModal title={info.name} url={info.url} onClose={() => setShowQrCode(false)} />
+      )}
       {confirmOpen && (
         <ConfirmModal
           onChange={setConfirmOpen}
-          title={t('确认删除配置？', 'Confirm delete profile?')}
-          confirmText={t('确认删除', 'Confirm Delete')}
-          cancelText={t('取消', 'Cancel')}
+          title="确认删除配置？"
+          confirmText="确认删除"
+          cancelText="取消"
           onConfirm={() => {
             removeProfileItem(info.id)
             mutateProfileConfig()
@@ -197,7 +221,7 @@ const ProfileItem: React.FC<Props> = (props) => {
         fullWidth
         isPressable
         onPress={() => {
-          if (disableSelect) return
+          if (disableSelect || switching) return
           setSelecting(true)
           onClick().finally(() => {
             setSelecting(false)
@@ -205,16 +229,18 @@ const ProfileItem: React.FC<Props> = (props) => {
         }}
         className={`${isCurrent ? 'bg-primary' : ''} ${selecting ? 'blur-sm' : ''}`}
       >
-        <div ref={setNodeRef} {...attributes} {...listeners} className="w-full h-full">
+        <div {...attributes} {...listeners} className="w-full h-full">
           <CardBody className="pb-1">
-            <div className="flex justify-between h-[32px]">
-              <h3
-                title={info?.name}
-                className={`text-ellipsis whitespace-nowrap overflow-hidden text-md font-bold leading-[32px] ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}
-              >
-                {info?.name}
-              </h3>
-              <div className="flex" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between h-8 gap-1">
+              <div className="flex min-w-0 items-center">
+                <h3
+                  title={info?.name}
+                  className={`text-ellipsis whitespace-nowrap overflow-hidden text-md font-bold leading-8 ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}
+                >
+                  {info?.name}
+                </h3>
+              </div>
+              <div className="flex shrink-0" data-no-dnd onClick={(e) => e.stopPropagation()}>
                 {info.type === 'remote' && (
                   <Tooltip placement="left" content={dayjs(info.updated).fromNow()}>
                     <Button
@@ -270,20 +296,18 @@ const ProfileItem: React.FC<Props> = (props) => {
                   <Button
                     size="sm"
                     variant="light"
-                    className={`h-[20px] p-1 m-0 ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}
+                    className={`h-5 p-1 m-0 ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}
                     onPress={async () => {
                       await patchAppConfig({ profileDisplayDate: 'update' })
                     }}
                   >
-                    {extra.expire
-                      ? dayjs.unix(extra.expire).format('YYYY-MM-DD')
-                      : t('长期有效', 'Unlimited')}
+                    {extra.expire ? dayjs.unix(extra.expire).format('YYYY-MM-DD') : '长期有效'}
                   </Button>
                 ) : (
                   <Button
                     size="sm"
                     variant="light"
-                    className={`h-[20px] p-1 m-0 ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}
+                    className={`h-5 p-1 m-0 ${isCurrent ? 'text-primary-foreground' : 'text-foreground'}`}
                     onPress={async () => {
                       await patchAppConfig({ profileDisplayDate: 'expire' })
                     }}
@@ -304,7 +328,7 @@ const ProfileItem: React.FC<Props> = (props) => {
                   variant="bordered"
                   className={`${isCurrent ? 'text-primary-foreground border-primary-foreground' : 'border-primary text-primary'}`}
                 >
-                  {t('远程', 'Remote')}
+                  远程
                 </Chip>
                 <small>{dayjs(info.updated).fromNow()}</small>
               </div>
@@ -318,18 +342,28 @@ const ProfileItem: React.FC<Props> = (props) => {
                   variant="bordered"
                   className={`${isCurrent ? 'text-primary-foreground border-primary-foreground' : 'border-primary text-primary'}`}
                 >
-                  {t('本地', 'Local')}
+                  本地
                 </Chip>
               </div>
             )}
             {extra && (
-              <Progress
-                className="w-full"
-                classNames={{
-                  indicator: isCurrent ? 'bg-primary-foreground' : 'bg-foreground'
-                }}
-                value={calcPercent(extra?.upload, extra?.download, extra?.total)}
-              />
+              <Meter aria-label="流量用量" maxValue={total} value={usage}>
+                <Meter.Track
+                  className={
+                    isCurrent
+                      ? 'h-2.5 bg-black/22 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.35)]'
+                      : undefined
+                  }
+                >
+                  <Meter.Fill
+                    className={
+                      isCurrent
+                        ? 'bg-(--color-accent-foreground) shadow-[0_0_8px_rgb(255_255_255/0.45)]'
+                        : undefined
+                    }
+                  />
+                </Meter.Track>
+              </Meter>
             )}
           </CardFooter>
         </div>

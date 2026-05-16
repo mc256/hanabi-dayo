@@ -1,61 +1,120 @@
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, writeFile, rename, copyFile, unlink } from 'fs/promises'
 import { appConfigPath } from '../utils/dirs'
 import { parseYaml, stringifyYaml } from '../utils/yaml'
 import { deepMerge } from '../utils/merge'
 import { defaultConfig } from '../utils/template'
-import { readFileSync } from 'fs'
-import { encryptString, decryptString, isEncrypted } from '../utils/encrypt'
+import { readFileSync, existsSync } from 'fs'
+import { decryptLegacyString, isLegacyEncryptedString } from '../utils/encrypt'
 
-let appConfig: AppConfig // config.yaml
+let appConfig: AppConfig
+let writePromise: Promise<void> = Promise.resolve()
 
-const ENCRYPTED_FIELDS = ['systemCorePath', 'serviceAuthKey'] as const
+const LEGACY_ENCRYPTED_FIELDS = ['systemCorePath', 'serviceAuthKey'] as const
 
-function decryptConfig(config: AppConfig): AppConfig {
-  const result = { ...config }
-
-  for (const field of ENCRYPTED_FIELDS) {
-    const value = result[field]
-    if (value && typeof value === 'string') {
-      if (!isEncrypted(value)) {
-        ;(result[field] as string) = ''
-      } else {
-        ;(result[field] as string) = decryptString(value)
-      }
-    }
-  }
-
-  return result
+function isValidConfig(config: unknown): config is AppConfig {
+  if (!config || typeof config !== 'object') return false
+  const cfg = config as Partial<AppConfig>
+  return 'sysProxy' in cfg && typeof cfg.sysProxy === 'object' && cfg.sysProxy !== null
 }
 
-function encryptConfig(config: AppConfig): AppConfig {
-  const result = { ...config }
+async function safeWriteConfig(content: string): Promise<void> {
+  const configPath = appConfigPath()
+  const tmpPath = `${configPath}.tmp`
+  const backupPath = `${configPath}.backup`
 
-  for (const field of ENCRYPTED_FIELDS) {
+  try {
+    await writeFile(tmpPath, content, 'utf-8')
+    if (existsSync(configPath)) {
+      await copyFile(configPath, backupPath)
+      if (process.platform === 'win32') {
+        await unlink(configPath)
+      }
+    }
+    if (existsSync(tmpPath)) {
+      await rename(tmpPath, configPath)
+    }
+  } catch (e) {
+    if (existsSync(tmpPath)) {
+      try {
+        await unlink(tmpPath)
+      } catch {
+        // ignore
+      }
+    }
+    throw e
+  }
+}
+
+function migrateLegacyEncryptedConfig(config: AppConfig): { config: AppConfig; migrated: boolean } {
+  const result = { ...config }
+  let migrated = false
+
+  // Compatibility shim for the safeStorage-backed `enc:` format.
+  // TODO(next version): remove this read-time migration after users have had one release to rewrite plaintext config.
+  for (const field of LEGACY_ENCRYPTED_FIELDS) {
     const value = result[field]
-    if (value && typeof value === 'string') {
-      ;(result[field] as string) = encryptString(value)
+    if (!isLegacyEncryptedString(value)) continue
+
+    try {
+      ;(result[field] as string) = decryptLegacyString(value)
+      migrated = true
+    } catch {
+      // Keep the legacy value intact if the current system cannot decrypt it.
     }
   }
 
-  return result
+  return { config: result, migrated }
+}
+
+async function writeCurrentConfig(): Promise<void> {
+  const previousPromise = writePromise
+  writePromise = (async () => {
+    await previousPromise
+    await safeWriteConfig(stringifyYaml(appConfig))
+  })()
+  await writePromise
 }
 
 export async function getAppConfig(force = false): Promise<AppConfig> {
   if (force || !appConfig) {
-    const data = await readFile(appConfigPath(), 'utf-8')
-    appConfig = parseYaml<AppConfig>(data) || defaultConfig
-    appConfig = decryptConfig(appConfig)
+    try {
+      const data = await readFile(appConfigPath(), 'utf-8')
+      const parsed = parseYaml<AppConfig>(data)
+      let migrated = false
+      if (!parsed || !isValidConfig(parsed)) {
+        const backup = await readFile(`${appConfigPath()}.backup`, 'utf-8')
+        const migration = migrateLegacyEncryptedConfig(parseYaml<AppConfig>(backup))
+        appConfig = migration.config
+        migrated = migration.migrated
+      } else {
+        const migration = migrateLegacyEncryptedConfig(parsed)
+        appConfig = migration.config
+        migrated = migration.migrated
+      }
+      if (migrated) {
+        try {
+          await writeCurrentConfig()
+        } catch {
+          // Keep the decrypted config in memory even if the compatibility writeback fails.
+        }
+      }
+    } catch (e) {
+      appConfig = defaultConfig
+    }
   }
   if (typeof appConfig !== 'object') appConfig = defaultConfig
   return appConfig
 }
 
-export async function patchAppConfig(patch: Partial<AppConfig>): Promise<void> {
-  appConfig = deepMerge(appConfig, patch)
-
-  const configToSave = encryptConfig(appConfig)
-
-  await writeFile(appConfigPath(), stringifyYaml(configToSave))
+export async function patchAppConfig(patch: Partial<AppConfig>): Promise<AppConfig> {
+  const previousPromise = writePromise
+  writePromise = (async () => {
+    await previousPromise
+    appConfig = deepMerge(appConfig, patch)
+    await safeWriteConfig(stringifyYaml(appConfig))
+  })()
+  await writePromise
+  return appConfig
 }
 
 export function getAppConfigSync(): AppConfig {
@@ -63,7 +122,7 @@ export function getAppConfigSync(): AppConfig {
     const raw = readFileSync(appConfigPath(), 'utf-8')
     const data = parseYaml<AppConfig>(raw)
     if (typeof data === 'object' && data !== null) {
-      return decryptConfig(data)
+      return migrateLegacyEncryptedConfig(data).config
     }
     return defaultConfig
   } catch (e) {

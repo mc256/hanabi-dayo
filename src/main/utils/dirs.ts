@@ -4,7 +4,7 @@ import { app } from 'electron'
 import path from 'path'
 import { execSync } from 'child_process'
 import { getAppConfigSync } from '../config/app'
-import { checkCorePermissionSync } from '../core/manager'
+import { checkCorePermissionPathSync } from '../core/permission-check'
 import { t } from '../i18n'
 
 export const homeDir = app.getPath('home')
@@ -59,13 +59,13 @@ export function themesDir(): string {
 
 export function mihomoIpcPath(): string {
   if (process.platform === 'win32') {
-    return '\\\\.\\pipe\\sparkle\\mihomo-api'
+    return '\\\\.\\pipe\\Sparkle\\mihomo'
   }
   const { core = 'mihomo' } = getAppConfigSync()
   if (core === 'system') {
     return '/tmp/sparkle-mihomo-external.sock'
   }
-  if (!checkCorePermissionSync(core as 'mihomo' | 'mihomo-alpha')) {
+  if (!checkCorePermissionPathSync(mihomoCorePath(core))) {
     return '/tmp/sparkle-mihomo-api-noperm.sock'
   }
   return '/tmp/sparkle-mihomo-api.sock'
@@ -106,6 +106,10 @@ function systemCorePath(): string {
 export function servicePath(): string {
   const isWin = process.platform === 'win32'
   return path.join(resourcesFilesDir(), `sparkle-service${isWin ? '.exe' : ''}`)
+}
+
+export function serviceAuthStorePath(): string {
+  return path.join(dataDir(), 'service-auth.json')
 }
 
 export function appConfigPath(): string {
@@ -164,10 +168,22 @@ export function logDir(): string {
   return path.join(dataDir(), 'logs')
 }
 
-export function logPath(): string {
+function datedLogPath(prefix?: string): string {
   const date = new Date()
   const name = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-  return path.join(logDir(), `${name}.log`)
+  return path.join(logDir(), `${prefix ? `${prefix}-` : ''}${name}.log`)
+}
+
+export function logPath(): string {
+  return datedLogPath()
+}
+
+export function appLogPath(): string {
+  return datedLogPath('app')
+}
+
+export function coreLogPath(): string {
+  return datedLogPath('core')
 }
 
 function hasCommand(command: string): boolean {
@@ -191,7 +207,10 @@ export function findSystemMihomo(): string[] {
   for (const name of searchNames) {
     try {
       const command = isWin ? 'where' : 'which'
-      const result = execSync(`${command} ${name}`, { encoding: 'utf8' }).trim()
+      const result = execSync(`${command} ${name}`, {
+        encoding: 'utf8',
+        stdio: 'pipe'
+      }).trim()
       if (result) {
         const paths = result.split('\n').filter((p) => p && existsSync(p))
         for (const p of paths) {
@@ -210,6 +229,7 @@ export function findSystemMihomo(): string[] {
       '/bin',
       '/usr/bin',
       '/usr/local/bin',
+      '/opt/homebrew/bin',
       path.join(homeDir, '.local/bin'),
       path.join(homeDir, 'bin')
     ]

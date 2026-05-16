@@ -1,0 +1,75 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+
+# Cancel superseded runs on the same PR
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, lint & compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        # --ignore-scripts skips core/geo downloads and native rebuilds, which
+        # are not needed for typecheck, lint, or the electron-vite compile.
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build (compile)
+        run: pnpm exec electron-vite build
+
+  build-linux:
+    name: Build Linux package (deb)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        # Full install: bundled resources (mihomo cores, geo data) and native
+        # module rebuilds are required to produce a real package.
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Linux deb package
+        run: |
+          pnpm exec electron-vite build
+          pnpm exec electron-builder --publish never --linux deb
+
+      - name: Upload deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sparkle-linux-deb
+          path: dist/*.deb
+          if-no-files-found: error
+          retention-days: 7

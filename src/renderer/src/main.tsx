@@ -14,7 +14,7 @@ import { OverrideConfigProvider } from './hooks/use-override-config'
 import { ProfileConfigProvider } from './hooks/use-profile-config'
 import { RulesProvider } from './hooks/use-rules'
 import { GroupsProvider } from './hooks/use-groups'
-import { LanguageProvider } from './hooks/use-language'
+import AppNotificationProvider from './components/base/app-notification-provider'
 
 let F12Count = 0
 
@@ -41,31 +41,31 @@ init().then(() => {
       }
     }
   })
-  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-      <HeroUIProvider>
-        <NextThemesProvider attribute="class" enableSystem defaultTheme="dark">
-          <BaseErrorBoundary>
-            <HashRouter>
-              <LanguageProvider>
-                <AppConfigProvider>
-                  <ControledMihomoConfigProvider>
-                    <ProfileConfigProvider>
-                      <OverrideConfigProvider>
-                        <GroupsProvider>
-                          <RulesProvider>
-                            <App />
-                          </RulesProvider>
-                        </GroupsProvider>
-                      </OverrideConfigProvider>
-                    </ProfileConfigProvider>
-                  </ControledMihomoConfigProvider>
-                </AppConfigProvider>
-              </LanguageProvider>
-            </HashRouter>
-          </BaseErrorBoundary>
-        </NextThemesProvider>
-      </HeroUIProvider>
-    </React.StrictMode>
-  )
 })
+
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <React.StrictMode>
+    <HeroUIProvider>
+      <NextThemesProvider attribute="class" enableSystem defaultTheme="dark">
+        <AppNotificationProvider />
+        <BaseErrorBoundary>
+          <HashRouter>
+            <AppConfigProvider>
+              <ControledMihomoConfigProvider>
+                <ProfileConfigProvider>
+                  <OverrideConfigProvider>
+                    <GroupsProvider>
+                      <RulesProvider>
+                        <App />
+                      </RulesProvider>
+                    </GroupsProvider>
+                  </OverrideConfigProvider>
+                </ProfileConfigProvider>
+              </ControledMihomoConfigProvider>
+            </AppConfigProvider>
+          </HashRouter>
+        </BaseErrorBoundary>
+      </NextThemesProvider>
+    </HeroUIProvider>
+  </React.StrictMode>
+)

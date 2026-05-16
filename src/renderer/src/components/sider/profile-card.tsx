@@ -1,8 +1,8 @@
-import { Button, Card, CardBody, CardFooter, Chip, Progress, Tooltip } from '@heroui/react'
+import { Button, Card, CardBody, CardFooter, Chip, Tooltip } from '@heroui/react'
+import { Meter } from '@heroui-v3/react'
 import { useProfileConfig } from '@renderer/hooks/use-profile-config'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { calcTraffic, calcPercent } from '@renderer/utils/calc'
-import { useLanguage } from '@renderer/hooks/use-language'
+import { calcTraffic } from '@renderer/utils/calc'
 import { CgLoadbarDoc } from 'react-icons/cg'
 import { IoMdRefresh } from 'react-icons/io'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -25,7 +25,6 @@ interface Props {
 const ProfileCard: React.FC<Props> = (props) => {
   const { appConfig, patchAppConfig } = useAppConfig()
   const { iconOnly } = props
-  const { t } = useLanguage()
   const {
     profileCardStatus = 'col-span-2',
     profileDisplayDate = 'expire',
@@ -52,7 +51,7 @@ const ProfileCard: React.FC<Props> = (props) => {
   const info = items?.find((item) => item.id === current) ?? {
     id: 'default',
     type: 'local',
-    name: t('profiles.emptySubscription')
+    name: '空白订阅'
   }
 
   const extra = info?.extra
@@ -62,7 +61,7 @@ const ProfileCard: React.FC<Props> = (props) => {
   if (iconOnly) {
     return (
       <div className={`${profileCardStatus} flex justify-center`}>
-        <Tooltip content={t('sidebar.subscriptions')} placement="right">
+        <Tooltip content="订阅管理" placement="right">
           <Button
             size="sm"
             isIconOnly
@@ -103,11 +102,11 @@ const ProfileCard: React.FC<Props> = (props) => {
               ref={setNodeRef}
               {...attributes}
               {...listeners}
-              className="flex justify-between h-[32px]"
+              className="flex justify-between h-8"
             >
               <h3
                 title={info?.name}
-                className={`text-ellipsis whitespace-nowrap overflow-hidden text-md font-bold leading-[32px] ${match ? 'text-primary-foreground' : 'text-foreground'} `}
+                className={`text-ellipsis whitespace-nowrap overflow-hidden text-md font-bold leading-8 ${match ? 'text-primary-foreground' : 'text-foreground'} `}
               >
                 {info?.name}
               </h3>
@@ -115,7 +114,6 @@ const ProfileCard: React.FC<Props> = (props) => {
                 <Button
                   isIconOnly
                   size="sm"
-                  title={t('sidebar.viewRuntimeConfig')}
                   variant="light"
                   color="default"
                   onPress={() => {
@@ -157,18 +155,18 @@ const ProfileCard: React.FC<Props> = (props) => {
                   <Button
                     size="sm"
                     variant="light"
-                    className={`h-[20px] p-1 m-0 ${match ? 'text-primary-foreground' : 'text-foreground'}`}
+                    className={`h-5 p-1 m-0 ${match ? 'text-primary-foreground' : 'text-foreground'}`}
                     onPress={async () => {
                       await patchAppConfig({ profileDisplayDate: 'update' })
                     }}
                   >
-                    {extra.expire ? dayjs.unix(extra.expire).format('YYYY-MM-DD') : t('common.unlimited')}
+                    {extra.expire ? dayjs.unix(extra.expire).format('YYYY-MM-DD') : '长期有效'}
                   </Button>
                 ) : (
                   <Button
                     size="sm"
                     variant="light"
-                    className={`h-[20px] p-1 m-0 ${match ? 'text-primary-foreground' : 'text-foreground'}`}
+                    className={`h-5 p-1 m-0 ${match ? 'text-primary-foreground' : 'text-foreground'}`}
                     onPress={async () => {
                       await patchAppConfig({ profileDisplayDate: 'expire' })
                     }}
@@ -189,7 +187,7 @@ const ProfileCard: React.FC<Props> = (props) => {
                   variant="bordered"
                   className={`${match ? 'text-primary-foreground border-primary-foreground' : 'border-primary text-primary'}`}
                 >
-                  {t('common.remote')}
+                  远程
                 </Chip>
                 <small>{dayjs(info.updated).fromNow()}</small>
               </div>
@@ -203,16 +201,28 @@ const ProfileCard: React.FC<Props> = (props) => {
                   variant="bordered"
                   className={`${match ? 'text-primary-foreground border-primary-foreground' : 'border-primary text-primary'}`}
                 >
-                  {t('common.local')}
+                  本地
                 </Chip>
               </div>
             )}
             {extra && (
-              <Progress
-                className="w-full"
-                classNames={{ indicator: match ? 'bg-primary-foreground' : 'bg-foreground' }}
-                value={calcPercent(extra?.upload, extra?.download, extra?.total)}
-              />
+              <Meter aria-label="流量用量" maxValue={total} value={usage}>
+                <Meter.Track
+                  className={
+                    match
+                      ? 'h-2.5 bg-black/22 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.35)]'
+                      : undefined
+                  }
+                >
+                  <Meter.Fill
+                    className={
+                      match
+                        ? 'bg-(--color-accent-foreground) shadow-[0_0_8px_rgb(255_255_255/0.45)]'
+                        : undefined
+                    }
+                  />
+                </Meter.Track>
+              </Meter>
             )}
           </CardFooter>
         </Card>
@@ -242,7 +252,6 @@ const ProfileCard: React.FC<Props> = (props) => {
                 className="bg-transparent"
                 variant="flat"
                 color="default"
-                title={t('sidebar.viewRuntimeConfig')}
                 onPress={() => {
                   setShowRuntimeConfig(true)
                 }}
@@ -257,7 +266,7 @@ const ProfileCard: React.FC<Props> = (props) => {
             <h3
               className={`text-md font-bold ${match ? 'text-primary-foreground' : 'text-foreground'}`}
             >
-              {t('sidebar.subscriptions')}
+              订阅管理
             </h3>
           </CardFooter>
         </Card>

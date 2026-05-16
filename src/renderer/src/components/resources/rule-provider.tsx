@@ -4,7 +4,6 @@ import {
   getRuntimeConfig
 } from '@renderer/utils/ipc'
 import { getHash } from '@renderer/utils/hash'
-import { useLanguage } from '@renderer/hooks/use-language'
 import Viewer from './viewer'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
@@ -15,39 +14,60 @@ import { IoMdRefresh } from 'react-icons/io'
 import { CgLoadbarDoc } from 'react-icons/cg'
 import { MdEditDocument } from 'react-icons/md'
 import dayjs from 'dayjs'
+import { notify } from '@renderer/utils/notification'
 
 const RuleProvider: React.FC = () => {
-  const { t } = useLanguage()
   const [showDetails, setShowDetails] = useState({
     show: false,
     path: '',
     type: '',
     title: '',
     format: '',
-    privderType: ''
+    providerType: ''
   })
   useEffect(() => {
-    if (showDetails.title) {
-      const fetchProviderPath = async (name: string): Promise<void> => {
-        try {
-          const providers = await getRuntimeConfig()
-          const provider = providers?.['rule-providers']?.[name] as ProxyProviderConfig
-          if (provider) {
-            setShowDetails((prev) => ({
-              ...prev,
-              show: true,
-              path: provider?.path || `rules/${getHash(provider?.url || '')}`
-            }))
-          }
-        } catch {
-          setShowDetails((prev) => ({ ...prev, path: '' }))
+    if (!showDetails.title) return
+
+    let canceled = false
+    const fetchProviderPath = async (name: string): Promise<void> => {
+      try {
+        const providers = await getRuntimeConfig()
+        const provider = providers?.['rule-providers']?.[name] as ProxyProviderConfig
+        if (canceled) return
+        if (provider) {
+          setShowDetails((prev) => ({
+            ...prev,
+            show: true,
+            path: provider?.path || `rules/${getHash(provider?.url || '')}`
+          }))
+        } else {
+          setShowDetails((prev) => ({ ...prev, show: true, path: name }))
         }
+      } catch {
+        if (canceled) return
+        setShowDetails((prev) => ({ ...prev, show: true, path: name }))
       }
-      fetchProviderPath(showDetails.title)
+    }
+    fetchProviderPath(showDetails.title)
+    return () => {
+      canceled = true
     }
   }, [showDetails.title])
 
-  const { data, mutate } = useSWR('mihomoRuleProviders', mihomoRuleProviders)
+  const { data, mutate } = useSWR('mihomoRuleProviders', mihomoRuleProviders, {
+    errorRetryInterval: 200,
+    errorRetryCount: 10
+  })
+
+  useEffect(() => {
+    window.electron.ipcRenderer.on('core-started', () => {
+      mutate()
+    })
+    return (): void => {
+      window.electron.ipcRenderer.removeAllListeners('core-started')
+    }
+  }, [])
+
   const providers = useMemo(() => {
     if (!data) return []
     return Object.values(data.providers).sort((a, b) => {
@@ -66,13 +86,24 @@ const RuleProvider: React.FC = () => {
       await mihomoUpdateRuleProviders(name)
       mutate()
     } catch (e) {
-      new Notification(`${name} ${t('更新失败', 'update failed')}\n${e}`)
+      notify(`${name} 更新失败\n${e}`, { variant: 'danger' })
     } finally {
       setUpdating((prev) => {
         prev[index] = false
         return [...prev]
       })
     }
+  }
+
+  const openProviderDetails = (provider: ControllerRuleProviderDetail): void => {
+    setShowDetails({
+      show: true,
+      providerType: 'rule-providers',
+      path: '',
+      type: provider.vehicleType,
+      title: provider.name,
+      format: provider.format
+    })
   }
 
   if (!providers.length) {
@@ -87,7 +118,7 @@ const RuleProvider: React.FC = () => {
           type={showDetails.type}
           title={showDetails.title}
           format={showDetails.format}
-          privderType={showDetails.privderType}
+          providerType={showDetails.providerType}
           onClose={() =>
             setShowDetails({
               show: false,
@@ -95,12 +126,12 @@ const RuleProvider: React.FC = () => {
               type: '',
               title: '',
               format: '',
-              privderType: ''
+              providerType: ''
             })
           }
         />
       )}
-      <SettingItem title={t('规则集合', 'Rule Providers')} divider>
+      <SettingItem compatKey="legacy" title="规则集合" divider>
         <Button
           size="sm"
           color="primary"
@@ -110,12 +141,13 @@ const RuleProvider: React.FC = () => {
             })
           }}
         >
-          {t('更新全部', 'Update All')}
+          更新全部
         </Button>
       </SettingItem>
       {providers.map((provider, index) => (
         <Fragment key={provider.name}>
           <SettingItem
+            compatKey="legacy"
             title={provider.name}
             actions={
               <Chip className="ml-2" size="sm">
@@ -123,24 +155,14 @@ const RuleProvider: React.FC = () => {
               </Chip>
             }
           >
-            <div className="flex h-[32px] leading-[32px] text-foreground-500">
+            <div className="flex h-8 leading-8 text-foreground-500">
               <div>{dayjs(provider.updatedAt).fromNow()}</div>
-              {provider.format !== 'MrsRule' && provider.vehicleType !== 'Inline' && (
+              {provider.vehicleType !== 'Inline' && (
                 <Button
                   isIconOnly
-                  title={provider.vehicleType == 'File' ? t('编辑', 'Edit') : t('查看', 'View')}
                   className="ml-2"
                   size="sm"
-                  onPress={() => {
-                    setShowDetails({
-                      show: false,
-                      privderType: 'rule-providers',
-                      path: provider.name,
-                      type: provider.vehicleType,
-                      title: provider.name,
-                      format: provider.format
-                    })
-                  }}
+                  onPress={() => openProviderDetails(provider)}
                 >
                   {provider.vehicleType == 'File' ? (
                     <MdEditDocument className={`text-lg`} />
@@ -151,7 +173,6 @@ const RuleProvider: React.FC = () => {
               )}
               <Button
                 isIconOnly
-                title="更新"
                 className="ml-2"
                 size="sm"
                 onPress={() => {
@@ -163,10 +184,11 @@ const RuleProvider: React.FC = () => {
             </div>
           </SettingItem>
           <SettingItem
+            compatKey="legacy"
             title={<div className="text-foreground-500">{provider.format || 'InlineRule'}</div>}
             divider={index !== providers.length - 1}
           >
-            <div className="h-[32px] leading-[32px] text-foreground-500">
+            <div className="h-8 leading-8 text-foreground-500">
               {provider.vehicleType}::{provider.behavior}
             </div>
           </SettingItem>

@@ -1,7 +1,8 @@
-import { Avatar, Button, Card, CardFooter, CardHeader, Chip } from '@heroui/react'
+import { Button, Card, CardFooter, CardHeader, Chip } from '@heroui/react'
+import { Avatar } from '@heroui-v3/react'
 import { calcTraffic } from '@renderer/utils/calc'
 import dayjs from 'dayjs'
-import React, { memo, useCallback, useMemo } from 'react'
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { CgClose, CgTrash } from 'react-icons/cg'
 
 interface Props {
@@ -46,7 +47,15 @@ const ConnectionItemComponent: React.FC<Props> = ({
     ]
   )
 
-  const timeAgo = useMemo(() => dayjs(info.start).fromNow(), [info.start])
+  const [timeAgo, setTimeAgo] = useState(() => dayjs(info.start).fromNow())
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeAgo(dayjs(info.start).fromNow())
+    }, 60000)
+
+    return () => clearInterval(timer)
+  }, [info.start])
 
   const uploadTraffic = useMemo(() => calcTraffic(info.upload), [info.upload])
 
@@ -82,12 +91,9 @@ const ConnectionItemComponent: React.FC<Props> = ({
         <div className="w-full flex justify-between items-center">
           {displayIcon && (
             <div>
-              <Avatar
-                size="lg"
-                radius="sm"
-                src={iconUrl}
-                className="bg-transparent ml-2 w-14 h-14"
-              />
+              <Avatar size="lg" className="bg-transparent ml-2 w-14 h-14">
+                <Avatar.Image src={iconUrl} />
+              </Avatar>
             </div>
           )}
           <div
@@ -105,6 +111,7 @@ const ConnectionItemComponent: React.FC<Props> = ({
                 variant="light"
                 isIconOnly
                 size="sm"
+                aria-label={info.isActive ? '关闭连接' : '删除记录'}
                 className="absolute right-2 transform"
                 onPress={handleClose}
               >

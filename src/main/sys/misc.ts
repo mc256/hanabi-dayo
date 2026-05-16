@@ -14,17 +14,31 @@ import {
   taskDir
 } from '../utils/dirs'
 import { copyFileSync, writeFileSync } from 'fs'
+import { execWithElevation } from '../utils/elevation'
 
-export function getFilePath(ext: string[]): string[] | undefined {
+export function getFilePath(
+  ext: string[],
+  title = '选择订阅文件',
+  filterName = `${ext} file`
+): string[] | undefined {
   return dialog.showOpenDialogSync({
-    title: '选择订阅文件',
-    filters: [{ name: `${ext} file`, extensions: ext }],
+    title,
+    filters: [{ name: filterName, extensions: ext }],
     properties: ['openFile']
   })
 }
 
 export async function readTextFile(filePath: string): Promise<string> {
   return await readFile(filePath, 'utf8')
+}
+
+export async function readImageFileDataURL(filePath: string): Promise<string> {
+  const ext = path.extname(filePath).toLowerCase()
+  const mimeType =
+    ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : ext === '.webp' ? 'image/webp' : 'image/png'
+  const data = await readFile(filePath)
+
+  return `data:${mimeType};base64,${data.toString('base64')}`
 }
 
 export function openFile(type: 'profile' | 'override', id: string, ext?: 'yaml' | 'js'): void {
@@ -105,16 +119,33 @@ const elevateTaskXml = `<?xml version="1.0" encoding="UTF-16"?>
 </Task>
 `
 
-export function createElevateTaskSync(): void {
+function prepareElevateTaskFile(): string {
   const taskFilePath = path.join(taskDir(), `sparkle-run.xml`)
   writeFileSync(taskFilePath, Buffer.from(`\ufeff${elevateTaskXml}`, 'utf-16le'))
   copyFileSync(
     path.join(resourcesFilesDir(), 'sparkle-run.exe'),
     path.join(taskDir(), 'sparkle-run.exe')
   )
+  return taskFilePath
+}
+
+export function createElevateTaskSync(): void {
+  const taskFilePath = prepareElevateTaskFile()
   execSync(
     `%SystemRoot%\\System32\\schtasks.exe /create /tn "sparkle-run" /xml "${taskFilePath}" /f`
   )
+}
+
+export async function createElevateTask(): Promise<void> {
+  const taskFilePath = prepareElevateTaskFile()
+  await execWithElevation('schtasks.exe', [
+    '/create',
+    '/tn',
+    'sparkle-run',
+    '/xml',
+    taskFilePath,
+    '/f'
+  ])
 }
 
 export async function deleteElevateTask(): Promise<void> {

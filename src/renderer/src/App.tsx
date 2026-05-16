@@ -7,14 +7,7 @@ import TunSwitcher from '@renderer/components/sider/tun-switcher'
 import { Button, Divider } from '@heroui/react'
 import { IoSettings } from 'react-icons/io5'
 import routes from '@renderer/routes'
-import {
-  DndContext,
-  closestCorners,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent
-} from '@dnd-kit/core'
+import { DndContext, closestCorners, DragEndEvent } from '@dnd-kit/core'
 import { SortableContext } from '@dnd-kit/sortable'
 import ProfileCard from '@renderer/components/sider/profile-card'
 import ProxyCard from '@renderer/components/sider/proxy-card'
@@ -32,12 +25,46 @@ import { applyTheme, checkUpdate, setNativeTheme, setTitleBarOverlay } from '@re
 import { platform } from '@renderer/utils/init'
 import { TitleBarOverlayOptions } from 'electron'
 import MihomoIcon from './components/base/mihomo-icon'
-import { driver } from 'driver.js'
-import 'driver.js/dist/driver.css'
 import useSWR from 'swr'
 import ConfirmModal from '@renderer/components/base/base-confirm'
+import { useCardDndSensors } from '@renderer/hooks/use-card-dnd-sensors'
 
 let navigate: NavigateFunction
+
+const interactiveSelector = 'button:not(.pointer-events-none), [role="switch"]'
+
+const defaultSiderOrder = [
+  'sysproxy',
+  'tun',
+  'dns',
+  'sniff',
+  'proxy',
+  'connection',
+  'profile',
+  'mihomo',
+  'rule',
+  'resource',
+  'override',
+  'log'
+]
+
+const siderCardRouteMap = {
+  'sysproxy-card': '/sysproxy',
+  'tun-card': '/tun',
+  'profile-card': '/profiles',
+  'proxy-card': '/proxies',
+  'mihomo-core-card': '/mihomo',
+  'conn-card': '/connections',
+  'dns-card': '/dns',
+  'sniff-card': '/sniffer',
+  'log-card': '/logs',
+  'rule-card': '/rules',
+  'resource-card': '/resources',
+  'override-card': '/override'
+} as const
+const siderCardSelector = Object.keys(siderCardRouteMap)
+  .map((className) => `.${className}`)
+  .join(', ')
 
 const App: React.FC = () => {
   const { appConfig, patchAppConfig } = useAppConfig()
@@ -45,46 +72,40 @@ const App: React.FC = () => {
     appTheme = 'system',
     customTheme,
     useWindowFrame = false,
-    siderWidth = 350,
-    siderOrder = [
-      'sysproxy',
-      'tun',
-      'dns',
-      'sniff',
-      'proxy',
-      'connection',
-      'profile',
-      'mihomo',
-      'rule',
-      'resource',
-      'override',
-      'log'
-    ],
+    siderWidth = 250,
+    siderOrder,
     autoCheckUpdate,
     updateChannel = 'stable',
+    showUpdateButtonAfterNotification = true,
     disableAnimation = false
   } = appConfig || {}
+  const siderOrderArray = siderOrder ?? defaultSiderOrder
   const narrowWidth = platform === 'darwin' ? 70 : 60
-  const [order, setOrder] = useState(siderOrder)
+  const [order, setOrder] = useState(siderOrderArray)
   const [siderWidthValue, setSiderWidthValue] = useState(siderWidth)
   const siderWidthValueRef = useRef(siderWidthValue)
   const [resizing, setResizing] = useState(false)
   const resizingRef = useRef(resizing)
-  const sensors = useSensors(useSensor(PointerSensor))
+  const resizePointerIdRef = useRef<number | null>(null)
+  const suppressSiderClickRef = useRef(false)
+  const suppressSiderClickTimerRef = useRef<number | undefined>(undefined)
+  const sensors = useCardDndSensors({
+    mouseDistance: 8,
+    touchDelay: 220,
+    touchTolerance: 10
+  })
   const { setTheme, systemTheme } = useTheme()
   navigate = useNavigate()
   const location = useLocation()
   const page = useRoutes(routes)
   const setTitlebar = (): void => {
-    if (!useWindowFrame) {
+    if (!useWindowFrame && platform !== 'darwin') {
       const options = { height: 48 } as TitleBarOverlayOptions
       try {
-        if (platform !== 'darwin') {
-          options.color = window.getComputedStyle(document.documentElement).backgroundColor
-          options.symbolColor = window.getComputedStyle(document.documentElement).color
-        }
+        options.color = window.getComputedStyle(document.documentElement).backgroundColor
+        options.symbolColor = window.getComputedStyle(document.documentElement).color
         setTitleBarOverlay(options)
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
@@ -98,9 +119,10 @@ const App: React.FC = () => {
   )
 
   useEffect(() => {
-    setOrder(siderOrder)
+    setOrder(siderOrderArray)
     setSiderWidthValue(siderWidth)
-  }, [siderOrder, siderWidth])
+    siderWidthValueRef.current = siderWidth
+  }, [siderOrderArray, siderWidth])
 
   useEffect(() => {
     siderWidthValueRef.current = siderWidthValue
@@ -111,7 +133,9 @@ const App: React.FC = () => {
     const tourShown = window.localStorage.getItem('tourShown')
     if (!tourShown) {
       window.localStorage.setItem('tourShown', 'true')
-      firstDriver.drive()
+      import('@renderer/utils/driver').then(({ startTour }) => {
+        startTour(navigate)
+      })
     }
   }, [])
 
@@ -128,47 +152,112 @@ const App: React.FC = () => {
   }, [customTheme])
 
   useEffect(() => {
-    window.addEventListener('mouseup', onResizeEnd)
-    return (): void => window.removeEventListener('mouseup', onResizeEnd)
+    window.addEventListener('pointermove', onResizeMove)
+    window.addEventListener('pointerup', onResizeEnd)
+    window.addEventListener('pointercancel', onResizeEnd)
+    return (): void => {
+      window.removeEventListener('pointermove', onResizeMove)
+      window.removeEventListener('pointerup', onResizeEnd)
+      window.removeEventListener('pointercancel', onResizeEnd)
+      if (suppressSiderClickTimerRef.current) {
+        window.clearTimeout(suppressSiderClickTimerRef.current)
+      }
+    }
   }, [])
 
-  const onResizeEnd = (): void => {
+  const updateSiderWidthFromClientX = (clientX: number): void => {
+    let nextWidth: number
+    if (clientX <= 150) {
+      nextWidth = narrowWidth
+    } else if (clientX <= 250) {
+      nextWidth = 250
+    } else if (clientX >= 400) {
+      nextWidth = 400
+    } else {
+      nextWidth = clientX
+    }
+
+    siderWidthValueRef.current = nextWidth
+    setSiderWidthValue(nextWidth)
+  }
+
+  const onResizeMove = (event: PointerEvent): void => {
+    if (!resizingRef.current) return
+    if (resizePointerIdRef.current !== null && event.pointerId !== resizePointerIdRef.current) {
+      return
+    }
+
+    event.preventDefault()
+    updateSiderWidthFromClientX(event.clientX)
+  }
+
+  const onResizeEnd = (event?: PointerEvent): void => {
+    if (
+      event &&
+      resizePointerIdRef.current !== null &&
+      event.pointerId !== resizePointerIdRef.current
+    ) {
+      return
+    }
+
     if (resizingRef.current) {
       setResizing(false)
       patchAppConfig({ siderWidth: siderWidthValueRef.current })
     }
+    resizePointerIdRef.current = null
   }
 
   const onDragEnd = async (event: DragEndEvent): Promise<void> => {
     const { active, over } = event
-    if (over) {
-      if (active.id !== over.id) {
-        const newOrder = order.slice()
-        const activeIndex = newOrder.indexOf(active.id as string)
-        const overIndex = newOrder.indexOf(over.id as string)
-        newOrder.splice(activeIndex, 1)
-        newOrder.splice(overIndex, 0, active.id as string)
-        setOrder(newOrder)
-        await patchAppConfig({ siderOrder: newOrder })
-        return
-      }
+    if (over && active.id !== over.id) {
+      const newOrder = order.slice()
+      const activeIndex = newOrder.indexOf(active.id as string)
+      const overIndex = newOrder.indexOf(over.id as string)
+      newOrder.splice(activeIndex, 1)
+      newOrder.splice(overIndex, 0, active.id as string)
+      setOrder(newOrder)
+      await patchAppConfig({ siderOrder: newOrder })
     }
-    navigate(navigateMap[active.id as string])
   }
 
-  const navigateMap = {
-    sysproxy: 'sysproxy',
-    tun: 'tun',
-    profile: 'profiles',
-    proxy: 'proxies',
-    mihomo: 'mihomo',
-    connection: 'connections',
-    dns: 'dns',
-    sniff: 'sniffer',
-    log: 'logs',
-    rule: 'rules',
-    resource: 'resources',
-    override: 'override'
+  const releaseSiderClickSuppression = (): void => {
+    if (suppressSiderClickTimerRef.current) {
+      window.clearTimeout(suppressSiderClickTimerRef.current)
+    }
+    suppressSiderClickTimerRef.current = window.setTimeout(() => {
+      suppressSiderClickRef.current = false
+    }, 160)
+  }
+
+  const onSiderDragStart = (): void => {
+    suppressSiderClickRef.current = true
+  }
+
+  const onSiderDragCancel = (): void => {
+    releaseSiderClickSuppression()
+  }
+
+  const onSiderDragEnd = (event: DragEndEvent): void => {
+    void onDragEnd(event).finally(releaseSiderClickSuppression)
+  }
+
+  const onSiderClickCapture = (event: React.MouseEvent<HTMLDivElement>): void => {
+    if (suppressSiderClickRef.current) {
+      event.preventDefault()
+      event.stopPropagation()
+      return
+    }
+
+    const target = event.target as HTMLElement
+    if (target.closest(interactiveSelector)) return
+
+    const clickedCard = target.closest(siderCardSelector)
+    if (!clickedCard) return
+
+    const route = Object.entries(siderCardRouteMap).find(([className]) =>
+      clickedCard.classList.contains(className)
+    )?.[1]
+    if (route) navigate(route)
   }
 
   const componentMap = {
@@ -247,21 +336,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div
-      onMouseMove={(e) => {
-        if (!resizing) return
-        if (e.clientX <= 150) {
-          setSiderWidthValue(narrowWidth)
-        } else if (e.clientX <= 250) {
-          setSiderWidthValue(250)
-        } else if (e.clientX >= 400) {
-          setSiderWidthValue(400)
-        } else {
-          setSiderWidthValue(e.clientX)
-        }
-      }}
-      className={`w-full h-screen flex ${resizing ? 'cursor-ew-resize' : ''}`}
-    >
+    <div className={`w-full h-screen flex ${resizing ? 'cursor-ew-resize' : ''}`}>
       {showQuitConfirm && (
         <ConfirmModal
           title="确定要退出 Sparkle 吗？"
@@ -269,6 +344,9 @@ const App: React.FC = () => {
             <div>
               <p></p>
               <p className="text-sm text-gray-500 mt-2">退出后代理功能将停止工作</p>
+              <p className="text-sm text-gray-400 mt-1">
+                快按两次或长按 {platform === 'darwin' ? '⌘Q' : 'Ctrl+Q'} 可直接退出
+              </p>
             </div>
           }
           confirmText="退出"
@@ -303,6 +381,7 @@ const App: React.FC = () => {
             }
           }}
           onConfirm={() => handleProfileInstallConfirm(true)}
+          className="w-125"
         />
       )}
       {showOverrideInstallConfirm && overrideInstallData && (
@@ -331,10 +410,8 @@ const App: React.FC = () => {
       )}
       {siderWidthValue === narrowWidth ? (
         <div style={{ width: `${narrowWidth}px` }} className="side h-full">
-          <div className="app-drag flex justify-center items-center z-40 bg-transparent h-[45px]">
-            {platform !== 'darwin' && (
-              <MihomoIcon className="h-[32px] leading-[32px] text-lg mx-px" />
-            )}
+          <div className="app-drag flex justify-center items-center z-40 bg-transparent h-11.25">
+            {platform !== 'darwin' && <MihomoIcon className="h-8 leading-8 text-lg mx-px" />}
           </div>
           <div
             className={`${latest ? 'h-[calc(100%-275px)]' : 'h-[calc(100%-227px)]'} overflow-y-auto no-scrollbar`}
@@ -348,7 +425,13 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="p-2 flex flex-col items-center space-y-2">
-            {latest && latest.version && <UpdaterButton iconOnly={true} latest={latest} />}
+            {latest && latest.version && (
+              <UpdaterButton
+                iconOnly={true}
+                latest={latest}
+                showButtonAfterNotification={showUpdateButtonAfterNotification}
+              />
+            )}
             <OutboundModeSwitcher iconOnly />
             <Button
               size="sm"
@@ -368,15 +451,20 @@ const App: React.FC = () => {
           className="side h-full overflow-y-auto no-scrollbar"
         >
           <div
-            className={`app-drag sticky top-0 z-40 ${disableAnimation ? 'bg-background/95 backdrop-blur-sm' : 'bg-transparent backdrop-blur'} h-[49px]`}
+            className={`app-drag sticky top-0 z-40 ${disableAnimation ? 'bg-background/95 backdrop-blur-sm' : 'bg-transparent backdrop-blur'} h-12.25`}
           >
             <div
-              className={`flex justify-between p-2 ${!useWindowFrame && platform === 'darwin' ? 'ml-[60px]' : ''}`}
+              className={`flex justify-between p-2 ${!useWindowFrame && platform === 'darwin' ? 'ml-15' : ''}`}
             >
               <div className="flex ml-1">
-                <h3 className="text-lg font-bold leading-[32px]">Sparkle</h3>
+                <h3 className="text-lg font-bold leading-8">Sparkle</h3>
               </div>
-              {latest && latest.version && <UpdaterButton latest={latest} />}
+              {latest && latest.version && (
+                <UpdaterButton
+                  latest={latest}
+                  showButtonAfterNotification={showUpdateButtonAfterNotification}
+                />
+              )}
               <Button
                 size="sm"
                 className="app-nodrag"
@@ -394,34 +482,52 @@ const App: React.FC = () => {
           <div className="mt-2 mx-2">
             <OutboundModeSwitcher />
           </div>
-          <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-2 gap-2 m-2">
-              <SortableContext items={order}>
-                {order.map((key: string) => {
-                  const Component = componentMap[key]
-                  if (!Component) return null
-                  return <Component key={key} />
-                })}
-              </SortableContext>
-            </div>
-          </DndContext>
+          <div style={{ overflowX: 'clip' }}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCorners}
+              onDragStart={onSiderDragStart}
+              onDragCancel={onSiderDragCancel}
+              onDragEnd={onSiderDragEnd}
+            >
+              <div className="grid grid-cols-2 gap-2 m-2" onClickCapture={onSiderClickCapture}>
+                <SortableContext items={order}>
+                  {order.map((key: string) => {
+                    const Component = componentMap[key]
+                    if (!Component) return null
+                    return <Component key={key} />
+                  })}
+                </SortableContext>
+              </div>
+            </DndContext>
+          </div>
         </div>
       )}
 
       <div
-        onMouseDown={() => {
+        onPointerDown={(event) => {
+          resizePointerIdRef.current = event.pointerId
+          event.currentTarget.setPointerCapture(event.pointerId)
+          updateSiderWidthFromClientX(event.clientX)
           setResizing(true)
         }}
         style={{
           position: 'fixed',
           zIndex: 50,
-          left: `${siderWidthValue - 2}px`,
-          width: '5px',
+          left: `${siderWidthValue - 6}px`,
+          width: '12px',
           height: '100vh',
-          cursor: 'ew-resize'
+          cursor: 'ew-resize',
+          touchAction: 'none'
         }}
-        className={resizing ? 'bg-primary' : ''}
-      />
+        className="group flex justify-center"
+      >
+        <div
+          className={`h-full w-0.5 transition-colors ${
+            resizing ? 'bg-primary' : 'bg-transparent group-hover:bg-primary/60'
+          }`}
+        />
+      </div>
       <Divider orientation="vertical" />
       <div
         style={{ width: `calc(100% - ${siderWidthValue + 1}px)` }}
@@ -434,180 +540,3 @@ const App: React.FC = () => {
 }
 
 export default App
-
-export const firstDriver = driver({
-  showProgress: true,
-  nextBtnText: '下一步',
-  prevBtnText: '上一步',
-  doneBtnText: '完成',
-  progressText: '{{current}} / {{total}}',
-  overlayOpacity: 0.9,
-  steps: [
-    {
-      element: 'none',
-      popover: {
-        title: '欢迎使用 Sparkle',
-        description:
-          '这是一份交互式使用教程，如果您已经完全熟悉本软件的操作，可以直接点击右上角关闭按钮，后续您可以随时从设置中打开本教程',
-        side: 'over',
-        align: 'center'
-      }
-    },
-    {
-      element: '.side',
-      popover: {
-        title: '导航栏',
-        description:
-          '左侧是应用的导航栏，兼顾仪表盘功能，在这里可以切换不同页面，也可以概览常用的状态信息',
-        side: 'right',
-        align: 'center'
-      }
-    },
-    {
-      element: '.sysproxy-card',
-      popover: {
-        title: '卡片',
-        description: '点击导航栏卡片可以跳转到对应页面，拖动导航栏卡片可以自由排列卡片顺序',
-        side: 'right',
-        align: 'start'
-      }
-    },
-    {
-      element: '.main',
-      popover: {
-        title: '主要区域',
-        description: '右侧是应用的主要区域，展示了导航栏所选页面的内容',
-        side: 'left',
-        align: 'center'
-      }
-    },
-    {
-      element: '.profile-card',
-      popover: {
-        title: '订阅管理',
-        description:
-          '订阅管理卡片展示当前运行的订阅配置信息，点击进入订阅管理页面可以在这里管理订阅配置',
-        side: 'right',
-        align: 'start',
-        onNextClick: async (): Promise<void> => {
-          navigate('/profiles')
-          setTimeout(() => {
-            firstDriver.moveNext()
-          }, 0)
-        }
-      }
-    },
-    {
-      element: '.profiles-sticky',
-      popover: {
-        title: '订阅导入',
-        description:
-          'Sparkle 支持多种订阅导入方式，在此输入订阅链接，点击导入即可导入您的订阅配置，如果您的订阅需要代理才能更新，请勾选“代理”再点击导入，当然这需要已经有一个可以正常使用的订阅才可以',
-        side: 'bottom',
-        align: 'start'
-      }
-    },
-{
-      element: '.new-profile',
-      popover: {
-        title: '本地订阅',
-        description: '点击“+”可以选择本地文件进行导入或者直接新建空白配置进行编辑',
-        side: 'bottom',
-        align: 'start'
-      }
-    },
-    {
-      element: '.sysproxy-card',
-      popover: {
-        title: '系统代理',
-        description:
-          '导入订阅之后，内核已经开始运行并监听指定端口，此时您已经可以通过指定代理端口来使用代理了，如果您要使大部分应用自动使用该端口的代理，您还需要打开系统代理开关',
-        side: 'right',
-        align: 'start',
-        onNextClick: async (): Promise<void> => {
-          navigate('/sysproxy')
-          setTimeout(() => {
-            firstDriver.moveNext()
-          }, 0)
-        }
-      }
-    },
-    {
-      element: '.sysproxy-settings',
-      popover: {
-        title: '系统代理设置',
-        description:
-          '在此您可以进行系统代理相关设置，选择代理模式，如果某些 Windows 应用不遵循系统代理，还可以使用“UWP 工具”解除本地回环限制，对于“手动代理模式”和“PAC 代理模式”的区别，请自行百度',
-        side: 'top',
-        align: 'start'
-      }
-    },
-    {
-      element: '.tun-card',
-      popover: {
-        title: '虚拟网卡',
-        description:
-          '虚拟网卡，即同类软件中常见的“Tun 模式”，对于某些不遵循系统代理的应用，您可以打开虚拟网卡以让内核接管所有流量',
-        side: 'right',
-        align: 'start',
-        onNextClick: async (): Promise<void> => {
-          navigate('/tun')
-          setTimeout(() => {
-            firstDriver.moveNext()
-          }, 0)
-        }
-      }
-    },
-    {
-      element: '.tun-settings',
-      popover: {
-        title: '虚拟网卡设置',
-        description:
-          '这里可以更改虚拟网卡相关设置，Sparkle 理论上已经完全解决权限问题，如果您的虚拟网卡仍然不可用，可以尝试重设防火墙（Windows）或手动授权内核（MacOS/Linux）后重启内核',
-        side: 'bottom',
-        align: 'start'
-      }
-    },
-    {
-      element: '.override-card',
-      popover: {
-        title: '覆写',
-        description:
-          'Sparkle 提供强大的覆写功能，可以对您导入的订阅配置进行个性化修改，如添加规则、自定义代理组等，您可以直接导入别人写好的覆写文件，也可以自己动手编写，<b>编辑好覆写文件一定要记得在需要覆写的订阅上启用</b>，覆写文件的语法请参考 <a href="https://mihomo.party/docs/guide/override" target="_blank">官方文档</a>',
-        side: 'right',
-        align: 'center'
-      }
-    },
-    {
-      element: '.dns-card',
-      popover: {
-        title: 'DNS',
-        description:
-          '软件默认接管了内核的 DNS 设置，如果您需要使用订阅配置中的 DNS 设置，可以到应用设置中关闭“接管 DNS 设置”，域名嗅探同理',
-        side: 'right',
-        align: 'center',
-        onNextClick: async (): Promise<void> => {
-          navigate('/profiles')
-          setTimeout(() => {
-            firstDriver.moveNext()
-          }, 0)
-        }
-      }
-    },
-    {
-      element: 'none',
-      popover: {
-        title: '教程结束',
-        description: '现在您已经了解了软件的基本用法，导入您的订阅开始使用吧，祝您使用愉快！',
-        side: 'top',
-        align: 'center',
-        onNextClick: async (): Promise<void> => {
-          navigate('/profiles')
-          setTimeout(() => {
-            firstDriver.destroy()
-          }, 0)
-        }
-      }
-    }
-  ]
-})

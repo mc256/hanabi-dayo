@@ -11,6 +11,7 @@ import useSWR from 'swr'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
 import { useLanguage } from '@renderer/hooks/use-language'
 import { LuCpu } from 'react-icons/lu'
+import { notify } from '@renderer/utils/notification'
 
 interface Props {
   iconOnly?: boolean
@@ -21,7 +22,10 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
   const { iconOnly } = props
   const { t } = useLanguage()
   const { mihomoCoreCardStatus = 'col-span-2', disableAnimation = false } = appConfig || {}
-  const { data: version, mutate } = useSWR('mihomoVersion', mihomoVersion)
+  const { data: version, mutate } = useSWR('mihomoVersion', mihomoVersion, {
+    errorRetryInterval: 200,
+    errorRetryCount: 10
+  })
   const location = useLocation()
   const navigate = useNavigate()
   const match = location.pathname.includes('/mihomo')
@@ -37,6 +41,7 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
   })
   const transform = tf ? { x: tf.x, y: tf.y, scaleX: 1, scaleY: 1 } : null
   const [mem, setMem] = useState(0)
+  const [restarting, setRestarting] = useState(false)
 
   useEffect(() => {
     const token = PubSub.subscribe('mihomo-core-changed', () => {
@@ -45,9 +50,13 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
     window.electron.ipcRenderer.on('mihomoMemory', (_e, info: ControllerMemory) => {
       setMem(info.inuse)
     })
+    window.electron.ipcRenderer.on('core-started', () => {
+      mutate()
+    })
     return (): void => {
       PubSub.unsubscribe(token)
       window.electron.ipcRenderer.removeAllListeners('mihomoMemory')
+      window.electron.ipcRenderer.removeAllListeners('core-started')
     }
   }, [])
 
@@ -94,10 +103,10 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
               ref={setNodeRef}
               {...attributes}
               {...listeners}
-              className="flex justify-between h-[32px]"
+              className="flex justify-between h-8"
             >
               <h3
-                className={`text-md font-bold leading-[32px] ${match ? 'text-primary-foreground' : 'text-foreground'} `}
+                className={`text-md font-bold leading-8 ${match ? 'text-primary-foreground' : 'text-foreground'} `}
               >
                 {version?.version ?? '-'}
               </h3>
@@ -106,19 +115,25 @@ const MihomoCoreCard: React.FC<Props> = (props) => {
                 isIconOnly
                 size="sm"
                 variant="light"
+                disabled={restarting}
                 color="default"
                 onPress={async () => {
                   try {
+                    setRestarting(true)
                     await restartCore()
+                    await new Promise((resolve) => {
+                      setTimeout(resolve, 2000)
+                    })
+                    setRestarting(false)
                   } catch (e) {
-                    alert(e)
+                    notify(e, { variant: 'danger' })
                   } finally {
                     mutate()
                   }
                 }}
               >
                 <IoMdRefresh
-                  className={`${match ? 'text-primary-foreground' : 'text-foreground'} text-[24px]`}
+                  className={`text-[24px] ${match ? 'text-primary-foreground' : 'text-foreground'} ${restarting ? 'animate-spin' : ''}`}
                 />
               </Button>
             </div>
