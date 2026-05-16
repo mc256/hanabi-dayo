@@ -1,0 +1,1664 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upstream Sync Review &mdash; xishang0128/sparkle &rarr; mc256/hanabi-dayo</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--panel2:#1c2330;--bd:#30363d;--fg:#e6edf3;--mut:#8b949e;--acc:#58a6ff;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+a{color:var(--acc);text-decoration:none;}a:hover{text-decoration:underline;}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 24px 80px;}
+header h1{font-size:24px;margin:0 0 4px;}
+header .sub{color:var(--mut);font-size:14px;}
+.flow{display:flex;align-items:center;gap:10px;margin:14px 0 4px;flex-wrap:wrap;}
+.repo{background:var(--panel);border:1px solid var(--bd);border-radius:6px;padding:6px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;}
+.arrow{color:var(--acc);font-size:18px;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0;}
+.card{background:var(--panel);border:1px solid var(--bd);border-radius:8px;padding:14px 16px;}
+.card .n{font-size:26px;font-weight:700;}
+.card .l{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+.card.warn .n{color:#f85149;}
+.card.add .n{color:#3fb950;}
+.card.del .n{color:#f85149;}
+h2{font-size:18px;margin:38px 0 6px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
+h2 .c{color:var(--mut);font-weight:400;font-size:14px;}
+.note{color:var(--mut);font-size:13px;margin:0 0 14px;}
+section.box{background:var(--panel);border:1px solid var(--bd);border-radius:8px;overflow:hidden;}
+.row{display:flex;gap:10px;padding:8px 14px;border-top:1px solid var(--bd);align-items:baseline;}
+.row:first-child{border-top:none;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;}
+.path{color:var(--fg);word-break:break-all;}
+.tag{font-size:11px;padding:1px 7px;border-radius:10px;border:1px solid var(--bd);white-space:nowrap;flex:none;}
+.tag.uu{background:#3d2b16;color:#f0a35e;border-color:#7a4f1d;}
+.tag.md{background:#3d1f24;color:#ff9aa2;border-color:#7a2f38;}
+.tag.add{background:#16321f;color:#5fd97e;border-color:#1f6b38;}
+.tag.del{background:#3d1f24;color:#ff9aa2;border-color:#7a2f38;}
+.smnote{color:var(--mut);font-size:12px;}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;}
+.fbtn{background:var(--panel);border:1px solid var(--bd);color:var(--fg);border-radius:20px;padding:5px 14px;font-size:13px;cursor:pointer;}
+.fbtn:hover{border-color:var(--acc);}
+.fbtn.active{background:var(--acc);color:#0d1117;border-color:var(--acc);font-weight:600;}
+#search{width:100%;background:var(--panel);border:1px solid var(--bd);color:var(--fg);border-radius:6px;padding:9px 12px;font-size:14px;margin:10px 0;}
+.commit{display:flex;gap:10px;padding:7px 14px;border-top:1px solid var(--bd);align-items:baseline;}
+.commit:first-child{border-top:none;}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;align-self:center;}
+.commit .sha{color:var(--mut);flex:none;}
+.commit .subj{flex:1;}
+.commit .meta{color:var(--mut);font-size:12px;flex:none;white-space:nowrap;}
+.hide{display:none!important;}
+.grp-h{padding:10px 14px;background:var(--panel2);font-weight:600;font-size:13px;border-top:1px solid var(--bd);}
+.grp-h:first-child{border-top:none;}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:8px 0 16px;color:var(--mut);font-size:12px;}
+.legend span{display:flex;align-items:center;gap:6px;}
+footer{margin-top:50px;color:var(--mut);font-size:12px;text-align:center;}
+.bar{height:6px;border-radius:3px;background:var(--bd);overflow:hidden;display:inline-block;width:120px;vertical-align:middle;}
+.bar i{display:block;height:100%;background:var(--acc);}
+.churn{display:flex;gap:10px;padding:6px 14px;border-top:1px solid var(--bd);align-items:center;}
+.churn:first-child{border-top:none;}
+.churn .p{flex:1;}
+.plus{color:#3fb950;}.minus{color:#f85149;}
+</style>
+</head><body><div class="wrap">
+<header><h1>Upstream Sync Review</h1>
+<div class="sub">New changes in upstream <code>master</code> not yet in this fork &mdash; generated 2026-05-16</div>
+<div class="flow"><span class="repo">xishang0128/sparkle:master</span>
+<span class="arrow">&rarr;</span><span class="repo">mc256/hanabi-dayo:master</span></div>
+<div class="note">Fork point: <span class="mono">953d4ec</span> (2025-11-04). Upstream HEAD <span class="mono">8779f5c</span>. Fork version 2.3.0 vs upstream 1.26.4.</div>
+</header>
+<div class="cards">
+<div class="card "><div class="n">188</div><div class="l">new commits</div></div>
+<div class="card "><div class="n">201</div><div class="l">files changed</div></div>
+<div class="card add"><div class="n">+24,061</div><div class="l">insertions</div></div>
+<div class="card del"><div class="n">-10,587</div><div class="l">deletions</div></div>
+<div class="card add"><div class="n">52</div><div class="l">new files</div></div>
+<div class="card del"><div class="n">5</div><div class="l">deleted files</div></div>
+<div class="card warn"><div class="n">42</div><div class="l">merge conflicts</div></div>
+</div>
+<h2>Merge conflicts <span class="c">&mdash; 42 files</span></h2>
+<p class="note">This branch is <strong>not auto-mergeable</strong>. These files need manual resolution before the PR can merge. Most are plain content conflicts (<span class="tag uu">content</span>); a few are modify/delete conflicts (<span class="tag md">modify/delete</span>) caused by the fork's Sub-Store removal and updater rework.</p>
+<section class="box">
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">.github/workflows/tag-release.yml</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">README.md</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">build/linux/postinst</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">package.json</span>
+<span class="smnote">&mdash; version 1.26.4 vs 2.3.0; heavy dependency divergence</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">pnpm-lock.yaml</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">scripts/prepare.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">scripts/updater.mjs</span>
+<span class="smnote">&mdash; upstream renamed to updater.ts; fork modified the .mjs</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/config/profile.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/core/manager.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/index.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/resolve/autoUpdater.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/resolve/server.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/resolve/shortcut.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/resolve/tray.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/utils/dirs.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/utils/init.ts</span>
+<span class="smnote">&mdash; Sub-Store init + the v2.3.0 Linux deep-link fix</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/utils/ipc.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/main/utils/template.ts</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/App.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/profiles/edit-file-modal.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/profiles/edit-info-modal.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/profiles/profile-item.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/resources/geo-data.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/resources/proxy-provider.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/resources/rule-provider.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/resources/viewer.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/settings/actions.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/settings/appearance-confis.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/settings/general-config.tsx</span>
+</div>
+<div class="row"><span class="tag md">modify/delete</span>
+<span class="mono path">src/renderer/src/components/settings/mihomo-config.tsx</span>
+<span class="smnote">&mdash; deleted upstream; modified in fork</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/settings/shortcut-config.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/settings/sider-config.tsx</span>
+</div>
+<div class="row"><span class="tag md">modify/delete</span>
+<span class="mono path">src/renderer/src/components/settings/substore-config.tsx</span>
+<span class="smnote">&mdash; modified upstream; deleted in fork (Sub-Store removal)</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/settings/webdav-config.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/sider/config-viewer.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/components/sider/profile-card.tsx</span>
+</div>
+<div class="row"><span class="tag md">modify/delete</span>
+<span class="mono path">src/renderer/src/components/updater/updater-modal.tsx</span>
+<span class="smnote">&mdash; deleted upstream; modified in fork</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/main.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/pages/profiles.tsx</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/renderer/src/pages/settings.tsx</span>
+</div>
+<div class="row"><span class="tag md">modify/delete</span>
+<span class="mono path">src/renderer/src/pages/substore.tsx</span>
+<span class="smnote">&mdash; modified upstream; deleted in fork (Sub-Store removal)</span>
+</div>
+<div class="row"><span class="tag uu">content</span>
+<span class="mono path">src/shared/types/app.d.ts</span>
+</div>
+</section>
+<h2>New files <span class="c">&mdash; 52 added upstream</span></h2>
+<p class="note">Brand-new files introduced upstream, grouped by area. Annotated entries are notable new features.</p>
+<section class="box">
+<div class="grp-h">Main process (src/main) &middot; 16</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/core/network.ts</span>
+<span class="smnote">&mdash; Network state / detection helpers</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/core/permission-check.ts</span>
+<span class="smnote">&mdash; Permission verification logic</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/core/permission.ts</span>
+<span class="smnote">&mdash; Privilege / permission handling for the core</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/core/process-control.ts</span>
+<span class="smnote">&mdash; Core process lifecycle control</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/core/profile-check.ts</span>
+<span class="smnote">&mdash; Profile validation before core start</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/core/startup-chain.ts</span>
+<span class="smnote">&mdash; Ordered startup sequence for the core</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/core/startupHook.ts</span>
+<span class="smnote">&mdash; Hooks fired during core startup</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/resolve/appLifecycle.ts</span>
+<span class="smnote">&mdash; Centralised Electron app lifecycle wiring</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/resolve/deepLink.ts</span>
+<span class="smnote">&mdash; Deep-link (clash:// etc.) handling extracted to its own module</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/resolve/mainWindowState.ts</span>
+<span class="smnote">&mdash; Main window position/size persistence</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/service/auth-store.ts</span>
+<span class="smnote">&mdash; Auth credential storage for the helper service</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/service/fallback.ts</span>
+<span class="smnote">&mdash; Fallback path when the privileged service is unavailable</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/sys/startup.ts</span>
+<span class="smnote">&mdash; System startup / auto-run integration</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/utils/devicePathResolver.ts</span>
+<span class="smnote">&mdash; Resolves device-specific paths</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/utils/log.ts</span>
+<span class="smnote">&mdash; Structured logging utility</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/main/utils/notification.ts</span>
+<span class="smnote">&mdash; Native notification helper (main process)</span>
+</div>
+<div class="grp-h">Renderer (src/renderer) &middot; 27</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/TrayMenuApp.tsx</span>
+<span class="smnote">&mdash; Standalone React app for the tray menu window</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/assets/main-compatible.css</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/assets/traymenu.css</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/base/app-notification-provider.tsx</span>
+<span class="smnote">&mdash; App-wide notification context provider</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/base/base-controls.tsx</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/base/base-editor-lazy.tsx</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/base/base-qrcode-modal.tsx</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/base/text-viewer.tsx</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/connections/connection-setting-drawer.tsx</span>
+<span class="smnote">&mdash; Connection settings drawer UI</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/dns/advanced-dns-setting.tsx</span>
+<span class="smnote">&mdash; Advanced DNS settings UI</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/mihomo/log-setting.tsx</span>
+<span class="smnote">&mdash; Mihomo log settings UI</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/profiles/profile-setting-drawer.tsx</span>
+<span class="smnote">&mdash; Profile settings drawer UI</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/proxies/proxy-detail-tooltip.tsx</span>
+<span class="smnote">&mdash; Proxy detail hover tooltip</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/proxies/proxy-setting-drawer.tsx</span>
+<span class="smnote">&mdash; Proxy settings drawer UI</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/rules/rule-detail-tooltip.tsx</span>
+<span class="smnote">&mdash; Rule detail hover tooltip</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/settings/advanced-settings.tsx</span>
+<span class="smnote">&mdash; New Advanced settings panel</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/settings/tray-icon-crop-modal.tsx</span>
+<span class="smnote">&mdash; Custom tray-icon crop UI</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/components/updater/updater-drawer.tsx</span>
+<span class="smnote">&mdash; Updater UI reworked as a drawer</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/hooks/use-card-dnd-sensors.ts</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/traymenu.tsx</span>
+<span class="smnote">&mdash; Tray menu window bootstrap</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/utils/advanced-filter.ts</span>
+<span class="smnote">&mdash; Advanced connection-filter query engine</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/utils/connection-filter-autocomplete.ts</span>
+<span class="smnote">&mdash; Autocomplete for the connection filter</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/utils/delay-test.ts</span>
+<span class="smnote">&mdash; Proxy delay-test helper</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/utils/driver.ts</span>
+<span class="smnote">&mdash; driver.js onboarding/tour integration</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/utils/mihomo-log-store.ts</span>
+<span class="smnote">&mdash; Client-side log buffering store</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/src/utils/notification.ts</span>
+<span class="smnote">&mdash; Renderer notification helper</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">src/renderer/traymenu.html</span>
+<span class="smnote">&mdash; HTML entry for the tray menu window</span>
+</div>
+<div class="grp-h">Build scripts &middot; 3</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">scripts/install-electron.ts</span>
+<span class="smnote">&mdash; Pinned Electron install helper</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">scripts/package.json</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">scripts/updater.ts</span>
+<span class="smnote">&mdash; updater.mjs ported to TypeScript</span>
+</div>
+<div class="grp-h">Packaging (build) &middot; 2</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">build/installer.nsh</span>
+<span class="smnote">&mdash; Custom NSIS installer script (Windows)</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">build/linux/preinst</span>
+<span class="smnote">&mdash; Linux pre-install package hook</span>
+</div>
+<div class="grp-h">Project root / config &middot; 4</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">.env.development</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">.env.production</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">patches/vite-plugin-monaco-editor@1.1.0.patch</span>
+</div>
+<div class="row"><span class="tag add">new</span>
+<span class="mono path">pnpm-workspace.yaml</span>
+<span class="smnote">&mdash; pnpm workspace declaration</span>
+</div>
+</section>
+<h2>Removed &amp; renamed upstream <span class="c">&mdash; 5 deleted, 3 renamed</span></h2>
+<section class="box">
+<div class="row"><span class="tag del">deleted</span><span class="mono path">.npmrc</span></div>
+<div class="row"><span class="tag del">deleted</span><span class="mono path">scripts/updater.mjs</span></div>
+<div class="row"><span class="tag del">deleted</span><span class="mono path">src/renderer/src/components/settings/mihomo-config.tsx</span></div>
+<div class="row"><span class="tag del">deleted</span><span class="mono path">src/renderer/src/components/updater/updater-modal.tsx</span></div>
+<div class="row"><span class="tag del">deleted</span><span class="mono path">src/shared/types/file-icon.d.ts</span></div>
+<div class="row"><span class="tag uu">renamed</span><span class="mono path">scripts/checksum.mjs &rarr; scripts/checksum.ts</span></div>
+<div class="row"><span class="tag uu">renamed</span><span class="mono path">scripts/prepare.mjs &rarr; scripts/prepare.ts</span></div>
+<div class="row"><span class="tag uu">renamed</span><span class="mono path">scripts/telegram.mjs &rarr; scripts/telegram.ts</span></div>
+</section>
+<h2>Largest changes <span class="c">&mdash; top 20 by lines touched</span></h2>
+<section class="box">
+<div class="churn"><span class="mono p path">pnpm-lock.yaml</span>
+<span class="mono"><span class="plus">+5597</span> <span class="minus">-4700</span></span>
+<span class="bar"><i style="width:100%"></i></span></div>
+<div class="churn"><span class="mono p path">src/main/core/manager.ts</span>
+<span class="mono"><span class="plus">+851</span> <span class="minus">-457</span></span>
+<span class="bar"><i style="width:12%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/pages/proxies.tsx</span>
+<span class="mono"><span class="plus">+549</span> <span class="minus">-283</span></span>
+<span class="bar"><i style="width:8%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/utils/advanced-filter.ts</span>
+<span class="mono"><span class="plus">+769</span> <span class="minus">-0</span></span>
+<span class="bar"><i style="width:7%"></i></span></div>
+<div class="churn"><span class="mono p path">src/main/service/api.ts</span>
+<span class="mono"><span class="plus">+700</span> <span class="minus">-28</span></span>
+<span class="bar"><i style="width:7%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/components/connections/connection-detail-modal.tsx</span>
+<span class="mono"><span class="plus">+402</span> <span class="minus">-240</span></span>
+<span class="bar"><i style="width:6%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/pages/connections.tsx</span>
+<span class="mono"><span class="plus">+477</span> <span class="minus">-137</span></span>
+<span class="bar"><i style="width:5%"></i></span></div>
+<div class="churn"><span class="mono p path">src/main/index.ts</span>
+<span class="mono"><span class="plus">+230</span> <span class="minus">-384</span></span>
+<span class="bar"><i style="width:5%"></i></span></div>
+<div class="churn"><span class="mono p path">src/main/utils/icon.ts</span>
+<span class="mono"><span class="plus">+499</span> <span class="minus">-77</span></span>
+<span class="bar"><i style="width:5%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/assets/main-compatible.css</span>
+<span class="mono"><span class="plus">+509</span> <span class="minus">-0</span></span>
+<span class="bar"><i style="width:4%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/App.tsx</span>
+<span class="mono"><span class="plus">+212</span> <span class="minus">-293</span></span>
+<span class="bar"><i style="width:4%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/components/profiles/edit-info-modal.tsx</span>
+<span class="mono"><span class="plus">+316</span> <span class="minus">-177</span></span>
+<span class="bar"><i style="width:4%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/utils/connection-filter-autocomplete.ts</span>
+<span class="mono"><span class="plus">+441</span> <span class="minus">-0</span></span>
+<span class="bar"><i style="width:4%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/components/settings/tray-icon-crop-modal.tsx</span>
+<span class="mono"><span class="plus">+438</span> <span class="minus">-0</span></span>
+<span class="bar"><i style="width:4%"></i></span></div>
+<div class="churn"><span class="mono p path">src/main/utils/log.ts</span>
+<span class="mono"><span class="plus">+437</span> <span class="minus">-0</span></span>
+<span class="bar"><i style="width:4%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/components/mihomo/permission-modal.tsx</span>
+<span class="mono"><span class="plus">+209</span> <span class="minus">-217</span></span>
+<span class="bar"><i style="width:4%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/components/mihomo/service-modal.tsx</span>
+<span class="mono"><span class="plus">+194</span> <span class="minus">-218</span></span>
+<span class="bar"><i style="width:4%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/components/proxies/proxy-setting-drawer.tsx</span>
+<span class="mono"><span class="plus">+345</span> <span class="minus">-0</span></span>
+<span class="bar"><i style="width:3%"></i></span></div>
+<div class="churn"><span class="mono p path">src/main/resolve/tray.ts</span>
+<span class="mono"><span class="plus">+298</span> <span class="minus">-40</span></span>
+<span class="bar"><i style="width:3%"></i></span></div>
+<div class="churn"><span class="mono p path">src/renderer/src/components/proxies/proxy-detail-tooltip.tsx</span>
+<span class="mono"><span class="plus">+335</span> <span class="minus">-0</span></span>
+<span class="bar"><i style="width:3%"></i></span></div>
+</section>
+<h2>All upstream commits <span class="c">&mdash; 188</span></h2>
+<div class="legend">
+<span><span class="dot" style="background:#3fb950"></span>New features (31)</span>
+<span><span class="dot" style="background:#f85149"></span>Bug fixes (42)</span>
+<span><span class="dot" style="background:#d29922"></span>Improvements (36)</span>
+<span><span class="dot" style="background:#8b949e"></span>Maintenance / refactor (46)</span>
+<span><span class="dot" style="background:#a371f7"></span>Other (33)</span>
+</div>
+<div class="filters">
+<button class="fbtn active" data-f="all">All (188)</button>
+<button class="fbtn" data-f="feature">New features (31)</button>
+<button class="fbtn" data-f="fix">Bug fixes (42)</button>
+<button class="fbtn" data-f="improve">Improvements (36)</button>
+<button class="fbtn" data-f="chore">Maintenance / refactor (46)</button>
+<button class="fbtn" data-f="other">Other (33)</button>
+</div>
+<input id="search" type="text" placeholder="Filter commits by message, author or hash...">
+<section class="box" id="commits">
+<div class="commit" data-cat="other" data-txt="clear tailscale auth notification on ready xishang0128 8779f5c">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">8779f5c</span>
+<span class="subj">clear tailscale auth notification on ready</span>
+<span class="meta">xishang0128 &middot; 2026-05-14</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="support tailscale official auth links xishang0128 b3a62d7">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">b3a62d7</span>
+<span class="subj">support tailscale official auth links</span>
+<span class="meta">xishang0128 &middot; 2026-05-14</span>
+</div>
+<div class="commit" data-cat="other" data-txt="handle tailscale auth in direct core logs xishang0128 98ce4cd">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">98ce4cd</span>
+<span class="subj">handle tailscale auth in direct core logs</span>
+<span class="meta">xishang0128 &middot; 2026-05-14</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="stop managed service core on mode switch xishang0128 bf90b8f">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">bf90b8f</span>
+<span class="subj">stop managed service core on mode switch</span>
+<span class="meta">xishang0128 &middot; 2026-05-14</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="support tailscale auth notification xishang0128 54ce0c2">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">54ce0c2</span>
+<span class="subj">support tailscale auth notification</span>
+<span class="meta">xishang0128 &middot; 2026-05-14</span>
+</div>
+<div class="commit" data-cat="other" data-txt="check updater disk space xishang0128 1449a36">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">1449a36</span>
+<span class="subj">check updater disk space</span>
+<span class="meta">xishang0128 &middot; 2026-05-13</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix loong64 electron install xishang0128 72dfc27">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">72dfc27</span>
+<span class="subj">fix loong64 electron install</span>
+<span class="meta">xishang0128 &middot; 2026-05-13</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve pnpm 11 setup and updater button xishang0128 65c5065">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">65c5065</span>
+<span class="subj">improve pnpm 11 setup and updater button</span>
+<span class="meta">xishang0128 &middot; 2026-05-13</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve rule provider preview and update depends xishang0128 6430121">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">6430121</span>
+<span class="subj">improve rule provider preview and update depends</span>
+<span class="meta">xishang0128 &middot; 2026-05-11</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix rule-converter-napi cross-compilation install xishang0128 f3069bd">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">f3069bd</span>
+<span class="subj">fix rule-converter-napi cross-compilation install</span>
+<span class="meta">xishang0128 &middot; 2026-05-10</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="ci: update loong64 deps miwu04 f3c6638">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">f3c6638</span>
+<span class="subj">ci: update loong64 deps</span>
+<span class="meta">miwu04 &middot; 2026-05-10</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve rule provider preview xishang0128 a78e250">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">a78e250</span>
+<span class="subj">improve rule provider preview</span>
+<span class="meta">xishang0128 &middot; 2026-05-09</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 a95a9a2">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">a95a9a2</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2026-05-07</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix always-on-top button with modals xishang0128 20b8392">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">20b8392</span>
+<span class="subj">fix always-on-top button with modals</span>
+<span class="meta">xishang0128 &middot; 2026-05-07</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix service fallback during app update xishang0128 3283859">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">3283859</span>
+<span class="subj">fix service fallback during app update</span>
+<span class="meta">xishang0128 &middot; 2026-05-07</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve startup and lint checks xishang0128 2056fce">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">2056fce</span>
+<span class="subj">improve startup and lint checks</span>
+<span class="meta">xishang0128 &middot; 2026-05-07</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix updater drawer reopen xishang0128 bef0750">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">bef0750</span>
+<span class="subj">fix updater drawer reopen</span>
+<span class="meta">xishang0128 &middot; 2026-05-07</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix setting drawer reopen xishang0128 401d83f">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">401d83f</span>
+<span class="subj">fix setting drawer reopen</span>
+<span class="meta">xishang0128 &middot; 2026-05-07</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve notifications and drawer flows xishang0128 a8af4ae">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">a8af4ae</span>
+<span class="subj">improve notifications and drawer flows</span>
+<span class="meta">xishang0128 &middot; 2026-05-07</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix touch interaction for proxy tooltip xishang0128 b02a80b">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">b02a80b</span>
+<span class="subj">fix touch interaction for proxy tooltip</span>
+<span class="meta">xishang0128 &middot; 2026-05-06</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add rule detail tooltip xishang0128 a253d0b">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">a253d0b</span>
+<span class="subj">add rule detail tooltip</span>
+<span class="meta">xishang0128 &middot; 2026-05-06</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add proxy detail tooltip and udp indicator in double layout xishang0128 0cd951b">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">0cd951b</span>
+<span class="subj">add proxy detail tooltip and UDP indicator in double layout</span>
+<span class="meta">xishang0128 &middot; 2026-05-06</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve service fallback and dev startup flow xishang0128 4788273">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">4788273</span>
+<span class="subj">improve service fallback and dev startup flow</span>
+<span class="meta">xishang0128 &middot; 2026-05-06</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="restore old modal style and sort backups newest first xishang0128 4bf8550">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">4bf8550</span>
+<span class="subj">restore old modal style and sort backups newest first</span>
+<span class="meta">xishang0128 &middot; 2026-05-06</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="stop key events from bubbling to card when typing in search input xishang0128 3e78a5a">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">3e78a5a</span>
+<span class="subj">stop key events from bubbling to card when typing in search input</span>
+<span class="meta">xishang0128 &middot; 2026-05-06</span>
+</div>
+<div class="commit" data-cat="other" data-txt="keep collapse input expanded when value is non-empty xishang0128 07b408a">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">07b408a</span>
+<span class="subj">keep collapse input expanded when value is non-empty</span>
+<span class="meta">xishang0128 &middot; 2026-05-06</span>
+</div>
+<div class="commit" data-cat="other" data-txt="remember proxy group expand/search/scroll state xishang0128 4e569e3">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">4e569e3</span>
+<span class="subj">remember proxy group expand/search/scroll state</span>
+<span class="meta">xishang0128 &middot; 2026-05-06</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix(proxies): 修复代理组更新与嵌套分组显示问题 (#208) crow e18f473">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">e18f473</span>
+<span class="subj">fix(proxies): 修复代理组更新与嵌套分组显示问题 (#208)</span>
+<span class="meta">Crow &middot; 2026-05-05</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="remove safestorage encryption xishang0128 828c4dd">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">828c4dd</span>
+<span class="subj">remove safeStorage encryption</span>
+<span class="meta">xishang0128 &middot; 2026-05-05</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="optimize proxy list rendering performance xishang0128 9624412">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">9624412</span>
+<span class="subj">optimize proxy list rendering performance</span>
+<span class="meta">xishang0128 &middot; 2026-05-05</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="remove title tooltips, add aria labels for accessibility xishang0128 3fe7c75">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">3fe7c75</span>
+<span class="subj">remove title tooltips, add aria labels for accessibility</span>
+<span class="meta">xishang0128 &middot; 2026-05-05</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix ime input, improve proxy search and navigation, add aria labels xishang0128 3682602">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">3682602</span>
+<span class="subj">fix ime input, improve proxy search and navigation, add aria labels</span>
+<span class="meta">xishang0128 &middot; 2026-05-05</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix dark mode for tray icon crop modal xishang0128 dbf7f5e">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">dbf7f5e</span>
+<span class="subj">fix dark mode for tray icon crop modal</span>
+<span class="meta">xishang0128 &middot; 2026-05-04</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add custom tray icon with crop and color preset support xishang0128 8b1ec15">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">8b1ec15</span>
+<span class="subj">add custom tray icon with crop and color preset support</span>
+<span class="meta">xishang0128 &middot; 2026-05-04</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="refactor main process responsibilities xishang0128 b640131">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">b640131</span>
+<span class="subj">refactor main process responsibilities</span>
+<span class="meta">xishang0128 &middot; 2026-05-03</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix sysproxy cleanup during install xishang0128 1863442">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">1863442</span>
+<span class="subj">fix sysproxy cleanup during install</span>
+<span class="meta">xishang0128 &middot; 2026-05-03</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix include /opt/homebrew/bin in system mihomo search paths xream 9793f50">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">9793f50</span>
+<span class="subj">fix include /opt/homebrew/bin in system mihomo search paths</span>
+<span class="meta">xream &middot; 2026-05-03</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="adapt edit modals to heroui v3 xishang0128 ce5d625">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">ce5d625</span>
+<span class="subj">adapt edit modals to heroui v3</span>
+<span class="meta">xishang0128 &middot; 2026-05-03</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix profile work dir resource handling xishang0128 598e190">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">598e190</span>
+<span class="subj">fix profile work dir resource handling</span>
+<span class="meta">xishang0128 &middot; 2026-05-03</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update service download url xishang0128 c8a7622">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">c8a7622</span>
+<span class="subj">update service download url</span>
+<span class="meta">xishang0128 &middot; 2026-05-03</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="adapt setting modals to heroui v3 xishang0128 b2a13ec">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">b2a13ec</span>
+<span class="subj">adapt setting modals to heroui v3</span>
+<span class="meta">xishang0128 &middot; 2026-05-02</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust floating window theme color xishang0128 d665133">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">d665133</span>
+<span class="subj">adjust floating window theme color</span>
+<span class="meta">xishang0128 &middot; 2026-05-01</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update sysproxy exec args for new subcommand structure xishang0128 5a33901">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">5a33901</span>
+<span class="subj">update sysproxy exec args for new subcommand structure</span>
+<span class="meta">xishang0128 &middot; 2026-04-30</span>
+</div>
+<div class="commit" data-cat="other" data-txt="sync timeout xishang0128 14e872e">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">14e872e</span>
+<span class="subj">sync timeout</span>
+<span class="meta">xishang0128 &middot; 2026-04-30</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix macos pkg install scripts xishang0128 7affd22">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">7affd22</span>
+<span class="subj">fix macos pkg install scripts</span>
+<span class="meta">xishang0128 &middot; 2026-04-29</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="adapt service command status parsing xishang0128 e8d5e6c">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">e8d5e6c</span>
+<span class="subj">adapt service command status parsing</span>
+<span class="meta">xishang0128 &middot; 2026-04-28</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve service unavailable fallback handling xishang0128 98b251c">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">98b251c</span>
+<span class="subj">improve service unavailable fallback handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-28</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix style xishang0128 3fd3fc3">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">3fd3fc3</span>
+<span class="subj">fix style</span>
+<span class="meta">xishang0128 &middot; 2026-04-28</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix service unavailable mode fallback xishang0128 52fbcc2">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">52fbcc2</span>
+<span class="subj">fix service unavailable mode fallback</span>
+<span class="meta">xishang0128 &middot; 2026-04-28</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add sysproxy guard notification toggle xishang0128 2fbf0b8">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">2fbf0b8</span>
+<span class="subj">add sysproxy guard notification toggle</span>
+<span class="meta">xishang0128 &middot; 2026-04-27</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix prepare module warning xishang0128 99814f6">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">99814f6</span>
+<span class="subj">fix prepare module warning</span>
+<span class="meta">xishang0128 &middot; 2026-04-27</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="support sysproxy guard setting xishang0128 2e8a6ee">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">2e8a6ee</span>
+<span class="subj">support sysproxy guard setting</span>
+<span class="meta">xishang0128 &middot; 2026-04-27</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix system core path fallback xishang0128 764e9c9">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">764e9c9</span>
+<span class="subj">fix system core path fallback</span>
+<span class="meta">xishang0128 &middot; 2026-04-26</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve proxy delay testing xishang0128 7775094">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">7775094</span>
+<span class="subj">improve proxy delay testing</span>
+<span class="meta">xishang0128 &middot; 2026-04-25</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update version to 1.26.4 github-actions[bot] c971fdb">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">c971fdb</span>
+<span class="subj">update version to 1.26.4</span>
+<span class="meta">github-actions[bot] &middot; 2026-04-25</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="remove outdated service notice xishang0128 02502c0">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">02502c0</span>
+<span class="subj">remove outdated service notice</span>
+<span class="meta">xishang0128 &middot; 2026-04-25</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix windows elevation task registration xishang0128 65719ec">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">65719ec</span>
+<span class="subj">fix windows elevation task registration</span>
+<span class="meta">xishang0128 &middot; 2026-04-25</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix missing icon for no-process connections xishang0128 8f6640e">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">8f6640e</span>
+<span class="subj">fix missing icon for no-process connections</span>
+<span class="meta">xishang0128 &middot; 2026-04-25</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix linux service binary replacement xishang0128 9957cfc">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">9957cfc</span>
+<span class="subj">fix linux service binary replacement</span>
+<span class="meta">xishang0128 &middot; 2026-04-24</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="use plain service auth storage on linux xishang0128 a9a40bb">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">a9a40bb</span>
+<span class="subj">use plain service auth storage on linux</span>
+<span class="meta">xishang0128 &middot; 2026-04-24</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix service mode core recovery xishang0128 d2ab169">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">d2ab169</span>
+<span class="subj">fix service mode core recovery</span>
+<span class="meta">xishang0128 &middot; 2026-04-24</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve core startup handling xishang0128 9c3f2fe">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">9c3f2fe</span>
+<span class="subj">improve core startup handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-24</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="support service mode startup xishang0128 90c2d89">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">90c2d89</span>
+<span class="subj">support service mode startup</span>
+<span class="meta">xishang0128 &middot; 2026-04-24</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix tray menu lifecycle handling xishang0128 4782ffa">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">4782ffa</span>
+<span class="subj">fix tray menu lifecycle handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-24</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve service auth storage and init flow xishang0128 05abb37">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">05abb37</span>
+<span class="subj">improve service auth storage and init flow</span>
+<span class="meta">xishang0128 &middot; 2026-04-24</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve log write and realtime handling xishang0128 b58e4b9">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">b58e4b9</span>
+<span class="subj">improve log write and realtime handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-22</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve connection filter handling xishang0128 781bc73">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">781bc73</span>
+<span class="subj">improve connection filter handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-22</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust connection detail modal tabs xishang0128 faba835">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">faba835</span>
+<span class="subj">adjust connection detail modal tabs</span>
+<span class="meta">xishang0128 &middot; 2026-04-22</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve realtime log level handling xishang0128 fb47c2e">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">fb47c2e</span>
+<span class="subj">improve realtime log level handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-22</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust log websocket level xishang0128 7aeeaf6">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">7aeeaf6</span>
+<span class="subj">adjust log websocket level</span>
+<span class="meta">xishang0128 &middot; 2026-04-22</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve log settings and handling xishang0128 c399830">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">c399830</span>
+<span class="subj">improve log settings and handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-22</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust dns default and vite config xishang0128 ef2bec8">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">ef2bec8</span>
+<span class="subj">adjust dns default and vite config</span>
+<span class="meta">xishang0128 &middot; 2026-04-21</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="use node 25 in workflow xishang0128 273e92a">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">273e92a</span>
+<span class="subj">use node 25 in workflow</span>
+<span class="meta">xishang0128 &middot; 2026-04-21</span>
+</div>
+<div class="commit" data-cat="other" data-txt="convert scripts to ts xishang0128 bf69807">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">bf69807</span>
+<span class="subj">convert scripts to ts</span>
+<span class="meta">xishang0128 &middot; 2026-04-21</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve sider resize handling xishang0128 99346e5">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">99346e5</span>
+<span class="subj">improve sider resize handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve touch card dragging xishang0128 581a6c4">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">581a6c4</span>
+<span class="subj">improve touch card dragging</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust style xishang0128 cf2c10e">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">cf2c10e</span>
+<span class="subj">adjust style</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="other" data-txt="feat(rule): add stats info (#191) qianlongzt 4a7d126">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">4a7d126</span>
+<span class="subj">feat(rule): add stats info (#191)</span>
+<span class="meta">qianlongzt &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve tray icon handling xishang0128 40341f4">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">40341f4</span>
+<span class="subj">improve tray icon handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="support post-up startup hook xishang0128 6badfd8">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">6badfd8</span>
+<span class="subj">support post-up startup hook</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add useregistry param xishang0128 3b5799f">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">3b5799f</span>
+<span class="subj">add useRegistry param</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="other" data-txt="avoid installer console flash xishang0128 57f8a23">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">57f8a23</span>
+<span class="subj">avoid installer console flash</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="other" data-txt="ensure sysproxy cleanup on quit xishang0128 32966d5">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">32966d5</span>
+<span class="subj">ensure sysproxy cleanup on quit</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="other" data-txt="handle service lifecycle in installers xishang0128 09847fe">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">09847fe</span>
+<span class="subj">handle service lifecycle in installers</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve linux icon lookup xishang0128 ede9b09">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">ede9b09</span>
+<span class="subj">improve linux icon lookup</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust sysproxy service mode handling xishang0128 efce5ab">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">efce5ab</span>
+<span class="subj">adjust sysproxy service mode handling</span>
+<span class="meta">xishang0128 &middot; 2026-04-20</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update issues template xishang0128 2b1ed3c">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">2b1ed3c</span>
+<span class="subj">update issues template</span>
+<span class="meta">xishang0128 &middot; 2026-04-19</span>
+</div>
+<div class="commit" data-cat="other" data-txt="migration components xishang0128 2b5234e">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">2b5234e</span>
+<span class="subj">migration components</span>
+<span class="meta">xishang0128 &middot; 2026-04-18</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add proxy provider meter xishang0128 fe61db3">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">fe61db3</span>
+<span class="subj">add proxy provider meter</span>
+<span class="meta">xishang0128 &middot; 2026-04-18</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 64c55bd">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">64c55bd</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2026-04-18</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="ci: remove useless deps miwu04 65088d0">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">65088d0</span>
+<span class="subj">ci: remove useless deps</span>
+<span class="meta">miwu04 &middot; 2026-04-14</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix windows-only loading for device path resolver xishang0128 694e1bc">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">694e1bc</span>
+<span class="subj">fix windows-only loading for device path resolver</span>
+<span class="meta">xishang0128 &middot; 2026-04-13</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add device path resolve xishang0128 173fdad">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">173fdad</span>
+<span class="subj">add device path resolve</span>
+<span class="meta">xishang0128 &middot; 2026-04-12</span>
+</div>
+<div class="commit" data-cat="other" data-txt="bridge legacy heroui tokens to v3 variables and fix style xishang0128 8370af5">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">8370af5</span>
+<span class="subj">bridge legacy heroui tokens to v3 variables and fix style</span>
+<span class="meta">xishang0128 &middot; 2026-04-11</span>
+</div>
+<div class="commit" data-cat="other" data-txt="migration components xishang0128 ed549ad">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">ed549ad</span>
+<span class="subj">migration components</span>
+<span class="meta">xishang0128 &middot; 2026-04-11</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix style xishang0128 c01724a">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">c01724a</span>
+<span class="subj">fix style</span>
+<span class="meta">xishang0128 &middot; 2026-04-11</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="migrate the updater-modal component to heroui v3 xishang0128 2518828">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">2518828</span>
+<span class="subj">migrate the updater-modal component to heroui v3</span>
+<span class="meta">xishang0128 &middot; 2026-04-11</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="migrate the config-viewer component to heroui v3 xishang0128 f9de7f0">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">f9de7f0</span>
+<span class="subj">migrate the config-viewer component to heroui v3</span>
+<span class="meta">xishang0128 &middot; 2026-04-11</span>
+</div>
+<div class="commit" data-cat="other" data-txt="avoid duplicate elevated permission prompt xishang0128 ba7f7e8">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">ba7f7e8</span>
+<span class="subj">avoid duplicate elevated permission prompt</span>
+<span class="meta">xishang0128 &middot; 2026-04-11</span>
+</div>
+<div class="commit" data-cat="other" data-txt="force additional channel for mihomoupgrade xishang0128 850453a">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">850453a</span>
+<span class="subj">force additional channel for mihomoUpgrade</span>
+<span class="meta">xishang0128 &middot; 2026-04-11</span>
+</div>
+<div class="commit" data-cat="other" data-txt="prompt before elevating resource save xishang0128 12714ec">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">12714ec</span>
+<span class="subj">prompt before elevating resource save</span>
+<span class="meta">xishang0128 &middot; 2026-04-10</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="ci: enable loong64 pacman build and update electron miwu04 6f4a07a">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">6f4a07a</span>
+<span class="subj">ci: enable loong64 pacman build and update electron</span>
+<span class="meta">miwu04 &middot; 2026-04-09</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix qr code dark mode (#183) furina db70975">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">db70975</span>
+<span class="subj">fix qr code dark mode (#183)</span>
+<span class="meta">furina &middot; 2026-04-09</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add qr code sharing (#182) furina cc9edb8">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">cc9edb8</span>
+<span class="subj">add qr code sharing (#182)</span>
+<span class="meta">furina &middot; 2026-04-09</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 86e905f">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">86e905f</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2026-04-09</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add author email metadata xishang0128 8aaff60">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">8aaff60</span>
+<span class="subj">add author email metadata</span>
+<span class="meta">xishang0128 &middot; 2026-04-08</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix macos postinstall codesign xishang0128 ec0c07a">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">ec0c07a</span>
+<span class="subj">fix macOS postinstall codesign</span>
+<span class="meta">xishang0128 &middot; 2026-04-08</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="migrate tailwindcss utility classes xishang0128 c5be299">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">c5be299</span>
+<span class="subj">migrate tailwindcss utility classes</span>
+<span class="meta">xishang0128 &middot; 2026-04-07</span>
+</div>
+<div class="commit" data-cat="other" data-txt="disable automatic line wrapping for long text xishang0128 1bbf953">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">1bbf953</span>
+<span class="subj">disable automatic line wrapping for long text</span>
+<span class="meta">xishang0128 &middot; 2026-04-04</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix floating xishang0128 9d9aaaf">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">9d9aaaf</span>
+<span class="subj">fix floating</span>
+<span class="meta">xishang0128 &middot; 2026-04-02</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update version to 1.26.3 github-actions[bot] d64ccc6">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">d64ccc6</span>
+<span class="subj">update version to 1.26.3</span>
+<span class="meta">github-actions[bot] &middot; 2026-03-31</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update actions version xishang0128 3014751">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">3014751</span>
+<span class="subj">update actions version</span>
+<span class="meta">xishang0128 &middot; 2026-03-27</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust linux package metadata xishang0128 9c7f99c">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">9c7f99c</span>
+<span class="subj">Adjust Linux package metadata</span>
+<span class="meta">xishang0128 &middot; 2026-03-27</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix connection speed scaling xishang0128 5b169fe">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">5b169fe</span>
+<span class="subj">Fix connection speed scaling</span>
+<span class="meta">xishang0128 &middot; 2026-03-25</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix sidebar card routing (#174) pctaigm f51e406">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">f51e406</span>
+<span class="subj">fix sidebar card routing (#174)</span>
+<span class="meta">PctAIGM &middot; 2026-03-24</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix startup config init xishang0128 3eebc06">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">3eebc06</span>
+<span class="subj">Fix startup config init</span>
+<span class="meta">xishang0128 &middot; 2026-03-23</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix sidebar clicks xishang0128 725a6e3">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">725a6e3</span>
+<span class="subj">fix sidebar clicks</span>
+<span class="meta">xishang0128 &middot; 2026-03-23</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 a51503c">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">a51503c</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2026-03-16</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix: use useref for debounce function in proxysettingmodal (#170) olivi 8151f00">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">8151f00</span>
+<span class="subj">fix: use useRef for debounce function in ProxySettingModal (#170)</span>
+<span class="meta">Olivi &middot; 2026-03-08</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add fish shell proxy env copy (#166) frex a4bdd23">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">a4bdd23</span>
+<span class="subj">add fish shell proxy env copy (#166)</span>
+<span class="meta">Frex &middot; 2026-03-02</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update version to 1.26.2 github-actions[bot] 7ef75a1">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">7ef75a1</span>
+<span class="subj">update version to 1.26.2</span>
+<span class="meta">github-actions[bot] &middot; 2026-02-28</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="ci: remove loongarch64 deb build miwu04 bac5293">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">bac5293</span>
+<span class="subj">ci: remove loongarch64 deb build</span>
+<span class="meta">miwu04 &middot; 2026-02-27</span>
+</div>
+<div class="commit" data-cat="other" data-txt="pause connections xishang0128 423e14b">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">423e14b</span>
+<span class="subj">pause connections</span>
+<span class="meta">xishang0128 &middot; 2026-02-26</span>
+</div>
+<div class="commit" data-cat="other" data-txt="latency show in the same line (#158) larvan2 7ec3555">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">7ec3555</span>
+<span class="subj">latency show in the same line (#158)</span>
+<span class="meta">Larvan2 &middot; 2026-02-25</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add types xishang0128 29d26aa">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">29d26aa</span>
+<span class="subj">add types</span>
+<span class="meta">xishang0128 &middot; 2026-02-24</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add `proxy-server-nameserver-policy` setting xishang0128 ae9fad3">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">ae9fad3</span>
+<span class="subj">add `proxy-server-nameserver-policy` setting</span>
+<span class="meta">xishang0128 &middot; 2026-02-24</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 e15f4d7">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">e15f4d7</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2026-02-20</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add delay test url scope config xishang0128 16ab174">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">16ab174</span>
+<span class="subj">add delay test url scope config</span>
+<span class="meta">xishang0128 &middot; 2026-02-09</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="rename function and add close mode option xishang0128 a20d44e">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">a20d44e</span>
+<span class="subj">rename function and add close mode option</span>
+<span class="meta">xishang0128 &middot; 2026-02-05</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="remove global client fingerprint config xishang0128 1f1f69b">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">1f1f69b</span>
+<span class="subj">remove global client fingerprint config</span>
+<span class="meta">xishang0128 &middot; 2026-02-03</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve input confirmation for connection and port settings xishang0128 74f5bae">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">74f5bae</span>
+<span class="subj">improve input confirmation for connection and port settings</span>
+<span class="meta">xishang0128 &middot; 2026-02-02</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add temporary disable rule xishang0128 035753a">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">035753a</span>
+<span class="subj">add temporary disable rule</span>
+<span class="meta">xishang0128 &middot; 2026-01-31</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update version to 1.26.1 github-actions[bot] b5f6168">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">b5f6168</span>
+<span class="subj">update version to 1.26.1</span>
+<span class="meta">github-actions[bot] &middot; 2026-01-30</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update version to 1.6.16 github-actions[bot] 610a59c">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">610a59c</span>
+<span class="subj">update version to 1.6.16</span>
+<span class="meta">github-actions[bot] &middot; 2025-12-21</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix provider name matching with escaped unicode in logs xishang0128 7b056f0">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">7b056f0</span>
+<span class="subj">fix provider name matching with escaped unicode in logs</span>
+<span class="meta">xishang0128 &middot; 2025-12-19</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix sub-store spa fallback xishang0128 4894f57">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">4894f57</span>
+<span class="subj">Fix sub-store SPA fallback</span>
+<span class="meta">xishang0128 &middot; 2025-12-15</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix tray click behavior xishang0128 846e238">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">846e238</span>
+<span class="subj">fix tray click behavior</span>
+<span class="meta">xishang0128 &middot; 2025-12-13</span>
+</div>
+<div class="commit" data-cat="other" data-txt="show window when dock icon disabled on macos xishang0128 4892217">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">4892217</span>
+<span class="subj">show window when dock icon disabled on macOS</span>
+<span class="meta">xishang0128 &middot; 2025-12-12</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust name xishang0128 7bc5b5e">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">7bc5b5e</span>
+<span class="subj">Adjust name</span>
+<span class="meta">xishang0128 &middot; 2025-12-12</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add custom tray menu window (disabled) xishang0128 0244e6c">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">0244e6c</span>
+<span class="subj">add custom tray menu window (disabled)</span>
+<span class="meta">xishang0128 &middot; 2025-12-12</span>
+</div>
+<div class="commit" data-cat="other" data-txt="skip quit confirm on double press or long press xishang0128 6ad209a">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">6ad209a</span>
+<span class="subj">skip quit confirm on double press or long press</span>
+<span class="meta">xishang0128 &middot; 2025-12-12</span>
+</div>
+<div class="commit" data-cat="other" data-txt="respect usedockicon config when showing window xishang0128 9045fb6">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">9045fb6</span>
+<span class="subj">respect useDockIcon config when showing window</span>
+<span class="meta">xishang0128 &middot; 2025-12-12</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add hot toggle for dock icon and lightweight mode xishang0128 dbdc911">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">dbdc911</span>
+<span class="subj">add hot toggle for dock icon and lightweight mode</span>
+<span class="meta">xishang0128 &middot; 2025-12-12</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix lightweight mode triggering on window creation xishang0128 0fe0dc1">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">0fe0dc1</span>
+<span class="subj">fix lightweight mode triggering on window creation</span>
+<span class="meta">xishang0128 &middot; 2025-12-12</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 cc1eca0">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">cc1eca0</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2025-12-11</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add primary color to lightweight mode tabs xishang0128 c253068">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">c253068</span>
+<span class="subj">Add primary color to lightweight mode tabs</span>
+<span class="meta">xishang0128 &middot; 2025-12-11</span>
+</div>
+<div class="commit" data-cat="other" data-txt="serialize config writes to prevent race condition xishang0128 858348b">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">858348b</span>
+<span class="subj">Serialize config writes to prevent race condition</span>
+<span class="meta">xishang0128 &middot; 2025-12-11</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="optimize lightweight mode with tray option xishang0128 0d0a763">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">0d0a763</span>
+<span class="subj">Optimize lightweight mode with tray option</span>
+<span class="meta">xishang0128 &middot; 2025-12-11</span>
+</div>
+<div class="commit" data-cat="other" data-txt="feat: 优化轻量模式，新增自动关闭渲染进程选项 (#137) zeonx e940a33">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">e940a33</span>
+<span class="subj">feat: 优化轻量模式，新增自动关闭渲染进程选项 (#137)</span>
+<span class="meta">ZeonX &middot; 2025-12-11</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add classname support to confirmmodal xishang0128 e653507">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">e653507</span>
+<span class="subj">Add className support to ConfirmModal</span>
+<span class="meta">xishang0128 &middot; 2025-12-10</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="remove respect-rules from dns config when disabled xishang0128 c01b9d3">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">c01b9d3</span>
+<span class="subj">Remove respect-rules from DNS config when disabled</span>
+<span class="meta">xishang0128 &middot; 2025-12-05</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 18d8dcf">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">18d8dcf</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2025-12-04</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add settings modal for proxies, profiles and connections pages xishang0128 f6ee1b3">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">f6ee1b3</span>
+<span class="subj">add settings modal for proxies, profiles and connections pages</span>
+<span class="meta">xishang0128 &middot; 2025-12-04</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix timeago not updating automatically in connection item xishang0128 1337f13">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">1337f13</span>
+<span class="subj">fix timeAgo not updating automatically in connection item</span>
+<span class="meta">xishang0128 &middot; 2025-12-02</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="optimize provider initialization tracking with exact name matching xishang0128 6d8e398">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">6d8e398</span>
+<span class="subj">Optimize provider initialization tracking with exact name matching</span>
+<span class="meta">xishang0128 &middot; 2025-12-02</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix provider name regex pattern matching xishang0128 b6da184">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">b6da184</span>
+<span class="subj">fix provider name regex pattern matching</span>
+<span class="meta">xishang0128 &middot; 2025-12-02</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add diff toggle and unsaved changes confirmation to edit modals xishang0128 c3cfb81">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">c3cfb81</span>
+<span class="subj">add diff toggle and unsaved changes confirmation to edit modals</span>
+<span class="meta">xishang0128 &middot; 2025-12-02</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add types xishang0128 147b186">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">147b186</span>
+<span class="subj">add types</span>
+<span class="meta">xishang0128 &middot; 2025-12-01</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="optimize startup performance and fix react warnings xishang0128 3de1b32">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">3de1b32</span>
+<span class="subj">optimize startup performance and fix react warnings</span>
+<span class="meta">xishang0128 &middot; 2025-12-01</span>
+</div>
+<div class="commit" data-cat="other" data-txt="default autoupdate to true when undefined xishang0128 65a799a">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">65a799a</span>
+<span class="subj">default autoUpdate to true when undefined</span>
+<span class="meta">xishang0128 &middot; 2025-12-01</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update version to 1.6.15 github-actions[bot] b2d4f1a">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">b2d4f1a</span>
+<span class="subj">update version to 1.6.15</span>
+<span class="meta">github-actions[bot] &middot; 2025-12-01</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="use overflow-x clip to prevent layout shift without white edge xishang0128 4d57c0f">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">4d57c0f</span>
+<span class="subj">use overflow-x clip to prevent layout shift without white edge</span>
+<span class="meta">xishang0128 &middot; 2025-11-30</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix profile update logic and add iscurrent prop to modal xishang0128 9b1ee1a">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">9b1ee1a</span>
+<span class="subj">fix profile update logic and add isCurrent prop to modal</span>
+<span class="meta">xishang0128 &middot; 2025-11-30</span>
+</div>
+<div class="commit" data-cat="other" data-txt="replace vite with rolldown-vite xishang0128 1053f36">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">1053f36</span>
+<span class="subj">replace vite with rolldown-vite</span>
+<span class="meta">xishang0128 &middot; 2025-11-30</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 461930c">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">461930c</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2025-11-30</span>
+</div>
+<div class="commit" data-cat="other" data-txt="prevent sidebar card layout shift when dragging to right boundary xishang0128 2fff75e">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">2fff75e</span>
+<span class="subj">prevent sidebar card layout shift when dragging to right boundary</span>
+<span class="meta">xishang0128 &middot; 2025-11-30</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add autoupdate flag for subscription profiles xishang0128 239c19f">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">239c19f</span>
+<span class="subj">Add autoUpdate flag for subscription profiles</span>
+<span class="meta">xishang0128 &middot; 2025-11-28</span>
+</div>
+<div class="commit" data-cat="other" data-txt="includes a complete .dat file xishang0128 723b00d">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">723b00d</span>
+<span class="subj">Includes a complete .dat file</span>
+<span class="meta">xishang0128 &middot; 2025-11-21</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 5c0f459">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">5c0f459</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2025-11-21</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update issues template xishang0128 dbde7cb">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">dbde7cb</span>
+<span class="subj">update issues template</span>
+<span class="meta">xishang0128 &middot; 2025-11-19</span>
+</div>
+<div class="commit" data-cat="other" data-txt="disable click events of other configurations when switching configurations xishang0128 386442c">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">386442c</span>
+<span class="subj">Disable click events of other configurations when switching configurations</span>
+<span class="meta">xishang0128 &middot; 2025-11-17</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="optimize ui download logic xishang0128 be6dcde">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">be6dcde</span>
+<span class="subj">optimize ui download logic</span>
+<span class="meta">xishang0128 &middot; 2025-11-16</span>
+</div>
+<div class="commit" data-cat="other" data-txt="prevent the button from being clicked multiple times during restart xishang0128 62452c3">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">62452c3</span>
+<span class="subj">Prevent the button from being clicked multiple times during restart</span>
+<span class="meta">xishang0128 &middot; 2025-11-16</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="restore log level during core upgrade xishang0128 6965a56">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">6965a56</span>
+<span class="subj">Restore log level during core upgrade</span>
+<span class="meta">xishang0128 &middot; 2025-11-16</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix timeout cleanup on shutdown xishang0128 bd60112">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">bd60112</span>
+<span class="subj">fix timeout cleanup on shutdown</span>
+<span class="meta">xishang0128 &middot; 2025-11-15</span>
+</div>
+<div class="commit" data-cat="fix" data-txt="fix macos unable to get app icons xishang0128 775d12f">
+<span class="dot" style="background:#f85149" title="Bug fixes"></span>
+<span class="mono sha">775d12f</span>
+<span class="subj">fix macOS unable to get app icons</span>
+<span class="meta">xishang0128 &middot; 2025-11-13</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="restore monaco editor plugin with node v25 compatibility patch xishang0128 7e19e4c">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">7e19e4c</span>
+<span class="subj">restore monaco editor plugin with node v25 compatibility patch</span>
+<span class="meta">xishang0128 &middot; 2025-11-12</span>
+</div>
+<div class="commit" data-cat="other" data-txt="preserve override configs when control switches disabled xishang0128 5d3927a">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">5d3927a</span>
+<span class="subj">preserve override configs when control switches disabled</span>
+<span class="meta">xishang0128 &middot; 2025-11-12</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve dns settings and form validation xishang0128 14df60b">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">14df60b</span>
+<span class="subj">improve DNS settings and form validation</span>
+<span class="meta">xishang0128 &middot; 2025-11-11</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve dns server parameter validation xishang0128 c351e19">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">c351e19</span>
+<span class="subj">improve DNS server parameter validation</span>
+<span class="meta">xishang0128 &middot; 2025-11-10</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="improve command execution and elevation logic xishang0128 fb21d18">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">fb21d18</span>
+<span class="subj">improve command execution and elevation logic</span>
+<span class="meta">xishang0128 &middot; 2025-11-10</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="remove sysproxy update logic xishang0128 5e76d1d">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">5e76d1d</span>
+<span class="subj">Remove sysproxy update logic</span>
+<span class="meta">xishang0128 &middot; 2025-11-09</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update aur backup xishang0128 1def47b">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">1def47b</span>
+<span class="subj">Update AUR backup</span>
+<span class="meta">xishang0128 &middot; 2025-11-09</span>
+</div>
+<div class="commit" data-cat="feature" data-txt="add configuration cleanup item xishang0128 80d82b7">
+<span class="dot" style="background:#3fb950" title="New features"></span>
+<span class="mono sha">80d82b7</span>
+<span class="subj">Add configuration cleanup item</span>
+<span class="meta">xishang0128 &middot; 2025-11-09</span>
+</div>
+<div class="commit" data-cat="other" data-txt="simplify migration logic using template defaults xishang0128 71a1e6a">
+<span class="dot" style="background:#a371f7" title="Other"></span>
+<span class="mono sha">71a1e6a</span>
+<span class="subj">simplify migration logic using template defaults</span>
+<span class="meta">xishang0128 &middot; 2025-11-09</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update version to 1.6.14 github-actions[bot] a54292b">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">a54292b</span>
+<span class="subj">update version to 1.6.14</span>
+<span class="meta">github-actions[bot] &middot; 2025-11-09</span>
+</div>
+<div class="commit" data-cat="chore" data-txt="update depends xishang0128 6ab1dd2">
+<span class="dot" style="background:#8b949e" title="Maintenance / refactor"></span>
+<span class="mono sha">6ab1dd2</span>
+<span class="subj">update depends</span>
+<span class="meta">xishang0128 &middot; 2025-11-09</span>
+</div>
+<div class="commit" data-cat="improve" data-txt="adjust pipe path 汐殇 dd9f782">
+<span class="dot" style="background:#d29922" title="Improvements"></span>
+<span class="mono sha">dd9f782</span>
+<span class="subj">Adjust pipe path</span>
+<span class="meta">汐殇 &middot; 2025-11-07</span>
+</div>
+</section>
+<footer>Review artifact &mdash; generated for the <span class="mono">merge/upstream-sync</span> pull request. Safe to delete before final merge.</footer>
+<script>
+const search=document.getElementById('search');
+const rows=[...document.querySelectorAll('#commits .commit')];
+let cat='all';
+function apply(){
+  const q=search.value.trim().toLowerCase();
+  let shown=0;
+  rows.forEach(r=>{
+    const okc=cat==='all'||r.dataset.cat===cat;
+    const okq=!q||r.dataset.txt.includes(q);
+    const vis=okc&&okq;
+    r.classList.toggle('hide',!vis);
+    if(vis)shown++;
+  });
+}
+document.querySelectorAll('.fbtn').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');cat=b.dataset.f;apply();
+  };
+});
+search.oninput=apply;
+</script>
+</div></body></html>
