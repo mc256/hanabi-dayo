@@ -21,6 +21,7 @@ import {
   writeTheme
 } from '@renderer/utils/ipc'
 import { useAppConfig } from '@renderer/hooks/use-app-config'
+import { useLanguage } from '@renderer/hooks/use-language'
 import { platform } from '@renderer/utils/init'
 import { useTheme } from 'next-themes'
 import { IoIosHelpCircle, IoMdCloudDownload } from 'react-icons/io'
@@ -32,6 +33,7 @@ import { notify } from '@renderer/utils/notification'
 const rasterTrayIconPattern = /\.(png|jpe?g|webp)$/i
 
 const AppearanceConfig: React.FC = () => {
+  const { t } = useLanguage()
   const { appConfig, patchAppConfig } = useAppConfig()
   const [customThemes, setCustomThemes] = useState<{ key: string; label: string }[]>()
   const [openCSSEditor, setOpenCSSEditor] = useState(false)
@@ -93,12 +95,17 @@ const AppearanceConfig: React.FC = () => {
           }}
         />
       )}
-      <SettingCard header="外观设置">
+      <SettingCard header={t('外观设置', 'Appearance')}>
         <SettingItem
           compatKey="legacy"
-          title="显示悬浮窗"
+          title={t('显示悬浮窗', 'Show floating window')}
           actions={
-            <Tooltip content="未禁用GPU加速的情况下，悬浮窗可能会导致应用崩溃">
+            <Tooltip
+              content={t(
+                '未禁用GPU加速的情况下，悬浮窗可能会导致应用崩溃',
+                'Without disabling GPU acceleration, the floating window may crash the app'
+              )}
+            >
               <Button isIconOnly size="sm" variant="light">
                 <IoIosHelpCircle className="text-lg" />
               </Button>
@@ -131,7 +138,11 @@ const AppearanceConfig: React.FC = () => {
         </SettingItem>
         {localShowFloating && (
           <>
-            <SettingItem compatKey="legacy" title="根据网速旋转悬浮窗图标" divider>
+            <SettingItem
+              compatKey="legacy"
+              title={t('根据网速旋转悬浮窗图标', 'Spin floating icon by network speed')}
+              divider
+            >
               <Switch
                 size="sm"
                 isSelected={spinFloatingIcon}
@@ -141,7 +152,11 @@ const AppearanceConfig: React.FC = () => {
                 }}
               />
             </SettingItem>
-            <SettingItem compatKey="legacy" title="禁用托盘图标" divider>
+            <SettingItem
+              compatKey="legacy"
+              title={t('禁用托盘图标', 'Disable tray icon')}
+              divider
+            >
               <Switch
                 size="sm"
                 isSelected={disableTray}
@@ -160,9 +175,14 @@ const AppearanceConfig: React.FC = () => {
         {!disableTray && (
           <SettingItem
             compatKey="legacy"
-            title="自定义托盘图标"
+            title={t('自定义托盘图标', 'Custom tray icon')}
             actions={
-              <Tooltip content="设置后托盘将始终使用此图标；PNG、JPG、WebP 会先裁剪后保存。">
+              <Tooltip
+                content={t(
+                  '设置后托盘将始终使用此图标；PNG、JPG、WebP 会先裁剪后保存。',
+                  'Once set, the tray always uses this icon; PNG, JPG and WebP are cropped before saving.'
+                )}
+              >
                 <Button isIconOnly size="sm" variant="light">
                   <IoIosHelpCircle className="text-lg" />
                 </Button>
@@ -173,7 +193,9 @@ const AppearanceConfig: React.FC = () => {
             <div className="flex min-w-0 max-w-[65%] items-center justify-end gap-2">
               {customTrayIcon && (
                 <span className="truncate text-xs text-default-500">
-                  {customTrayIcon.startsWith('data:image/') ? '已储存裁剪图标' : customTrayIcon}
+                  {customTrayIcon.startsWith('data:image/')
+                    ? t('已储存裁剪图标', 'Saved cropped icon')
+                    : customTrayIcon}
                 </span>
               )}
               <Button
@@ -182,8 +204,8 @@ const AppearanceConfig: React.FC = () => {
                 onPress={async () => {
                   const files = await getFilePath(
                     ['png', 'jpg', 'jpeg', 'webp', 'ico', 'icns'],
-                    '选择托盘图标',
-                    '托盘图标'
+                    t('选择托盘图标', 'Select tray icon'),
+                    t('托盘图标', 'Tray icon')
                   )
                   if (!files?.[0]) return
                   if (rasterTrayIconPattern.test(files[0])) {
@@ -194,7 +216,7 @@ const AppearanceConfig: React.FC = () => {
                   await updateTrayIcon()
                 }}
               >
-                {customTrayIcon ? '更换图标' : '选择图标'}
+                {customTrayIcon ? t('更换图标', 'Change icon') : t('选择图标', 'Select icon')}
               </Button>
               {customTrayIcon && (
                 <Button
@@ -205,7 +227,7 @@ const AppearanceConfig: React.FC = () => {
                     await updateTrayIcon()
                   }}
                 >
-                  恢复默认
+                  {t('恢复默认', 'Restore default')}
                 </Button>
               )}
             </div>
@@ -213,7 +235,11 @@ const AppearanceConfig: React.FC = () => {
         )}
         {platform !== 'linux' && (
           <>
-            <SettingItem compatKey="legacy" title="托盘菜单显示节点信息" divider>
+            <SettingItem
+              compatKey="legacy"
+              title={t('托盘菜单显示节点信息', 'Show node info in tray menu')}
+              divider
+            >
               <Switch
                 size="sm"
                 isSelected={proxyInTray}
@@ -223,7 +249,11 @@ const AppearanceConfig: React.FC = () => {
               />
             </SettingItem>
             {proxyInTray && (
-              <SettingItem compatKey="legacy" title="托盘菜单节点延迟显示方式" divider>
+              <SettingItem
+                compatKey="legacy"
+                title={t('托盘菜单节点延迟显示方式', 'Tray menu node delay layout')}
+                divider
+              >
                 <Tabs
                   size="sm"
                   color="primary"
@@ -235,14 +265,18 @@ const AppearanceConfig: React.FC = () => {
                     window.electron.ipcRenderer.send('updateTrayMenu')
                   }}
                 >
-                  <Tab key="same-line" title="同一行" />
-                  <Tab key="new-line" title="换行" />
+                  <Tab key="same-line" title={t('同一行', 'Same line')} />
+                  <Tab key="new-line" title={t('换行', 'New line')} />
                 </Tabs>
               </SettingItem>
             )}
             <SettingItem
               compatKey="legacy"
-              title={`${platform === 'win32' ? '任务栏' : '状态栏'}显示网速信息`}
+              title={
+                platform === 'win32'
+                  ? t('任务栏显示网速信息', 'Show network speed in taskbar')
+                  : t('状态栏显示网速信息', 'Show network speed in status bar')
+              }
               divider
             >
               <Switch
@@ -258,7 +292,11 @@ const AppearanceConfig: React.FC = () => {
         )}
         {platform === 'darwin' && (
           <>
-            <SettingItem compatKey="legacy" title="显示 Dock 图标" divider>
+            <SettingItem
+              compatKey="legacy"
+              title={t('显示 Dock 图标', 'Show Dock icon')}
+              divider
+            >
               <Switch
                 size="sm"
                 isSelected={useDockIcon}
@@ -270,7 +308,11 @@ const AppearanceConfig: React.FC = () => {
             </SettingItem>
           </>
         )}
-        <SettingItem compatKey="legacy" title="使用系统标题栏" divider>
+        <SettingItem
+          compatKey="legacy"
+          title={t('使用系统标题栏', 'Use system title bar')}
+          divider
+        >
           <Switch
             size="sm"
             isSelected={useWindowFrame}
@@ -280,7 +322,7 @@ const AppearanceConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem compatKey="legacy" title="更新按钮" divider>
+        <SettingItem compatKey="legacy" title={t('更新按钮', 'Update button')} divider>
           <Switch
             size="sm"
             isSelected={showUpdateButtonAfterNotification}
@@ -289,7 +331,7 @@ const AppearanceConfig: React.FC = () => {
             }}
           />
         </SettingItem>
-        <SettingItem compatKey="legacy" title="背景色" divider>
+        <SettingItem compatKey="legacy" title={t('背景色', 'Background color')} divider>
           <Tabs
             size="sm"
             color="primary"
@@ -299,14 +341,14 @@ const AppearanceConfig: React.FC = () => {
               patchAppConfig({ appTheme: key as AppTheme })
             }}
           >
-            <Tab key="system" title="自动" />
-            <Tab key="dark" title="深色" />
-            <Tab key="light" title="浅色" />
+            <Tab key="system" title={t('自动', 'Auto')} />
+            <Tab key="dark" title={t('深色', 'Dark')} />
+            <Tab key="light" title={t('浅色', 'Light')} />
           </Tabs>
         </SettingItem>
         <SettingItem
           compatKey="legacy"
-          title="主题"
+          title={t('主题', 'Theme')}
           actions={
             <>
               <Button
@@ -360,7 +402,7 @@ const AppearanceConfig: React.FC = () => {
         >
           {customThemes && (
             <Select
-              aria-label="自定义主题"
+              aria-label={t('自定义主题', 'Custom theme')}
               classNames={{ trigger: 'data-[hover=true]:bg-default-200' }}
               className="w-[60%]"
               size="sm"
